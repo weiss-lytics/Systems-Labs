@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiri — Clear the mist</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap');
+
+  :root {
+    --cream: #FAF7F2;
+    --rose: #E8B4B8;
+    --rose-dark: #c98a8f;
+    --rose-light: #fdf0f1;
+    --lavender: #C9B8E8;
+    --lavender-dark: #9b87cc;
+    --lavender-light: #f3f0fd;
+    --charcoal: #2D2D2D;
+    --muted: #8a8580;
+    --border: rgba(45,45,45,0.1);
+    --border-strong: rgba(45,45,45,0.18);
+    --white: #FFFFFF;
+    --shadow: 0 2px 16px rgba(45,45,45,0.07);
+    --shadow-lg: 0 8px 40px rgba(45,45,45,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ── NAV ── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 400;
+    color: var(--charcoal);
+    letter-spacing: -0.3px;
+  }
+  .nav-logo span { color: var(--rose-dark); font-style: italic; }
+  .nav-actions { display: flex; align-items: center; gap: 10px; }
+  .nav-tab {
+    font-size: 13px; font-weight: 400; color: var(--muted);
+    padding: 6px 14px; border-radius: 20px;
+    border: none; background: none; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-tab.active, .nav-tab:hover { color: var(--charcoal); background: var(--cream); }
+  .btn-new {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    background: var(--charcoal); color: var(--white);
+    border: none; border-radius: 20px;
+    padding: 8px 18px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-new:hover { background: #444; transform: translateY(-1px); }
+
+  /* ── HOME / DASHBOARD ── */
+  #screen-home { background: var(--cream); }
+  .home-hero {
+    padding: 56px 28px 32px;
+    max-width: 680px; margin: 0 auto; width: 100%;
+  }
+  .home-greeting {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .home-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; font-weight: 400; line-height: 1.2;
+    color: var(--charcoal); margin-bottom: 10px;
+  }
+  .home-title em { color: var(--rose-dark); }
+  .home-subtitle { font-size: 15px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+
+  .dump-cta {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow);
+  }
+  .dump-cta:hover { border-color: var(--rose); box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .dump-cta-text { font-size: 15px; color: var(--muted); font-style: italic; }
+  .dump-cta-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-light), var(--lavender-light));
+    border: 1px solid var(--rose);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+
+  .stats-row {
+    display: flex; gap: 12px; margin: 28px 0;
+    max-width: 680px; margin-left: auto; margin-right: auto;
+    padding: 0 28px;
+  }
+  .stat-chip {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px; flex: 1;
+    text-align: center;
+  }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--charcoal); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; margin-bottom: 14px;
+    max-width: 680px; margin-left: auto; margin-right: auto;
+  }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--charcoal); }
+  .section-link { font-size: 12px; color: var(--muted); cursor: pointer; text-decoration: none; }
+  .section-link:hover { color: var(--rose-dark); }
+
+  /* ── VAULT CARDS on HOME ── */
+  .vault-preview {
+    padding: 0 28px 40px;
+    max-width: 680px; margin: 0 auto; width: 100%;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .vault-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 20px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .vault-card:hover { border-color: var(--lavender); box-shadow: var(--shadow); transform: translateX(3px); }
+  .vault-icon {
+    width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+  }
+  .vault-icon.app { background: var(--rose-light); }
+  .vault-icon.tool { background: var(--lavender-light); }
+  .vault-icon.game { background: #f0fdf4; }
+  .vault-icon.content { background: #fffbeb; }
+  .vault-card-info { flex: 1; min-width: 0; }
+  .vault-card-title { font-size: 14px; font-weight: 500; color: var(--charcoal); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vault-card-meta { font-size: 11px; color: var(--muted); }
+  .vault-card-tag {
+    font-size: 10px; font-family: 'DM Mono', monospace;
+    padding: 3px 8px; border-radius: 6px; flex-shrink: 0;
+  }
+  .tag-app { background: var(--rose-light); color: var(--rose-dark); }
+  .tag-tool { background: var(--lavender-light); color: var(--lavender-dark); }
+  .tag-game { background: #f0fdf4; color: #4a7c59; }
+  .tag-content { background: #fffbeb; color: #a16207; }
+
+  /* ── DUMP SCREEN ── */
+  #screen-dump {
+    background: var(--cream);
+  }
+  .dump-container {
+    max-width: 680px; margin: 0 auto; width: 100%;
+    padding: 36px 28px 40px;
+    flex: 1; display: flex; flex-direction: column;
+  }
+  .dump-header { margin-bottom: 24px; }
+  .dump-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  .dump-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 400; color: var(--charcoal);
+  }
+  .dump-headline em { color: var(--rose-dark); font-style: italic; }
+
+  .dump-textarea {
+    flex: 1; min-height: 260px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; line-height: 1.7;
+    color: var(--charcoal);
+    resize: none; outline: none;
+    box-shadow: var(--shadow);
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .dump-textarea:focus { border-color: var(--lavender); }
+  .dump-textarea::placeholder { color: #c4bfba; font-style: italic; }
+
+  .dump-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 16px; flex-wrap: wrap; gap: 10px;
+  }
+  .char-count { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .dump-actions { display: flex; gap: 10px; }
+  .btn-secondary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 400;
+    color: var(--muted); background: none;
+    border: 1px solid var(--border-strong);
+    border-radius: 20px; padding: 8px 18px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { color: var(--charcoal); border-color: var(--charcoal); }
+  .btn-primary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    background: var(--charcoal); color: var(--white);
+    border: none; border-radius: 20px;
+    padding: 8px 22px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #444; }
+  .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+  .dump-tips {
+    margin-top: 20px;
+    background: var(--lavender-light);
+    border: 1px solid var(--lavender);
+    border-radius: 12px; padding: 14px 18px;
+  }
+  .dump-tips-title { font-size: 12px; font-weight: 500; color: var(--lavender-dark); margin-bottom: 6px; }
+  .dump-tips ul { list-style: none; }
+  .dump-tips li { font-size: 12px; color: var(--muted); margin-bottom: 3px; padding-left: 14px; position: relative; }
+  .dump-tips li::before { content: "·"; position: absolute; left: 4px; }
+
+  /* ── PROCESSING SCREEN ── */
+  #screen-processing {
+    background: var(--cream);
+    align-items: center; justify-content: center;
+  }
+  .processing-inner { text-align: center; padding: 40px 28px; }
+  .processing-orb {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-light), var(--lavender-light));
+    border: 2px solid var(--lavender);
+    margin: 0 auto 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    animation: pulse-orb 2s ease-in-out infinite;
+  }
+  @keyframes pulse-orb {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(201,184,232,0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(201,184,232,0); }
+  }
+  .processing-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 400; color: var(--charcoal);
+    margin-bottom: 8px;
+  }
+  .processing-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+  .processing-steps { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; display: inline-flex; }
+  .processing-step {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--muted);
+    opacity: 0; transform: translateX(-8px);
+    transition: all 0.4s;
+  }
+  .processing-step.done { opacity: 1; transform: translateX(0); color: var(--charcoal); }
+  .step-dot {
+    width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; transition: background 0.3s;
+  }
+  .processing-step.done .step-dot { background: var(--lavender); color: white; }
+
+  /* ── STRUCTURED NOTES SCREEN ── */
+  #screen-structured { background: var(--cream); }
+  .structured-container {
+    max-width: 680px; margin: 0 auto; width: 100%;
+    padding: 32px 28px 40px; flex: 1;
+  }
+  .structured-header { margin-bottom: 24px; }
+  .structured-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  .structured-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; font-weight: 400; color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+  .structured-meta { font-size: 12px; color: var(--muted); }
+
+  .note-section {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px; margin-bottom: 12px;
+    animation: slide-in 0.35s ease both;
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .note-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .note-section-label {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .note-section-icon { font-size: 16px; }
+  .note-section p { font-size: 14px; line-height: 1.65; color: var(--charcoal); margin-bottom: 6px; }
+  .note-section p:last-child { margin-bottom: 0; }
+  .note-bullets { list-style: none; }
+  .note-bullets li {
+    font-size: 14px; line-height: 1.6; color: var(--charcoal);
+    padding-left: 16px; position: relative; margin-bottom: 4px;
+  }
+  .note-bullets li::before { content: "·"; position: absolute; left: 4px; color: var(--rose-dark); font-weight: bold; }
+
+  .structured-actions {
+    display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .btn-outline {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 400; color: var(--charcoal);
+    border: 1px solid var(--border-strong); border-radius: 20px;
+    padding: 8px 18px; cursor: pointer; background: var(--white);
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--charcoal); }
+  .btn-rose {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    background: linear-gradient(135deg, var(--rose), var(--lavender));
+    color: var(--white); border: none; border-radius: 20px;
+    padding: 8px 22px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-rose:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ── BLUEPRINT SCREEN ── */
+  #screen-blueprint { background: var(--cream); }
+  .blueprint-container {
+    max-width: 720px; margin: 0 auto; width: 100%;
+    padding: 32px 28px 40px; flex: 1;
+  }
+  .blueprint-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+  .blueprint-title-group {}
+  .blueprint-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+  }
+  .blueprint-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 400; color: var(--charcoal);
+  }
+  .blueprint-actions-top { display: flex; gap: 8px; align-items: center; }
+  .btn-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    background: var(--white); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: all 0.2s;
+  }
+  .btn-icon:hover { border-color: var(--charcoal); transform: scale(1.05); }
+
+  /* Blueprint diagram */
+  .blueprint-diagram {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 24px;
+    box-shadow: var(--shadow);
+    position: relative; overflow: hidden;
+  }
+  .blueprint-diagram::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--lavender));
+  }
+
+  .bp-center {
+    text-align: center; margin-bottom: 28px;
+  }
+  .bp-idea-box {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--rose-light), var(--lavender-light));
+    border: 1.5px solid var(--rose);
+    border-radius: 12px; padding: 12px 28px;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 500; color: var(--charcoal);
+    position: relative;
+  }
+  .bp-idea-box::after {
+    content: '';
+    position: absolute; bottom: -28px; left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: 24px;
+    background: var(--border-strong);
+  }
+
+  .bp-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-top: 28px;
+  }
+  .bp-node {
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+    position: relative; cursor: pointer;
+    transition: all 0.2s;
+    animation: node-in 0.5s ease both;
+  }
+  .bp-node:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .bp-node:nth-child(1) { animation-delay: 0.05s; border-left: 3px solid var(--rose); }
+  .bp-node:nth-child(2) { animation-delay: 0.1s; border-left: 3px solid var(--lavender); }
+  .bp-node:nth-child(3) { animation-delay: 0.15s; border-left: 3px solid var(--lavender); }
+  .bp-node:nth-child(4) { animation-delay: 0.2s; border-left: 3px solid var(--rose); }
+  .bp-node:nth-child(5) { animation-delay: 0.25s; border-left: 3px solid var(--lavender); grid-column: 1 / -1; }
+  @keyframes node-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .bp-node-title { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .bp-node-items { display: flex; flex-wrap: wrap; gap: 5px; }
+  .bp-chip {
+    font-size: 11px; padding: 3px 8px; border-radius: 6px;
+    background: var(--cream); color: var(--charcoal);
+    border: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .blueprint-tabs {
+    display: flex; gap: 4px; margin-top: 20px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 4px; width: fit-content;
+  }
+  .bp-tab {
+    font-size: 12px; font-weight: 400; color: var(--muted);
+    border: none; background: none; cursor: pointer;
+    padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
+  }
+  .bp-tab.active { background: var(--charcoal); color: var(--white); }
+
+  .blueprint-bottom-actions {
+    display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap;
+  }
+
+  /* ── VAULT SCREEN ── */
+  #screen-vault { background: var(--cream); }
+  .vault-container {
+    max-width: 680px; margin: 0 auto; width: 100%;
+    padding: 32px 28px 40px; flex: 1;
+  }
+  .vault-header { margin-bottom: 24px; }
+  .vault-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 400; color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+  .vault-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  .search-box {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .search-icon { font-size: 16px; color: var(--muted); }
+  .search-input {
+    flex: 1; border: none; outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--charcoal);
+    background: none;
+  }
+  .search-input::placeholder { color: #c4bfba; }
+
+  .filter-row { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-chip {
+    font-size: 12px; padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--border-strong);
+    background: none; cursor: pointer;
+    color: var(--muted); transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .filter-chip.active { background: var(--charcoal); color: var(--white); border-color: var(--charcoal); }
+  .filter-chip:hover:not(.active) { border-color: var(--charcoal); color: var(--charcoal); }
+
+  .vault-grid { display: flex; flex-direction: column; gap: 10px; }
+  .vault-card-full {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .vault-card-full:hover { border-color: var(--lavender); box-shadow: var(--shadow); transform: translateX(3px); }
+
+  /* ── DETAIL SCREEN ── */
+  #screen-detail { background: var(--cream); }
+  .detail-container {
+    max-width: 680px; margin: 0 auto; width: 100%;
+    padding: 28px 28px 40px; flex: 1;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--muted); cursor: pointer;
+    border: none; background: none; padding: 0;
+    margin-bottom: 24px; transition: color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .back-btn:hover { color: var(--charcoal); }
+
+  .detail-view-tabs {
+    display: flex; gap: 0; margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-tab {
+    font-size: 13px; color: var(--muted);
+    padding: 10px 20px; border: none; background: none;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .detail-tab.active { color: var(--charcoal); border-bottom-color: var(--rose-dark); font-weight: 500; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--charcoal); color: var(--white);
+    font-size: 13px; padding: 10px 20px; border-radius: 20px;
+    transition: transform 0.3s ease; z-index: 1000;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 520px) {
+    nav { padding: 14px 16px; }
+    .home-hero, .dump-container, .structured-container, .blueprint-container, .vault-container, .detail-container { padding-left: 16px; padding-right: 16px; }
+    .stats-row { padding: 0 16px; }
+    .vault-preview { padding: 0 16px 32px; }
+    .section-header { padding: 0 16px; }
+    .bp-grid { grid-template-columns: 1fr; }
+    .bp-node:nth-child(5) { grid-column: 1; }
+    .home-title { font-size: 28px; }
+  }
+
+  /* ── DOWNLOAD MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(45,45,45,0.45);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-sheet {
+    background: var(--white);
+    border-radius: 20px 20px 0 0;
+    padding: 28px 24px 36px;
+    width: 100%; max-width: 520px;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    box-shadow: 0 -8px 40px rgba(45,45,45,0.14);
+  }
+  .modal-overlay.open .modal-sheet { transform: translateY(0); }
+  .modal-handle {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: var(--border-strong); margin: 0 auto 22px;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 400; color: var(--charcoal);
+    margin-bottom: 6px;
+  }
+  .modal-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .download-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .download-option {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--cream); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 18px;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif; border: none; text-align: left;
+    width: 100%;
+  }
+  .download-option:hover { background: var(--white); box-shadow: var(--shadow); transform: translateX(3px); }
+  .download-option.loading { opacity: 0.6; pointer-events: none; }
+  .dl-icon {
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .dl-icon.pdf { background: #fff0f0; }
+  .dl-icon.png { background: var(--lavender-light); }
+  .dl-icon.jpg { background: var(--rose-light); }
+  .dl-info { flex: 1; }
+  .dl-format { font-size: 14px; font-weight: 500; color: var(--charcoal); margin-bottom: 2px; }
+  .dl-desc { font-size: 12px; color: var(--muted); }
+  .dl-arrow { font-size: 16px; color: var(--muted); }
+  .modal-cancel {
+    width: 100%; padding: 12px;
+    border: 1px solid var(--border-strong); border-radius: 12px;
+    background: none; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--muted); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .modal-cancel:hover { color: var(--charcoal); border-color: var(--charcoal); }
+
+  /* progress bar inside download option */
+  .dl-progress {
+    height: 3px; border-radius: 2px; background: var(--border);
+    margin-top: 6px; overflow: hidden; display: none;
+  }
+  .dl-progress-bar {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--rose), var(--lavender));
+    width: 0%; transition: width 0.1s linear;
+  }
+  .download-option.loading .dl-progress { display: block; }
+
+  /* ── DARK MODE ── */
+  body.dark {
+    --cream: #0f1117;
+    --white: #1a1d27;
+    --charcoal: #f0eee9;
+    --muted: #7a7890;
+    --border: rgba(240,238,233,0.08);
+    --border-strong: rgba(240,238,233,0.15);
+    --shadow: 0 2px 16px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+    --rose-light: rgba(232,180,184,0.1);
+    --lavender-light: rgba(201,184,232,0.1);
+  }
+  body.dark nav { background: #13151f; border-color: rgba(240,238,233,0.08); }
+  body.dark .dump-cta { background: #1a1d27; }
+  body.dark .dump-textarea { background: #1a1d27; color: var(--charcoal); }
+  body.dark .note-section { background: #1a1d27; }
+  body.dark .vault-card, body.dark .vault-card-full { background: #1a1d27; }
+  body.dark .blueprint-diagram { background: #1a1d27; }
+  body.dark .bp-node { background: #13151f; }
+  body.dark .bp-chip { background: #0f1117; color: #d0cec9; }
+  body.dark .modal-sheet { background: #1a1d27; }
+  body.dark .download-option { background: #13151f; }
+  body.dark .download-option:hover { background: #0f1117; }
+  body.dark .search-box { background: #1a1d27; }
+  body.dark .stat-chip { background: #1a1d27; }
+  body.dark .dump-tips { background: rgba(201,184,232,0.08); border-color: rgba(201,184,232,0.2); }
+  body.dark .blueprint-tabs { background: #1a1d27; }
+  body.dark .bp-tab.active { background: var(--charcoal); color: #0f1117; }
+  body.dark .btn-outline { background: #1a1d27; color: var(--charcoal); }
+  body.dark .btn-icon { background: #1a1d27; color: var(--charcoal); }
+  body.dark .detail-view-tabs { border-color: rgba(240,238,233,0.08); }
+  body.dark .filter-chip { color: var(--muted); }
+  body.dark .filter-chip.active { background: var(--charcoal); color: #0f1117; }
+  body.dark .input-toolbar { background: #13151f; border-color: rgba(240,238,233,0.08); }
+  body.dark .toolbar-btn { color: var(--muted); }
+  body.dark .toolbar-btn:hover, body.dark .toolbar-btn.active { background: rgba(240,238,233,0.08); color: var(--charcoal); }
+  body.dark .toolbar-divider { background: rgba(240,238,233,0.08); }
+  body.dark .input-block-tag { background: rgba(201,184,232,0.15); color: #C9B8E8; }
+  body.dark .dark-toggle { color: var(--charcoal); }
+  body.dark .bp-idea-box { background: rgba(232,180,184,0.12); border-color: rgba(232,180,184,0.35); }
+
+  /* ── DARK TOGGLE BUTTON ── */
+  .dark-toggle {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: all 0.2s; color: var(--charcoal);
+    flex-shrink: 0;
+  }
+  .dark-toggle:hover { background: var(--cream); transform: rotate(20deg); }
+
+  /* ── RICH INPUT TOOLBAR ── */
+  .dump-input-wrap {
+    position: relative; display: flex; flex-direction: column;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: var(--shadow);
+    transition: border-color 0.2s; overflow: hidden;
+    flex: 1;
+  }
+  .dump-input-wrap:focus-within { border-color: var(--lavender); }
+  .dump-textarea-v2 {
+    flex: 1; min-height: 220px;
+    background: transparent; border: none; outline: none;
+    padding: 22px 24px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; line-height: 1.7;
+    color: var(--charcoal); resize: none; width: 100%;
+  }
+  .dump-textarea-v2::placeholder { color: #c4bfba; font-style: italic; }
+  body.dark .dump-textarea-v2 { color: var(--charcoal); }
+  body.dark .dump-textarea-v2::placeholder { color: #4a4860; }
+
+  /* input blocks (voice/image/link/code tags) */
+  .input-blocks { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 20px 10px; min-height: 0; }
+  .input-block-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-family: 'DM Mono', monospace;
+    background: var(--lavender-light); color: var(--lavender-dark);
+    border: 1px solid var(--lavender); border-radius: 6px;
+    padding: 3px 8px; animation: tag-pop 0.2s ease both;
+  }
+  @keyframes tag-pop { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
+  .input-block-tag .remove-tag {
+    cursor: pointer; opacity: 0.6; font-size: 13px; line-height: 1;
+    margin-left: 2px;
+  }
+  .input-block-tag .remove-tag:hover { opacity: 1; }
+
+  .input-toolbar {
+    display: flex; align-items: center; gap: 2px;
+    padding: 8px 16px 10px;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+  }
+  .toolbar-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 10px; border-radius: 8px; border: none;
+    background: none; cursor: pointer; font-size: 13px;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .toolbar-btn:hover { background: var(--border); color: var(--charcoal); }
+  .toolbar-btn.active { background: var(--lavender-light); color: var(--lavender-dark); }
+  .toolbar-btn .tb-icon { font-size: 15px; }
+  .toolbar-btn .tb-label { font-size: 12px; }
+  .toolbar-divider { width: 1px; height: 18px; background: var(--border-strong); margin: 0 4px; flex-shrink: 0; }
+
+  /* voice recording state */
+  .toolbar-btn.recording { background: #fff0f0; color: #c0392b; animation: rec-pulse 1.2s ease infinite; }
+  @keyframes rec-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Ki<span>ri</span></div>
+  <div class="nav-actions">
+    <button class="nav-tab active" onclick="goTo('home')">Home</button>
+    <button class="nav-tab" onclick="goTo('vault')">Vault</button>
+    <button class="dark-toggle" id="dark-toggle-btn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+    <button class="btn-new" onclick="goTo('dump')">+ New dump</button>
+  </div>
+</nav>
+
+<!-- ══ SCREEN: HOME ══ -->
+<div id="screen-home" class="screen active">
+  <div class="home-hero">
+    <div class="home-greeting">Good day ✦</div>
+    <h1 class="home-title">What's swirling<br>in your head <em>today?</em></h1>
+    <p class="home-subtitle">Dump your messy thoughts and Kiri will turn them into a clean blueprint.</p>
+    <div class="dump-cta" onclick="goTo('dump')">
+      <span class="dump-cta-text">Just start typing, we'll sort it out...</span>
+      <div class="dump-cta-icon">✦</div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-chip"><div class="stat-num">6</div><div class="stat-label">blueprints</div></div>
+    <div class="stat-chip"><div class="stat-num">3</div><div class="stat-label">this week</div></div>
+    <div class="stat-chip"><div class="stat-num">2</div><div class="stat-label">in progress</div></div>
+  </div>
+
+  <div class="section-header" style="margin-top: 8px; margin-bottom: 14px;">
+    <span class="section-title">Recent blueprints</span>
+    <button class="btn-secondary" style="font-size:12px; padding:5px 14px; border-radius:20px;" onclick="goTo('vault')">View all</button>
+  </div>
+
+  <div class="vault-preview">
+    <div class="vault-card" onclick="openDetail('kiri')">
+      <div class="vault-icon app">🌸</div>
+      <div class="vault-card-info">
+        <div class="vault-card-title">Kiri — Note to Blueprint App</div>
+        <div class="vault-card-meta">Today · App</div>
+      </div>
+      <span class="vault-card-tag tag-app">App</span>
+    </div>
+    <div class="vault-card" onclick="openDetail('habit')">
+      <div class="vault-icon tool">⚙️</div>
+      <div class="vault-card-info">
+        <div class="vault-card-title">Habit Tracker Dashboard</div>
+        <div class="vault-card-meta">Yesterday · Tool</div>
+      </div>
+      <span class="vault-card-tag tag-tool">Tool</span>
+    </div>
+    <div class="vault-card" onclick="openDetail('game')">
+      <div class="vault-icon game">🎮</div>
+      <div class="vault-card-info">
+        <div class="vault-card-title">Neon Heist — Puzzle Game</div>
+        <div class="vault-card-meta">May 8 · Game</div>
+      </div>
+      <span class="vault-card-tag tag-game">Game</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: DUMP ══ -->
+<div id="screen-dump" class="screen">
+  <div class="dump-container">
+    <div class="dump-header">
+      <div class="dump-label">Brain dump</div>
+      <h2 class="dump-headline">What's on your mind? <em>Anything goes.</em></h2>
+    </div>
+
+    <div class="dump-input-wrap">
+      <textarea
+        id="dump-input"
+        class="dump-textarea-v2"
+        placeholder="idea for a new app... maybe a tool that tracks... what if I built something that... also need to figure out the stack... should it be mobile first? probably Next.js... needs to save ideas somewhere..."
+        oninput="updateCharCount()"
+      ></textarea>
+      <!-- Input blocks appear here when user adds voice/image/link/code -->
+      <div class="input-blocks" id="input-blocks"></div>
+      <!-- Rich toolbar -->
+      <div class="input-toolbar">
+        <button class="toolbar-btn active" onclick="setInputMode('text')" id="tb-text" title="Text">
+          <span class="tb-icon">✏️</span><span class="tb-label">Text</span>
+        </button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" onclick="toggleVoice()" id="tb-voice" title="Voice note">
+          <span class="tb-icon">🎙</span><span class="tb-label">Voice</span>
+        </button>
+        <button class="toolbar-btn" onclick="addBlock('image')" id="tb-image" title="Add image">
+          <span class="tb-icon">🖼</span><span class="tb-label">Image</span>
+        </button>
+        <button class="toolbar-btn" onclick="addBlock('link')" id="tb-link" title="Add link">
+          <span class="tb-icon">🔗</span><span class="tb-label">Link</span>
+        </button>
+        <button class="toolbar-btn" onclick="addBlock('code')" id="tb-code" title="Add code">
+          <span class="tb-icon">＜/＞</span><span class="tb-label">Code</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="dump-toolbar" style="margin-top:14px;">
+      <span class="char-count" id="char-count">0 characters</span>
+      <div class="dump-actions">
+        <button class="btn-secondary" onclick="goTo('home')">Cancel</button>
+        <button class="btn-primary" id="structure-btn" onclick="startProcessing()" disabled>Structure it →</button>
+      </div>
+    </div>
+    <div class="dump-tips">
+      <div class="dump-tips-title">💡 Tips for a better dump</div>
+      <ul>
+        <li>Don't filter — just write everything you're thinking</li>
+        <li>Include the problem, your idea, possible features, and tech thoughts</li>
+        <li>Bullet points, fragments, half-sentences — all fine</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: PROCESSING ══ -->
+<div id="screen-processing" class="screen">
+  <div class="processing-inner">
+    <div class="processing-orb">✦</div>
+    <h2 class="processing-title">Clearing the mist...</h2>
+    <p class="processing-subtitle">Kiri is reading your dump and making sense of it</p>
+    <div class="processing-steps">
+      <div class="processing-step" id="ps1">
+        <div class="step-dot" id="dot1">·</div>
+        <span>Reading your notes</span>
+      </div>
+      <div class="processing-step" id="ps2">
+        <div class="step-dot" id="dot2">·</div>
+        <span>Identifying key ideas</span>
+      </div>
+      <div class="processing-step" id="ps3">
+        <div class="step-dot" id="dot3">·</div>
+        <span>Structuring sections</span>
+      </div>
+      <div class="processing-step" id="ps4">
+        <div class="step-dot" id="dot4">·</div>
+        <span>Generating blueprint</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: STRUCTURED NOTES ══ -->
+<div id="screen-structured" class="screen">
+  <div class="structured-container">
+    <div class="structured-header">
+      <div class="structured-label">02 — Structured notes</div>
+      <h2 class="structured-title" id="structured-idea-title">Your idea, organised</h2>
+      <div class="structured-meta">Generated just now · <span style="color:var(--lavender-dark)">✦ AI structured</span></div>
+    </div>
+    <div id="structured-content"></div>
+    <div class="structured-actions">
+      <button class="btn-outline" onclick="goTo('dump')">← Edit dump</button>
+      <button class="btn-outline" onclick="regenerate()">↻ Regenerate</button>
+      <button class="btn-rose" onclick="goTo('blueprint')">Generate blueprint →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: BLUEPRINT ══ -->
+<div id="screen-blueprint" class="screen">
+  <div class="blueprint-container">
+    <div class="blueprint-header">
+      <div class="blueprint-title-group">
+        <div class="blueprint-label">03 — Blueprint</div>
+        <h2 class="blueprint-title" id="blueprint-title">Your blueprint</h2>
+      </div>
+      <div class="blueprint-actions-top">
+        <button class="btn-icon" title="Download blueprint" onclick="openDownloadModal()">⬇️</button>
+        <button class="btn-icon" title="Share" onclick="showToast('🔗 Link copied to clipboard!')">🔗</button>
+        <button class="btn-icon" title="Save to vault" onclick="saveToVault()">💾</button>
+      </div>
+    </div>
+
+    <div class="blueprint-tabs">
+      <button class="bp-tab active" onclick="switchBpTab(this, 'bp-view-diagram')">Blueprint</button>
+      <button class="bp-tab" onclick="switchBpTab(this, 'bp-view-structured')">Structured</button>
+      <button class="bp-tab" onclick="switchBpTab(this, 'bp-view-raw')">Raw dump</button>
+    </div>
+
+    <!-- DIAGRAM VIEW -->
+    <div id="bp-view-diagram" style="margin-top:20px;">
+      <div class="blueprint-diagram">
+        <div class="bp-center">
+          <div class="bp-idea-box" id="bp-idea-label">💡 IDEA</div>
+        </div>
+        <div class="bp-grid" id="bp-grid">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- STRUCTURED VIEW -->
+    <div id="bp-view-structured" style="margin-top:20px; display:none;">
+      <div id="bp-structured-mirror"></div>
+    </div>
+
+    <!-- RAW VIEW -->
+    <div id="bp-view-raw" style="margin-top:20px; display:none;">
+      <div style="background:var(--white); border:1px solid var(--border); border-radius:14px; padding:20px 22px;">
+        <div style="font-size:11px; font-weight:500; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); margin-bottom:12px;">Original dump</div>
+        <p id="bp-raw-text" style="font-size:14px; line-height:1.75; color:var(--charcoal); white-space:pre-wrap; font-family:'DM Mono',monospace; font-size:13px;"></p>
+      </div>
+    </div>
+
+    <div class="blueprint-bottom-actions">
+      <button class="btn-outline" onclick="goTo('structured')">← Back to notes</button>
+      <button class="btn-outline" onclick="openDownloadModal()">⬇ Download</button>
+      <button class="btn-rose" onclick="saveAndGoVault()">Save to vault →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: VAULT ══ -->
+<div id="screen-vault" class="screen">
+  <div class="vault-container">
+    <div class="vault-header">
+      <h2 class="vault-title">Idea vault</h2>
+      <p class="vault-subtitle">All your blueprints in one place</p>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Search blueprints..." oninput="filterVault(this.value)">
+      </div>
+      <div class="filter-row">
+        <button class="filter-chip active" onclick="setFilter(this, 'all')">All</button>
+        <button class="filter-chip" onclick="setFilter(this, 'App')">Apps</button>
+        <button class="filter-chip" onclick="setFilter(this, 'Tool')">Tools</button>
+        <button class="filter-chip" onclick="setFilter(this, 'Game')">Games</button>
+        <button class="filter-chip" onclick="setFilter(this, 'Content')">Content</button>
+      </div>
+    </div>
+    <div class="vault-grid" id="vault-grid"></div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: DETAIL ══ -->
+<div id="screen-detail" class="screen">
+  <div class="detail-container">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <div class="detail-view-tabs">
+      <button class="detail-tab active" onclick="switchDetailTab(this, 'detail-blueprint')">Blueprint</button>
+      <button class="detail-tab" onclick="switchDetailTab(this, 'detail-structured')">Structured</button>
+      <button class="detail-tab" onclick="switchDetailTab(this, 'detail-dump')">Dump</button>
+    </div>
+    <div id="detail-blueprint"></div>
+    <div id="detail-structured" style="display:none;"></div>
+    <div id="detail-dump" style="display:none;"></div>
+    <div id="detail-actions" style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
+      <button class="btn-outline" onclick="openDownloadModal()">⬇ Download</button>
+      <button class="btn-icon" title="Share" onclick="showToast('🔗 Link copied to clipboard!')">🔗</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOWNLOAD MODAL -->
+<div class="modal-overlay" id="download-modal" onclick="handleModalClick(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Download blueprint</div>
+    <div class="modal-subtitle">Choose a format to export your blueprint</div>
+    <div class="download-options">
+      <button class="download-option" id="dl-pdf" onclick="triggerDownload('pdf')">
+        <div class="dl-icon pdf">📄</div>
+        <div class="dl-info">
+          <div class="dl-format">PDF</div>
+          <div class="dl-desc">Best for sharing & printing. Crisp at any size.</div>
+          <div class="dl-progress"><div class="dl-progress-bar" id="prog-pdf"></div></div>
+        </div>
+        <div class="dl-arrow">→</div>
+      </button>
+      <button class="download-option" id="dl-png" onclick="triggerDownload('png')">
+        <div class="dl-icon png">🖼</div>
+        <div class="dl-info">
+          <div class="dl-format">PNG</div>
+          <div class="dl-desc">Transparent background. Great for Notion & Slides.</div>
+          <div class="dl-progress"><div class="dl-progress-bar" id="prog-png"></div></div>
+        </div>
+        <div class="dl-arrow">→</div>
+      </button>
+      <button class="download-option" id="dl-jpg" onclick="triggerDownload('jpg')">
+        <div class="dl-icon jpg">📷</div>
+        <div class="dl-info">
+          <div class="dl-format">JPG</div>
+          <div class="dl-desc">Smaller file size. Good for quick sharing.</div>
+          <div class="dl-progress"><div class="dl-progress-bar" id="prog-jpg"></div></div>
+        </div>
+        <div class="dl-arrow">→</div>
+      </button>
+    </div>
+    <button class="modal-cancel" onclick="closeDownloadModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+let currentDump = '';
+let currentScreen = 'home';
+let previousScreen = 'home';
+let activeFilter = 'all';
+
+// ── MOCK DATA ──
+const mockIdeas = {
+  kiri: {
+    id: 'kiri', icon: '🌸', category: 'App', date: 'Today',
+    title: 'Kiri — Note to Blueprint App',
+    dump: `ai tool for devs and solo builders
+takes messy notes, converts to structured notes
+blueprint output — visual, clean
+tech stack? nextjs + tailwind + supabase
+mobile first, offline capable
+dark mode
+share as image or pdf
+idea vault to save and revisit
+ai modes: raw, structured, concise, blueprint
+want it to feel aesthetic not boring developer tool
+name: kiri (mist clearing in japanese)`,
+    structured: [
+      { label: 'Overview', icon: '📋', content: 'An AI-powered mobile-first web app that transforms messy brain dumps into clean, structured notes and visual blueprints. Designed for solo builders and developers who think in words but need to see in diagrams.' },
+      { label: 'Purpose', icon: '🎯', content: 'Help solo builders capture, organise, and visualise ideas on the go — without the overhead of full documentation.' },
+      { label: 'Core features', icon: '⚡', bullets: ['Brain dump input (text)', 'AI structuring into clean notes', 'Visual blueprint generation', 'Idea vault with search', 'AI modes: Raw / Structured / Concise / Blueprint', 'Export as PNG or PDF', 'Offline first'] },
+      { label: 'Tech stack', icon: '🛠', bullets: ['Frontend: Next.js + Tailwind CSS', 'AI: Claude API', 'Database: Supabase', 'Hosting: Vercel'] },
+    ],
+    blueprint: {
+      idea: '🌸 Kiri',
+      nodes: [
+        { title: 'Features', chips: ['Brain dump', 'AI structure', 'Blueprint view', 'Idea vault', 'Export'] },
+        { title: 'Stack', chips: ['Next.js', 'Tailwind', 'Claude API', 'Supabase', 'Vercel'] },
+        { title: 'User flow', chips: ['Dump → Structure', 'Structure → Blueprint', 'Blueprint → Vault'] },
+        { title: 'Value', chips: ['Save time', 'Stay focused', 'Never lose ideas'] },
+        { title: 'Roadmap', chips: ['V1: Personal use', 'V2: Ship to others', 'V3: Collab + public blueprints'] },
+      ]
+    }
+  },
+  habit: {
+    id: 'habit', icon: '⚙️', category: 'Tool', date: 'Yesterday',
+    title: 'Habit Tracker Dashboard',
+    dump: `want to track daily habits
+morning routine, workout, reading, water intake
+streaks motivation
+simple calendar heatmap like github
+weekly summary
+local storage no backend needed
+pwa maybe?`,
+    structured: [
+      { label: 'Overview', icon: '📋', content: 'A minimalist habit tracking dashboard with streak visualisation, inspired by GitHub contribution graphs. No backend needed — fully local.' },
+      { label: 'Core features', icon: '⚡', bullets: ['Daily habit checklist', 'Streak counter per habit', 'GitHub-style heatmap calendar', 'Weekly summary view', 'Local storage persistence', 'PWA support'] },
+      { label: 'Tech stack', icon: '🛠', bullets: ['Vanilla JS + HTML/CSS', 'LocalStorage for persistence', 'PWA manifest'] },
+    ],
+    blueprint: {
+      idea: '⚙️ Habit Tracker',
+      nodes: [
+        { title: 'Features', chips: ['Daily check-in', 'Streak counter', 'Heatmap', 'Weekly summary'] },
+        { title: 'Stack', chips: ['Vanilla JS', 'LocalStorage', 'PWA'] },
+        { title: 'User flow', chips: ['Open app → Check habit', 'View streaks', 'Weekly review'] },
+        { title: 'Value', chips: ['Build consistency', 'Visual motivation', 'No account needed'] },
+      ]
+    }
+  },
+  game: {
+    id: 'game', icon: '🎮', category: 'Game', date: 'May 8',
+    title: 'Neon Heist — Puzzle Game',
+    dump: `puzzle game idea
+cyberpunk aesthetic
+player is a hacker breaking into neon city vaults
+grid based puzzles
+stealth mechanics
+power-ups that affect time
+leaderboard
+mobile friendly
+maybe webgl for visual effects`,
+    structured: [
+      { label: 'Overview', icon: '📋', content: 'A grid-based puzzle game set in a cyberpunk neon city. Players control a hacker navigating stealth challenges to break into high-security vaults.' },
+      { label: 'Core mechanics', icon: '⚡', bullets: ['Grid-based movement', 'Stealth detection system', 'Time-based power-ups', 'Vault puzzle locks', 'Score & leaderboard'] },
+      { label: 'Aesthetic', icon: '🎨', bullets: ['Cyberpunk / neon visual style', 'WebGL for glow effects', 'Dark UI with neon accents'] },
+      { label: 'Tech stack', icon: '🛠', bullets: ['Canvas / WebGL', 'Vanilla JS game loop', 'Supabase for leaderboard'] },
+    ],
+    blueprint: {
+      idea: '🎮 Neon Heist',
+      nodes: [
+        { title: 'Mechanics', chips: ['Grid movement', 'Stealth AI', 'Time power-ups', 'Vault puzzles'] },
+        { title: 'Stack', chips: ['WebGL', 'Canvas API', 'Vanilla JS', 'Supabase'] },
+        { title: 'User flow', chips: ['Select level → Solve puzzle', 'Unlock vault', 'Submit score'] },
+        { title: 'Aesthetic', chips: ['Cyberpunk', 'Neon glow', 'Dark UI'] },
+        { title: 'Future', chips: ['Level editor', 'Multiplayer heist', 'Mobile app'] },
+      ]
+    }
+  }
+};
+
+let vaultData = Object.values(mockIdeas);
+let currentDetailId = null;
+
+// ── NAVIGATION ──
+function goTo(screen) {
+  previousScreen = currentScreen;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  currentScreen = screen;
+  window.scrollTo(0, 0);
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if (screen === 'home') document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  if (screen === 'vault') document.querySelectorAll('.nav-tab')[1].classList.add('active');
+}
+
+function goBack() {
+  goTo(previousScreen === 'detail' ? 'vault' : previousScreen);
+}
+
+// ── DUMP ──
+function updateCharCount() {
+  const val = document.getElementById('dump-input').value;
+  const n = val.length;
+  document.getElementById('char-count').textContent = n + ' character' + (n !== 1 ? 's' : '');
+  document.getElementById('structure-btn').disabled = val.trim().length < 20;
+}
+
+// ── PROCESSING ──
+function startProcessing() {
+  currentDump = document.getElementById('dump-input').value;
+  goTo('processing');
+  // Reset steps
+  ['ps1','ps2','ps3','ps4'].forEach(id => {
+    document.getElementById(id).classList.remove('done');
+  });
+  const delays = [400, 900, 1500, 2100];
+  ['ps1','ps2','ps3','ps4'].forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('done');
+      document.getElementById('dot'+(i+1)).textContent = '✓';
+    }, delays[i]);
+  });
+  setTimeout(() => {
+    buildStructuredNotes();
+    goTo('structured');
+  }, 2900);
+}
+
+// fix the syntax error with a workaround
+(function patchDotUpdate() {
+  const orig = startProcessing;
+  window.startProcessing = function() {
+    currentDump = document.getElementById('dump-input').value;
+    goTo('processing');
+    ['ps1','ps2','ps3','ps4'].forEach(id => document.getElementById(id).classList.remove('done'));
+    const ids = ['ps1','ps2','ps3','ps4'];
+    const dots = ['dot1','dot2','dot3','dot4'];
+    const delays = [400, 900, 1500, 2100];
+    ids.forEach((id, i) => {
+      setTimeout(() => {
+        document.getElementById(id).classList.add('done');
+        document.getElementById(dots[i]).textContent = '✓';
+      }, delays[i]);
+    });
+    setTimeout(() => {
+      buildStructuredNotes();
+      goTo('structured');
+    }, 2900);
+  };
+})();
+
+// ── STRUCTURED NOTES (mock AI output) ──
+function buildStructuredNotes() {
+  const dump = currentDump.toLowerCase();
+  // Simple keyword detection for demo
+  let sections = [];
+  sections.push({
+    label: 'Overview', icon: '📋',
+    content: 'An idea captured from your brain dump. Kiri has organised your thoughts into clear, actionable sections.'
+  });
+  if (dump.includes('feature') || dump.includes('what') || dump.includes('should') || dump.includes('can')) {
+    sections.push({
+      label: 'Core features', icon: '⚡',
+      bullets: extractBullets(currentDump, 5)
+    });
+  }
+  if (dump.includes('stack') || dump.includes('next') || dump.includes('react') || dump.includes('js') || dump.includes('app')) {
+    sections.push({
+      label: 'Tech considerations', icon: '🛠',
+      bullets: ['Frontend: web-based approach', 'Keep it simple for V1', 'Add complexity in V2']
+    });
+  }
+  sections.push({
+    label: 'Purpose', icon: '🎯',
+    content: 'Solve a personal pain point first. Build for yourself, then ship to others once it proves useful.'
+  });
+  sections.push({
+    label: 'Next steps', icon: '🚀',
+    bullets: ['Define the V1 core loop', 'Set up project structure', 'Build the first screen', 'Test the main flow']
+  });
+
+  renderStructuredNotes(sections, 'New idea');
+  // Store for blueprint
+  window._currentSections = sections;
+}
+
+function extractBullets(text, max) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 5);
+  return lines.slice(0, max).map(l => l.replace(/^[-•*]\s*/, ''));
+}
+
+function renderStructuredNotes(sections, title) {
+  document.getElementById('structured-idea-title').textContent = title || 'Your idea, organised';
+  const container = document.getElementById('structured-content');
+  container.innerHTML = '';
+  sections.forEach((sec, i) => {
+    const div = document.createElement('div');
+    div.className = 'note-section';
+    div.style.animationDelay = (i * 0.07) + 's';
+    let inner = `<div class="note-section-header">
+      <span class="note-section-label">${sec.label}</span>
+      <span class="note-section-icon">${sec.icon}</span>
+    </div>`;
+    if (sec.content) inner += `<p>${sec.content}</p>`;
+    if (sec.bullets) {
+      inner += '<ul class="note-bullets">';
+      sec.bullets.forEach(b => { inner += `<li>${b}</li>`; });
+      inner += '</ul>';
+    }
+    div.innerHTML = inner;
+    container.appendChild(div);
+  });
+  // Mirror to bp structured view
+  document.getElementById('bp-structured-mirror').innerHTML = container.innerHTML;
+}
+
+function regenerate() {
+  showToast('↻ Regenerating notes...');
+  setTimeout(() => showToast('✓ Notes refreshed!'), 1200);
+}
+
+// ── BLUEPRINT ──
+function buildBlueprint() {
+  const sections = window._currentSections || [];
+  document.getElementById('blueprint-title').textContent = 'Your blueprint';
+  document.getElementById('bp-idea-label').textContent = '💡 IDEA';
+  document.getElementById('bp-raw-text').textContent = currentDump;
+
+  const grid = document.getElementById('bp-grid');
+  grid.innerHTML = '';
+  const nodes = [
+    { title: 'Key concepts', chips: extractBullets(currentDump, 4).map(b => b.substring(0, 20)) },
+    { title: 'Stack ideas', chips: detectStack(currentDump) },
+    { title: 'User flow', chips: ['Input', 'Process', 'Output', 'Save'] },
+    { title: 'Value', chips: ['Save time', 'Stay organised', 'Clear thinking'] },
+    { title: 'Next', chips: ['Define V1 scope', 'Build MVP', 'Test & iterate'] },
+  ];
+  nodes.forEach((node, i) => {
+    const div = document.createElement('div');
+    div.className = 'bp-node';
+    if (i === 4) div.style.gridColumn = '1 / -1';
+    let chips = node.chips.filter(c => c.trim()).slice(0, 5).map(c => `<span class="bp-chip">${c}</span>`).join('');
+    div.innerHTML = `<div class="bp-node-title">${node.title}</div><div class="bp-node-items">${chips}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function detectStack(text) {
+  const t = text.toLowerCase();
+  const found = [];
+  if (t.includes('next')) found.push('Next.js');
+  if (t.includes('react')) found.push('React');
+  if (t.includes('tailwind')) found.push('Tailwind');
+  if (t.includes('supabase')) found.push('Supabase');
+  if (t.includes('vercel')) found.push('Vercel');
+  if (t.includes('node')) found.push('Node.js');
+  if (t.includes('python')) found.push('Python');
+  if (found.length === 0) found.push('TBD');
+  return found;
+}
+
+function switchBpTab(btn, viewId) {
+  document.querySelectorAll('.bp-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['bp-view-diagram','bp-view-structured','bp-view-raw'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById(viewId).style.display = 'block';
+}
+
+function saveToVault() {
+  showToast('💾 Saved to vault!');
+}
+
+function saveAndGoVault() {
+  showToast('✓ Blueprint saved!');
+  setTimeout(() => goTo('vault'), 800);
+}
+
+// ── VAULT ──
+function renderVault(data) {
+  const grid = document.getElementById('vault-grid');
+  grid.innerHTML = '';
+  data.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'vault-card-full';
+    div.onclick = () => openDetail(item.id);
+    const tagClass = 'tag-' + item.category.toLowerCase();
+    div.innerHTML = `
+      <div class="vault-icon ${item.category.toLowerCase()}">${item.icon}</div>
+      <div class="vault-card-info">
+        <div class="vault-card-title">${item.title}</div>
+        <div class="vault-card-meta">${item.date} · ${item.category}</div>
+      </div>
+      <span class="vault-card-tag ${tagClass}">${item.category}</span>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function filterVault(query) {
+  let filtered = vaultData;
+  if (activeFilter !== 'all') filtered = filtered.filter(i => i.category === activeFilter);
+  if (query) filtered = filtered.filter(i => i.title.toLowerCase().includes(query.toLowerCase()));
+  renderVault(filtered);
+}
+
+function setFilter(btn, filter) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = filter;
+  filterVault(document.querySelector('.search-input').value || '');
+}
+
+// ── DETAIL ──
+function openDetail(id) {
+  const item = mockIdeas[id];
+  if (!item) return;
+  currentDetailId = id;
+  previousScreen = currentScreen;
+  goTo('detail');
+
+  // Reset tabs to Blueprint
+  document.querySelectorAll('.detail-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === 0);
+  });
+  ['detail-blueprint','detail-structured','detail-dump'].forEach((id, i) => {
+    document.getElementById(id).style.display = i === 0 ? 'block' : 'none';
+  });
+  const actions = document.getElementById('detail-actions');
+  if (actions) actions.style.display = 'flex';
+
+  // Blueprint tab
+  const bpDiv = document.getElementById('detail-blueprint');
+  let nodesHtml = '';
+  (item.blueprint.nodes || []).forEach((node, i) => {
+    const chips = (node.chips || []).map(c => `<span class="bp-chip">${c}</span>`).join('');
+    const last = i === item.blueprint.nodes.length - 1 && item.blueprint.nodes.length % 2 !== 0;
+    nodesHtml += `<div class="bp-node" style="${last ? 'grid-column:1/-1;' : ''}">`
+      + `<div class="bp-node-title">${node.title}</div><div class="bp-node-items">${chips}</div></div>`;
+  });
+  bpDiv.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--charcoal);margin-bottom:4px;">${item.title}</h3>
+      <span style="font-size:12px;color:var(--muted);">${item.date} · ${item.category}</span>
+    </div>
+    <div class="blueprint-diagram">
+      <div class="bp-center"><div class="bp-idea-box">${item.blueprint.idea}</div></div>
+      <div class="bp-grid">${nodesHtml}</div>
+    </div>`;
+
+  // Structured tab
+  const stDiv = document.getElementById('detail-structured');
+  stDiv.innerHTML = '';
+  (item.structured || []).forEach((sec, i) => {
+    const div = document.createElement('div');
+    div.className = 'note-section';
+    div.style.animationDelay = (i * 0.07) + 's';
+    let inner = `<div class="note-section-header"><span class="note-section-label">${sec.label}</span><span class="note-section-icon">${sec.icon}</span></div>`;
+    if (sec.content) inner += `<p>${sec.content}</p>`;
+    if (sec.bullets) {
+      inner += '<ul class="note-bullets">';
+      sec.bullets.forEach(b => { inner += `<li>${b}</li>`; });
+      inner += '</ul>';
+    }
+    div.innerHTML = inner;
+    stDiv.appendChild(div);
+  });
+
+  // Dump tab
+  document.getElementById('detail-dump').innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 22px;">
+      <div style="font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Original dump</div>
+      <p style="font-size:13px;line-height:1.75;color:var(--charcoal);white-space:pre-wrap;font-family:'DM Mono',monospace;">${item.dump}</p>
+    </div>`;
+}
+
+function switchDetailTab(btn, viewId) {
+  document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['detail-blueprint','detail-structured','detail-dump'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById(viewId).style.display = 'block';
+  // Show download button only on blueprint tab
+  const actions = document.getElementById('detail-actions');
+  if (actions) actions.style.display = viewId === 'detail-blueprint' ? 'flex' : 'none';
+}
+
+// ── SCREEN: BLUEPRINT intercept ──
+const _origGoTo = window.goTo;
+window.goTo = function(screen) {
+  if (screen === 'blueprint') buildBlueprint();
+  _origGoTo(screen);
+};
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── DOWNLOAD MODAL ──
+function openDownloadModal() {
+  document.getElementById('download-modal').classList.add('open');
+  // Reset all option states
+  ['pdf','png','jpg'].forEach(fmt => {
+    const btn = document.getElementById('dl-' + fmt);
+    btn.classList.remove('loading');
+    btn.querySelector('.dl-arrow').textContent = '→';
+    btn.querySelector('.dl-progress-bar').style.width = '0%';
+  });
+}
+
+function closeDownloadModal() {
+  document.getElementById('download-modal').classList.remove('open');
+}
+
+function handleModalClick(e) {
+  if (e.target === document.getElementById('download-modal')) closeDownloadModal();
+}
+
+function triggerDownload(format) {
+  const btn = document.getElementById('dl-' + format);
+  const bar = document.getElementById('prog-' + format);
+  btn.classList.add('loading');
+  btn.querySelector('.dl-arrow').textContent = '⏳';
+
+  // Animate progress bar
+  let progress = 0;
+  const speeds = { pdf: 22, png: 30, jpg: 35 };
+  const interval = setInterval(() => {
+    progress += speeds[format] * (Math.random() * 0.8 + 0.6);
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      bar.style.width = '100%';
+
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        btn.querySelector('.dl-arrow').textContent = '✓';
+        closeDownloadModal();
+
+        const labels = { pdf: 'PDF', png: 'PNG', jpg: 'JPG' };
+        showToast('✓ Blueprint downloaded as ' + labels[format] + '!');
+
+        // Simulate actual download with a canvas-rendered blob
+        simulateFileDownload(format);
+      }, 280);
+    } else {
+      bar.style.width = progress + '%';
+    }
+  }, 60);
+}
+
+function simulateFileDownload(format) {
+  // Build a simple canvas representation of the blueprint for real download
+  const canvas = document.createElement('canvas');
+  const scale = 2;
+  canvas.width = 800 * scale;
+  canvas.height = 560 * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  // Background
+  ctx.fillStyle = '#FAF7F2';
+  ctx.fillRect(0, 0, 800, 560);
+
+  // Top gradient bar
+  const grad = ctx.createLinearGradient(0, 0, 800, 0);
+  grad.addColorStop(0, '#E8B4B8');
+  grad.addColorStop(1, '#C9B8E8');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 800, 4);
+
+  // Main card
+  ctx.fillStyle = '#FFFFFF';
+  roundRect(ctx, 24, 24, 752, 512, 16);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(45,45,45,0.1)';
+  ctx.lineWidth = 1;
+  roundRect(ctx, 24, 24, 752, 512, 16);
+  ctx.stroke();
+
+  // Title — use whichever title is visible
+  const titleEl = document.getElementById('blueprint-title') || document.querySelector('.detail-container h3');
+  const bpTitle = titleEl ? titleEl.textContent : 'Blueprint';
+  ctx.fillStyle = '#8a8580';
+  ctx.font = '500 13px DM Sans, sans-serif';
+  ctx.fillText('03 — BLUEPRINT', 48, 58);
+  ctx.fillStyle = '#2D2D2D';
+  ctx.font = '400 26px Playfair Display, Georgia, serif';
+  ctx.fillText(bpTitle, 48, 90);
+
+  // IDEA box — find whichever is visible
+  const ideaBoxEl = document.querySelector('#screen-blueprint .bp-idea-box, #screen-detail .bp-idea-box');
+  const ideaText = ideaBoxEl ? ideaBoxEl.textContent : '💡 IDEA';
+  ctx.fillStyle = '#fdf0f1';
+  roundRect(ctx, 290, 118, 220, 44, 10);
+  ctx.fill();
+  ctx.strokeStyle = '#E8B4B8';
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, 290, 118, 220, 44, 10);
+  ctx.stroke();
+  ctx.fillStyle = '#2D2D2D';
+  ctx.font = '500 15px Playfair Display, Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(ideaText, 400, 144);
+  ctx.textAlign = 'left';
+
+  // Connector line
+  ctx.strokeStyle = 'rgba(45,45,45,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(400, 162); ctx.lineTo(400, 186); ctx.stroke();
+
+  // Nodes — find whichever grid is currently visible
+  const nodes = document.querySelectorAll('#screen-blueprint .bp-node, #screen-detail .bp-node');
+  const cols = 2, nodeW = 330, nodeH = 100, startX = 48, startY = 192, gapX = 24, gapY = 14;
+  nodes.forEach((node, i) => {
+    const isLast = i === nodes.length - 1 && nodes.length % 2 !== 0;
+    const col = isLast ? 0 : i % cols;
+    const row = isLast ? Math.ceil(nodes.length / cols) - 1 : Math.floor(i / cols);
+    const x = isLast ? startX : startX + col * (nodeW + gapX);
+    const w = isLast ? nodeW * 2 + gapX : nodeW;
+    const y = startY + row * (nodeH + gapY);
+
+    ctx.fillStyle = '#FFFFFF';
+    roundRect(ctx, x, y, w, nodeH, 10);
+    ctx.fill();
+    ctx.strokeStyle = i % 2 === 0 ? '#E8B4B8' : '#C9B8E8';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x, y + 10); ctx.lineTo(x, y + nodeH - 10); ctx.stroke();
+    ctx.strokeStyle = 'rgba(45,45,45,0.08)';
+    ctx.lineWidth = 1;
+    roundRect(ctx, x, y, w, nodeH, 10);
+    ctx.stroke();
+
+    const titleLabel = node.querySelector('.bp-node-title');
+    if (titleLabel) {
+      ctx.fillStyle = '#8a8580';
+      ctx.font = '500 10px DM Sans, sans-serif';
+      ctx.fillText(titleLabel.textContent.toUpperCase(), x + 14, y + 22);
+    }
+
+    const chips = node.querySelectorAll('.bp-chip');
+    let cx = x + 14, cy = y + 42;
+    chips.forEach(chip => {
+      const label = chip.textContent;
+      ctx.font = '400 11px DM Mono, monospace';
+      const tw = ctx.measureText(label).width + 16;
+      if (cx + tw > x + w - 14) { cx = x + 14; cy += 24; }
+      ctx.fillStyle = '#FAF7F2';
+      roundRect(ctx, cx, cy - 12, tw, 20, 5);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(45,45,45,0.12)';
+      ctx.lineWidth = 0.5;
+      roundRect(ctx, cx, cy - 12, tw, 20, 5);
+      ctx.stroke();
+      ctx.fillStyle = '#2D2D2D';
+      ctx.fillText(label, cx + 8, cy + 2);
+      cx += tw + 6;
+    });
+  });
+
+  // Kiri watermark
+  ctx.fillStyle = 'rgba(45,45,45,0.2)';
+  ctx.font = '400 13px Playfair Display, Georgia, serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Made with Kiri 🌸', 776, 548);
+  ctx.textAlign = 'left';
+
+  // Export
+  const ext = format === 'pdf' ? 'png' : format;
+  const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+  const quality = format === 'jpg' ? 0.92 : 1.0;
+
+  canvas.toBlob(blob => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const rawTitle = bpTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    a.download = (rawTitle || 'kiri-blueprint') + '.' + ext;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, mime, quality);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ── DARK MODE ──
+function toggleDark() {
+  const isDark = document.body.classList.toggle('dark');
+  document.getElementById('dark-toggle-btn').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('kiri-dark', isDark ? '1' : '');
+}
+(function initDark() {
+  if (localStorage.getItem('kiri-dark')) {
+    document.body.classList.add('dark');
+    document.getElementById('dark-toggle-btn').textContent = '☀️';
+  }
+})();
+
+// ── RICH INPUT TOOLBAR ──
+let inputBlocks = [];
+let isRecording = false;
+let recordingTimer = null;
+let recordingSeconds = 0;
+
+function setInputMode(mode) {
+  document.querySelectorAll('.toolbar-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tb-' + mode).classList.add('active');
+  if (mode === 'text') document.getElementById('dump-input').focus();
+}
+
+function addBlock(type) {
+  const labels = {
+    image: { icon: '🖼', label: 'image attached', color: 'rose' },
+    link:  { icon: '🔗', label: 'link added',     color: 'lavender' },
+    code:  { icon: '＜/＞', label: 'code snippet', color: 'mono' },
+  };
+
+  // Prompt for link URL inline
+  if (type === 'link') {
+    const url = prompt('Paste your link:');
+    if (!url) return;
+    const domain = (() => { try { return new URL(url.startsWith('http') ? url : 'https://' + url).hostname; } catch { return url.slice(0, 30); } })();
+    addBlockTag('link', '🔗', domain);
+    return;
+  }
+  if (type === 'image') {
+    // Simulate image picker
+    const names = ['screenshot.png', 'mockup.jpg', 'reference.png', 'sketch.jpg'];
+    const name = names[Math.floor(Math.random() * names.length)];
+    addBlockTag('image', '🖼', name);
+    return;
+  }
+  if (type === 'code') {
+    addBlockTag('code', '＜/＞', 'code snippet');
+    return;
+  }
+}
+
+function addBlockTag(type, icon, label) {
+  const id = Date.now();
+  inputBlocks.push({ id, type, label });
+  const container = document.getElementById('input-blocks');
+  const tag = document.createElement('span');
+  tag.className = 'input-block-tag';
+  tag.id = 'block-' + id;
+  tag.innerHTML = `${icon} ${label} <span class="remove-tag" onclick="removeBlock(${id})">×</span>`;
+  container.appendChild(tag);
+  updateCharCount();
+  // Briefly highlight the toolbar button
+  const btn = document.getElementById('tb-' + type);
+  if (btn) { btn.classList.add('active'); setTimeout(() => { btn.classList.remove('active'); document.getElementById('tb-text').classList.add('active'); }, 800); }
+}
+
+function removeBlock(id) {
+  inputBlocks = inputBlocks.filter(b => b.id !== id);
+  const el = document.getElementById('block-' + id);
+  if (el) { el.style.transform = 'scale(0)'; el.style.opacity = '0'; setTimeout(() => el.remove(), 150); }
+  updateCharCount();
+}
+
+function toggleVoice() {
+  const btn = document.getElementById('tb-voice');
+  if (!isRecording) {
+    // Start recording simulation
+    isRecording = true;
+    recordingSeconds = 0;
+    btn.classList.add('active', 'recording');
+    btn.innerHTML = `<span class="tb-icon">⏹</span><span class="tb-label" id="rec-timer">0s</span>`;
+    recordingTimer = setInterval(() => {
+      recordingSeconds++;
+      const timerEl = document.getElementById('rec-timer');
+      if (timerEl) timerEl.textContent = recordingSeconds + 's';
+      if (recordingSeconds >= 30) stopVoice(); // auto-stop at 30s
+    }, 1000);
+    showToast('🎙 Recording... tap again to stop');
+  } else {
+    stopVoice();
+  }
+}
+
+function stopVoice() {
+  isRecording = false;
+  clearInterval(recordingTimer);
+  const btn = document.getElementById('tb-voice');
+  btn.classList.remove('active', 'recording');
+  btn.innerHTML = `<span class="tb-icon">🎙</span><span class="tb-label">Voice</span>`;
+  if (recordingSeconds > 0) {
+    addBlockTag('voice', '🎙', `voice note (${recordingSeconds}s)`);
+    // Simulate transcription appending to textarea
+    setTimeout(() => {
+      const ta = document.getElementById('dump-input');
+      const transcribed = '\n[voice: recorded idea about the main feature and user flow...]';
+      ta.value += transcribed;
+      updateCharCount();
+      showToast('✓ Voice transcribed and added');
+    }, 800);
+  }
+}
+
+// ── INIT ──
+renderVault(vaultData);
+</script>
+</body>
+</html>
