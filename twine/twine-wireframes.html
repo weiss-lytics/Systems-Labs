@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twine — Product Wireframes & Design Rationale</title>
+<style>
+  :root {
+    --paper: #f8f5f1;
+    --paper-line: rgba(74,52,72,0.07);
+    --ink: #352a35;
+    --ink-soft: #74687a;
+    --ink-faint: #aaa0ad;
+    --plum: #6b4566;
+    --plum-deep: #4a2f4a;
+    --lavender: #c3aed6;
+    --lavender-pale: #f0e9f7;
+    --peach: #f0c9a8;
+    --peach-pale: #fbf0e4;
+    --sticky: #f4ecd9;
+    --sticky-edge: #e0d2ad;
+    --line: #d2c7d0;
+    --white: #fffdfb;
+    --canvas-grid: rgba(107,69,102,0.06);
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --hand: 'Bradley Hand', 'Segoe Print', 'Comic Sans MS', var(--sans);
+    --mono: 'SF Mono', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    min-height: 100vh;
+  }
+
+  /* ───────── TOP NAV ───────── */
+  .topnav {
+    position: sticky; top: 0; z-index: 500;
+    background: rgba(248,245,241,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px; flex-wrap: wrap; gap: 12px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand-mark { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--ink); }
+  .brand-sub {
+    font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-faint); border-left: 1px dashed var(--line); padding-left: 10px;
+  }
+  .navtabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  .navtab {
+    font-family: var(--sans); font-size: 12.5px; color: var(--ink-soft);
+    background: none; border: 1px dashed transparent; border-radius: 20px;
+    padding: 6px 14px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .navtab:hover { border-color: var(--line); color: var(--ink); }
+  .navtab.active { background: var(--white); border-color: var(--plum); color: var(--plum); font-weight: 600; }
+
+  /* ───────── SECTIONS ───────── */
+  .doc-section { display: none; padding: 56px 32px 100px; max-width: 1180px; margin: 0 auto; }
+  .doc-section.active { display: block; animation: fade-up 0.4s ease both; }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--plum);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  }
+  .section-eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--plum); }
+  .section-title { font-family: var(--serif); font-size: 38px; font-weight: 400; color: var(--ink); margin-bottom: 12px; line-height: 1.15; }
+  .section-title em { font-style: italic; color: var(--plum); }
+  .section-desc { font-size: 14.5px; color: var(--ink-soft); max-width: 620px; line-height: 1.7; margin-bottom: 40px; }
+
+  /* ───────── COVER ───────── */
+  .cover {
+    min-height: calc(100vh - 70px);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 40px 32px 80px; max-width: 1180px; margin: 0 auto; position: relative;
+  }
+  .cover-kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--plum); margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .cover-kicker::before { content: '✦'; }
+  .cover-title {
+    font-family: var(--serif); font-size: clamp(40px, 6.6vw, 78px);
+    font-weight: 400; line-height: 1.08; color: var(--ink); max-width: 920px;
+  }
+  .cover-title em { font-style: italic; color: var(--plum); }
+  .cover-philosophy {
+    margin-top: 26px; font-family: var(--serif); font-style: italic;
+    font-size: 19px; color: var(--ink-soft); max-width: 480px; line-height: 1.6;
+  }
+  .cover-meta-row {
+    display: flex; gap: 40px; margin-top: 52px; flex-wrap: wrap;
+    border-top: 1px dashed var(--line); padding-top: 28px;
+  }
+  .cover-meta-item { max-width: 220px; }
+  .cover-meta-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+  .cover-meta-value { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  .cover-flow { display: flex; align-items: center; gap: 6px; margin-top: 48px; flex-wrap: wrap; }
+  .flow-node {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 16px; border: 1.5px dashed var(--line); border-radius: 14px;
+    background: var(--white); cursor: pointer; transition: all 0.25s;
+  }
+  .flow-node:hover { border-color: var(--plum); transform: translateY(-3px); box-shadow: 0 6px 18px rgba(107,69,102,0.14); }
+  .flow-node .fn-icon { font-size: 20px; }
+  .flow-node .fn-label { font-size: 11px; color: var(--ink-soft); font-family: var(--sans); white-space: nowrap; }
+  .flow-arrow-h { color: var(--ink-faint); font-size: 16px; }
+
+  /* ───────── CANVAS ───────── */
+  .canvas {
+    position: relative; background: var(--white);
+    background-image: radial-gradient(var(--canvas-grid) 1px, transparent 1px);
+    background-size: 18px 18px;
+    border: 1.5px dashed var(--line); border-radius: 18px;
+    padding: 44px 40px; overflow: visible;
+  }
+  .canvas-corner { position: absolute; width: 14px; height: 14px; border: 1.5px solid var(--plum); opacity: 0.4; }
+  .canvas-corner.tl { top: -1px; left: -1px; border-right: none; border-bottom: none; border-radius: 6px 0 0 0; }
+  .canvas-corner.tr { top: -1px; right: -1px; border-left: none; border-bottom: none; border-radius: 0 6px 0 0; }
+  .canvas-corner.bl { bottom: -1px; left: -1px; border-right: none; border-top: none; border-radius: 0 0 0 6px; }
+  .canvas-corner.br { bottom: -1px; right: -1px; border-left: none; border-top: none; border-radius: 0 0 6px 0; }
+
+  .wire-box { border: 1.5px dashed var(--ink-faint); border-radius: 12px; background: rgba(255,255,255,0.5); }
+  .wire-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+  .wire-text-line { height: 8px; border-radius: 4px; background: rgba(53,42,53,0.1); }
+  .wire-circle { border-radius: 50%; border: 1.5px dashed var(--ink-faint); display: flex; align-items: center; justify-content: center; }
+
+  .device-frame {
+    background: var(--white); border: 1.5px solid var(--ink); border-radius: 22px;
+    width: 100%; max-width: 380px; margin: 0 auto; padding: 0; overflow: hidden;
+    box-shadow: 6px 6px 0 var(--lavender-pale), 6px 6px 0 1.5px var(--ink-faint);
+  }
+  .device-statusbar {
+    height: 22px; border-bottom: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; font-family: var(--mono); font-size: 8.5px; color: var(--ink-faint);
+  }
+  .device-screen { padding: 20px 18px; min-height: 480px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* ───────── ANNOTATIONS ───────── */
+  .annotation {
+    position: relative; background: var(--sticky); border: 1px solid var(--sticky-edge);
+    border-radius: 4px 4px 4px 16px; padding: 16px 18px;
+    box-shadow: 3px 4px 10px rgba(53,42,53,0.08);
+    transform: rotate(-0.6deg); font-family: var(--hand); font-size: 14.5px;
+    line-height: 1.5; color: #4a4030; cursor: pointer;
+  }
+  .annotation:nth-of-type(even) { transform: rotate(0.8deg); }
+  .annotation::before { content: '📌'; position: absolute; top: -10px; left: 14px; font-size: 14px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+  .annotation-title { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--plum); margin-bottom: 6px; font-weight: 700; }
+  .annotation-body { max-height: 220px; overflow: hidden; transition: max-height 0.3s ease; }
+  .annotation.collapsed .annotation-body { max-height: 38px; }
+  .annotation-toggle { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 9.5px; color: var(--plum); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 32px; align-items: start; }
+  .split-rev { display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; align-items: start; }
+  .ann-stack { display: flex; flex-direction: column; gap: 18px; }
+  @media (max-width: 880px) { .split, .split-rev { grid-template-columns: 1fr; } }
+
+  .wire-chip { font-family: var(--mono); font-size: 10px; padding: 4px 10px; border: 1px dashed var(--ink-faint); border-radius: 20px; color: var(--ink-soft); display: inline-block; }
+
+  /* ───────── HOME WIREFRAME ───────── */
+  .home-wire-cta {
+    border: 1.5px dashed var(--plum); border-radius: 14px; padding: 16px 18px;
+    background: var(--lavender-pale); display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .field-wire { border: 1.5px dashed var(--ink-faint); border-radius: 10px; padding: 12px 14px; }
+  .field-wire .fw-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); margin-bottom: 6px; }
+  .city-pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .city-pill { border: 1.5px dashed var(--ink-faint); border-radius: 20px; padding: 6px 12px; font-size: 11px; color: var(--ink-soft); }
+
+  /* ───────── TIMEZONE SETUP ───────── */
+  .tz-field {
+    border: 1.5px dashed var(--ink-faint); border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .tz-field .tz-icon-label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-soft); }
+  .tz-dropdown-wire { border: 1.5px dashed var(--ink-faint); border-radius: 8px; padding: 5px 12px; font-family: var(--mono); font-size: 11px; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+  .hours-row { display: flex; align-items: center; gap: 10px; }
+  .hours-field { flex: 1; border: 1.5px dashed var(--ink-faint); border-radius: 8px; padding: 10px 12px; text-align: center; font-family: var(--mono); font-size: 12px; color: var(--ink); }
+
+  /* ───────── RECOMMENDATIONS ───────── */
+  .rec-hero-wire {
+    border: 1.5px dashed var(--plum); border-radius: 16px; padding: 22px;
+    background: var(--lavender-pale); text-align: center;
+  }
+  .rec-hero-time { font-family: var(--serif); font-size: 30px; color: var(--plum); margin: 6px 0; }
+  .rec-hero-arrow { font-size: 16px; color: var(--ink-faint); margin: 4px 0; }
+  .rec-alt-card { border: 1.5px dashed var(--ink-faint); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+
+  /* ───────── TIMELINE ───────── */
+  .timeline-wire { display: flex; flex-direction: column; gap: 10px; }
+  .timeline-row { display: flex; align-items: center; gap: 10px; }
+  .timeline-row .tl-label { width: 64px; flex-shrink: 0; font-family: var(--mono); font-size: 9px; text-transform: uppercase; color: var(--ink-faint); letter-spacing: 0.05em; }
+  .timeline-track { flex: 1; height: 20px; border: 1.5px dashed var(--ink-faint); border-radius: 6px; position: relative; overflow: hidden; background: rgba(255,255,255,0.4); }
+  .timeline-block { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+  .tl-block-work { background: rgba(195,174,214,0.35); border: 1px dashed var(--plum); }
+  .tl-block-overlap { background: rgba(107,69,102,0.5); }
+  .tl-block-rec { background: var(--plum); border: 1.5px solid var(--plum-deep); }
+
+  /* ───────── MOBILE ───────── */
+  .mobile-frame { width: 230px; margin: 0 auto; }
+  .mobile-frame .device-screen { min-height: 420px; gap: 12px; padding: 18px 14px; }
+
+  /* ───────── ARCHITECTURE ───────── */
+  .arch-flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .arch-node { border: 1.5px dashed var(--ink-faint); border-radius: 12px; padding: 14px 26px; background: var(--white); text-align: center; min-width: 240px; position: relative; }
+  .arch-node.highlight { border-color: var(--plum); background: var(--lavender-pale); }
+  .arch-node .an-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 4px; }
+  .arch-node .an-title { font-family: var(--serif); font-size: 15px; }
+  .arch-node .an-desc { font-size: 10.5px; color: var(--ink-soft); margin-top: 4px; }
+  .arch-connector { display: flex; flex-direction: column; align-items: center; padding: 3px 0; color: var(--ink-faint); }
+  .arch-connector .line { width: 1.5px; height: 22px; background: repeating-linear-gradient(to bottom, var(--ink-faint) 0 4px, transparent 4px 8px); }
+  .arch-connector .arrow { font-size: 12px; margin-top: -2px; }
+
+  /* ───────── PHILOSOPHY ───────── */
+  .philosophy-hero { text-align: center; padding: 30px 20px 50px; }
+  .philosophy-quote {
+    font-family: var(--serif); font-style: italic; font-size: clamp(28px, 5vw, 52px);
+    color: var(--ink); line-height: 1.25; max-width: 780px; margin: 0 auto;
+  }
+  .philosophy-quote em { color: var(--plum); }
+  .principles-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 50px;
+  }
+  @media (max-width: 760px) { .principles-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .principles-grid { grid-template-columns: 1fr; } }
+  .principle-card {
+    border: 1.5px dashed var(--line); border-radius: 14px; padding: 18px;
+    background: var(--white); text-align: center; transition: all 0.2s;
+  }
+  .principle-card:hover { border-color: var(--plum); transform: translateY(-3px); }
+  .principle-card .pc-icon { font-size: 22px; margin-bottom: 8px; }
+  .principle-card .pc-title { font-family: var(--serif); font-size: 14.5px; color: var(--ink); }
+
+  .signoff-block {
+    margin-top: 64px; text-align: center; border-top: 1px dashed var(--line); padding-top: 36px;
+  }
+  .signoff-quote {
+    font-family: var(--hand); font-size: 17px; color: var(--ink-soft);
+    max-width: 560px; margin: 0 auto 18px; line-height: 1.6;
+  }
+  .signoff-credit { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--plum); }
+
+  .doc-footer { text-align: center; padding: 40px 32px 70px; color: var(--ink-faint); font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; }
+
+  @media (max-width: 620px) {
+    .topnav { padding: 12px 16px; }
+    .doc-section { padding: 36px 16px 70px; }
+    .cover { padding: 24px 16px 60px; }
+    .section-title { font-size: 28px; }
+    .canvas { padding: 26px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">
+    <span class="brand-mark">✨ Twine</span>
+    <span class="brand-sub">Wireframe Document</span>
+  </div>
+  <div class="navtabs" id="navtabs">
+    <button class="navtab active" data-target="cover">Cover</button>
+    <button class="navtab" data-target="home">01 · Home</button>
+    <button class="navtab" data-target="setup">02 · Setup</button>
+    <button class="navtab" data-target="recs">03 · Recommendations</button>
+    <button class="navtab" data-target="timeline">04 · Timeline</button>
+    <button class="navtab" data-target="mobile">05 · Mobile</button>
+    <button class="navtab" data-target="architecture">06 · Architecture</button>
+    <button class="navtab" data-target="philosophy">07 · Philosophy</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ COVER ═══════════════════════ -->
+<section class="doc-section active" id="sec-cover">
+  <div class="cover">
+    <div class="cover-kicker">Product Wireframes &amp; Design Rationale</div>
+    <h1 class="cover-title">Finding time, <em>together.</em></h1>
+    <p class="cover-philosophy">Twine is a lightweight, browser-based timezone meeting planner — built to answer one calm question: when can we comfortably meet?</p>
+
+    <div class="cover-flow">
+      <div class="flow-node" onclick="goTo('home')"><span class="fn-icon">🏡</span><span class="fn-label">Location</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('setup')"><span class="fn-icon">🤝</span><span class="fn-label">Meeting with</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('setup')"><span class="fn-icon">⏰</span><span class="fn-label">Working hours</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('recs')"><span class="fn-icon">🌸</span><span class="fn-label">Find a time</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('recs')"><span class="fn-icon">💜</span><span class="fn-label">Review</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('timeline')"><span class="fn-icon">📋</span><span class="fn-label">Copy summary</span></div>
+    </div>
+
+    <div class="cover-meta-row">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Project type</div>
+        <div class="cover-meta-value">Browser-based meeting time planner for distributed teams and friends</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Core problem</div>
+        <div class="cover-meta-value">Timezone math and Daylight Saving Time create confusion, errors, and missed meetings</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Design approach</div>
+        <div class="cover-meta-value">Recommendation-first, mobile-first — never ask the user to interpret raw timezone data</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">This document</div>
+        <div class="cover-meta-value">Low-fidelity wireframes with embedded design rationale, click through using the tabs above</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 01 HOME ═══════════════════════ -->
+<section class="doc-section" id="sec-home">
+  <div class="section-eyebrow">Screen 01 / 07</div>
+  <h2 class="section-title">Home — <em>a warm hello</em></h2>
+  <p class="section-desc">The home screen greets the user like a person would, not a tool. Every label uses plain, human language — never "UTC offset" or "GMT delta."</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div class="device-frame">
+        <div class="device-statusbar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="device-screen">
+          <div>
+            <div class="wire-label">☀️ Good morning</div>
+            <div class="wire-text-line" style="width:75%; height:16px; margin-top:8px;"></div>
+          </div>
+
+          <div class="home-wire-cta">
+            <div>
+              <div class="wire-label" style="color:var(--plum);">Primary CTA</div>
+              <div style="font-family: var(--serif); font-style: italic; font-size: 15px; margin-top: 4px;">🌸 Find a Time That Works</div>
+            </div>
+            <div class="wire-circle" style="width:34px;height:34px;">→</div>
+          </div>
+
+          <div class="field-wire">
+            <div class="fw-label">🏡 Your location</div>
+            <div class="wire-text-line" style="width:60%;"></div>
+          </div>
+          <div class="field-wire">
+            <div class="fw-label">🤝 Meeting with</div>
+            <div class="wire-text-line" style="width:55%;"></div>
+          </div>
+          <div class="field-wire">
+            <div class="fw-label">⏰ Availability</div>
+            <div class="wire-text-line" style="width:45%;"></div>
+          </div>
+
+          <div>
+            <div class="wire-label" style="margin-bottom:8px;">Recent cities</div>
+            <div class="city-pill-row">
+              <span class="city-pill">Manila</span>
+              <span class="city-pill">Berlin</span>
+              <span class="city-pill">São Paulo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why warmth reduces friction</div>
+        <div class="annotation-body">
+          Timezone tools tend to feel like spreadsheets. A "Good morning" greeting and soft language make the first five seconds feel human, which lowers the guard people bring to anything that sounds technical.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">No technical language, ever</div>
+        <div class="annotation-body">
+          You'll never see "UTC+8" on this screen. People think in city names and "morning" or "evening" — not offsets. Twine translates internally so the user never has to.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Recent cities save repeat work</div>
+        <div class="annotation-body">
+          Most people coordinate with the same handful of people repeatedly. Surfacing recent cities turns a 3-step setup into a single tap for returning use cases.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 02 TIMEZONE SETUP ═══════════════════════ -->
+<section class="doc-section" id="sec-setup">
+  <div class="section-eyebrow">Screen 02 / 07</div>
+  <h2 class="section-title">Timezone Setup — <em>three fields, no math</em></h2>
+  <p class="section-desc">Location, who you're meeting with, and your working hours. That's the entire input surface — everything else is inferred.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div class="device-frame">
+        <div class="device-statusbar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="device-screen">
+          <div class="wire-label">← Back · Setup</div>
+
+          <div class="tz-field">
+            <div class="tz-icon-label">🏡 Your location</div>
+            <div class="tz-dropdown-wire">Philippines — Manila ▾</div>
+          </div>
+
+          <div class="tz-field">
+            <div class="tz-icon-label">🤝 Meeting with</div>
+            <div class="tz-dropdown-wire">Argentina — Buenos Aires ▾</div>
+          </div>
+
+          <div class="field-wire">
+            <div class="fw-label">⏰ Working hours</div>
+            <div class="hours-row" style="margin-top:8px;">
+              <div class="hours-field">9:00 AM</div>
+              <span style="color:var(--ink-faint);">→</span>
+              <div class="hours-field">6:00 PM</div>
+            </div>
+          </div>
+
+          <div class="wire-box" style="padding:10px 14px; text-align:center; border-color: var(--plum); background: var(--lavender-pale);">
+            <span class="wire-label" style="color:var(--plum);">🌸 Find a Time That Works</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why visual simplicity matters</div>
+        <div class="annotation-body">
+          Three fields, three taps. Anything more starts to feel like configuring software rather than planning a chat with a friend or colleague.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Dropdowns over manual input</div>
+        <div class="annotation-body">
+          Letting someone type "GMT-5" invites errors and assumes knowledge they may not have. A searchable city dropdown removes the chance of picking the wrong offset entirely.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">DST handling must be invisible</div>
+        <div class="annotation-body">
+          Daylight Saving shifts are the single biggest source of timezone mistakes. Twine resolves this automatically using the city's real timezone rules — the user never sees a DST toggle because they should never have to think about it.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 03 RECOMMENDATIONS ═══════════════════════ -->
+<section class="doc-section" id="sec-recs">
+  <div class="section-eyebrow">Screen 03 / 07</div>
+  <h2 class="section-title">Recommendations — <em>the answer, not the data</em></h2>
+  <p class="section-desc">Twine never shows two raw clocks and asks the user to do the math. It does the math, then presents a verdict.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div class="device-frame">
+        <div class="device-statusbar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="device-screen">
+          <div class="wire-label">← Back · Recommendations</div>
+
+          <div class="rec-hero-wire">
+            <div style="font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--plum);">💜 We found a great time!</div>
+            <div class="rec-hero-time">10:00 PM</div>
+            <div class="wire-label">🇵🇭 Manila</div>
+            <div class="rec-hero-arrow">↓</div>
+            <div class="rec-hero-time" style="font-size:24px;">7:00 AM</div>
+            <div class="wire-label">🇦🇷 Buenos Aires</div>
+            <div class="wire-text-line" style="width:70%; margin:10px auto 0; opacity:0.5;"></div>
+          </div>
+
+          <div>
+            <div class="wire-label" style="margin-bottom:8px;">Other options</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div class="rec-alt-card">
+                <span style="font-size:12px; color: var(--ink-soft);">🌼 Pretty Good</span>
+                <span class="wire-chip">2 options</span>
+              </div>
+              <div class="rec-alt-card">
+                <span style="font-size:12px; color: var(--ink-soft);">🌙 A little late</span>
+                <span class="wire-chip">1 option</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Recommendation-first reduces cognitive load</div>
+        <div class="annotation-body">
+          Leading with "We found a great time" instead of a raw comparison table means the user's first read is the conclusion, not the inputs. They can dig deeper if curious, but they don't have to.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Users shouldn't do timezone math</div>
+        <div class="annotation-body">
+          That's the entire reason this product exists. If someone still has to mentally convert 10 PM Manila to 7 AM Buenos Aires themselves, Twine has failed at its one job.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Tiered labels over raw scores</div>
+        <div class="annotation-body">
+          "Pretty Good" and "A little late" communicate quality instantly. A numeric overlap score (like "73% overlap") would be more precise and far less useful at a glance.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 04 TIMELINE VIEW ═══════════════════════ -->
+<section class="doc-section" id="sec-timeline">
+  <div class="section-eyebrow">Screen 04 / 07</div>
+  <h2 class="section-title">Timeline — <em>support, not spotlight</em></h2>
+  <p class="section-desc">For users who want to see why a time was recommended, a simple horizontal timeline shows working hours and overlap — nothing more technical than that.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+
+      <div class="timeline-wire">
+        <div class="wire-label" style="margin-bottom: 4px;">Morning · Afternoon · Evening</div>
+
+        <div class="timeline-row">
+          <div class="tl-label">🇵🇭 Manila</div>
+          <div class="timeline-track">
+            <div class="timeline-block tl-block-work" style="left: 38%; width: 38%;"></div>
+            <div class="timeline-block tl-block-rec" style="left: 84%; width: 8%;"></div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="tl-label">🇦🇷 BA</div>
+          <div class="timeline-track">
+            <div class="timeline-block tl-block-work" style="left: 60%; width: 38%;"></div>
+            <div class="timeline-block tl-block-rec" style="left: 60%; width: 8%;"></div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="tl-label">Overlap</div>
+          <div class="timeline-track">
+            <div class="timeline-block tl-block-overlap" style="left: 60%; width: 16%;"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:14px; margin-top:6px;">
+          <span class="wire-chip">▭ working hours</span>
+          <span class="wire-chip">▮ overlap</span>
+          <span class="wire-chip" style="background: var(--plum); color: white; border-style: solid;">▮ recommended</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Timeline exists to support decisions</div>
+        <div class="annotation-body">
+          It's not the hero of the product — the recommendation is. This view is one tap deeper, for the minority of users who want to see the "why" behind the suggested time.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">It should never dominate the interface</div>
+        <div class="annotation-body">
+          No gridlines for every hour, no timezone offset labels, no 24-hour clock notation. Three soft bands — morning, afternoon, evening — keep this readable at a glance.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Avoid technical visualizations</div>
+        <div class="annotation-body">
+          No Gantt charts, no dual-axis graphs. Two stacked bars and an overlap strip communicate the entire idea without requiring any chart literacy from the user.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 05 MOBILE ═══════════════════════ -->
+<section class="doc-section" id="sec-mobile">
+  <div class="section-eyebrow">Screen 05 / 07</div>
+  <h2 class="section-title">Mobile Experience — <em>where it actually lives</em></h2>
+  <p class="section-desc">Timezone coordination usually happens in the in-between moments — texting a friend, replying in Slack on the move. Mobile isn't an adaptation of Twine. It's the primary form.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div style="display:flex; gap: 28px; justify-content: center; flex-wrap: wrap;">
+
+        <div class="device-frame mobile-frame">
+          <div class="device-statusbar"><span>9:41</span><span>●</span></div>
+          <div class="device-screen">
+            <div class="wire-label">☀️ Good morning</div>
+            <div class="home-wire-cta" style="padding:14px;">
+              <div style="font-family: var(--serif); font-style: italic; font-size: 13px;">🌸 Find a time</div>
+            </div>
+            <div class="field-wire" style="padding:10px 12px;"><div class="fw-label">🏡 Location</div></div>
+            <div class="field-wire" style="padding:10px 12px;"><div class="fw-label">🤝 Meeting with</div></div>
+            <div class="field-wire" style="padding:10px 12px;"><div class="fw-label">⏰ Hours</div></div>
+          </div>
+        </div>
+
+        <div class="device-frame mobile-frame">
+          <div class="device-statusbar"><span>9:41</span><span>●</span></div>
+          <div class="device-screen">
+            <div class="wire-label">💜 Best time</div>
+            <div class="rec-hero-wire" style="padding:16px;">
+              <div class="rec-hero-time" style="font-size:22px;">10:00 PM</div>
+              <div class="wire-label">🇵🇭 Manila</div>
+              <div class="rec-hero-arrow" style="margin:4px 0;">↓</div>
+              <div class="rec-hero-time" style="font-size:18px;">7:00 AM</div>
+              <div class="wire-label">🇦🇷 BA</div>
+            </div>
+            <div class="wire-box" style="padding:10px; text-align:center;"><span class="wire-label">📋 Copy summary</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why mobile-first was non-negotiable</div>
+        <div class="annotation-body">
+          Nobody opens a laptop to ask "what time is it for you?" — that question gets typed into a phone, mid-conversation, in seconds. The product has to be fast there first.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Single column, large targets, no hidden nav</div>
+        <div class="annotation-body">
+          Every control is visible without a hamburger menu or a swipe gesture to discover. Touch targets sit comfortably above 44px so this works one-handed, on the move.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Desktop enhances. Mobile defines.</div>
+        <div class="annotation-body">
+          The desktop layout simply gives the same single-column flow more breathing room — it never introduces new structure mobile doesn't already have.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 06 SYSTEM ARCHITECTURE ═══════════════════════ -->
+<section class="doc-section" id="sec-architecture">
+  <div class="section-eyebrow">Screen 06 / 07 — Systems View</div>
+  <h2 class="section-title">Architecture — <em>the browser is enough</em></h2>
+  <p class="section-desc">No backend, no timezone API, no server round-trip. Twine runs entirely in the browser, using data and APIs that already ship with every modern browser.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div class="arch-flow">
+        <div class="arch-node">
+          <div class="an-label">Entry point</div>
+          <div class="an-title">User</div>
+          <div class="an-desc">picks two cities and working hours</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node">
+          <div class="an-label">Markup</div>
+          <div class="an-title">HTML</div>
+          <div class="an-desc">structure for setup, recommendations, timeline</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node">
+          <div class="an-label">Presentation</div>
+          <div class="an-title">CSS</div>
+          <div class="an-desc">soft visual language, responsive layout</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node highlight">
+          <div class="an-label">Logic</div>
+          <div class="an-title">Vanilla JavaScript</div>
+          <div class="an-desc">drives all interaction, no framework runtime</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node highlight">
+          <div class="an-label">Native browser feature</div>
+          <div class="an-title">Browser Intl API</div>
+          <div class="an-desc">converts and formats times across zones</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node highlight">
+          <div class="an-label">Source of truth</div>
+          <div class="an-title">IANA Timezone Database</div>
+          <div class="an-desc">handles DST rules automatically, built into the browser</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node">
+          <div class="an-label">Product logic</div>
+          <div class="an-title">Meeting Recommendation Engine</div>
+          <div class="an-desc">scores overlapping working hours, ranks results</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node">
+          <div class="an-label">Persistence</div>
+          <div class="an-title">LocalStorage</div>
+          <div class="an-desc">remembers recent cities, no account needed</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node">
+          <div class="an-label">Output</div>
+          <div class="an-title">User Interface</div>
+          <div class="an-desc">renders the recommendation back to the user</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why no backend exists</div>
+        <div class="annotation-body">
+          Timezone conversion is pure computation — given two cities and a date, the answer is deterministic. There's no reason to round-trip that to a server when the browser can compute it instantly and offline.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why no external APIs are required</div>
+        <div class="annotation-body">
+          Every modern browser already ships the Intl API and the full IANA timezone database. Calling out to a third-party timezone API would add latency, cost, and a dependency for something the platform already solved.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">The browser already provides everything necessary</div>
+        <div class="annotation-body">
+          This architecture is less a clever trick and more a refusal to add complexity that isn't earned. Fewer moving parts means fewer ways for Twine to ever feel unreliable.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 07 PRODUCT PHILOSOPHY ═══════════════════════ -->
+<section class="doc-section" id="sec-philosophy">
+  <div class="section-eyebrow">07 / 07 — Closing Board</div>
+  <div class="philosophy-hero">
+    <div class="philosophy-quote">"When can we <em>comfortably</em> meet?"</div>
+  </div>
+
+  <div class="principles-grid">
+    <div class="principle-card"><div class="pc-icon">🌸</div><div class="pc-title">Simplicity over features</div></div>
+    <div class="principle-card"><div class="pc-icon">💜</div><div class="pc-title">Personality without clutter</div></div>
+    <div class="principle-card"><div class="pc-icon">📱</div><div class="pc-title">Mobile first</div></div>
+    <div class="principle-card"><div class="pc-icon">⚡</div><div class="pc-title">Browser powered</div></div>
+    <div class="principle-card"><div class="pc-icon">🌍</div><div class="pc-title">DST-safe by default</div></div>
+    <div class="principle-card"><div class="pc-icon">🧠</div><div class="pc-title">Low cognitive load</div></div>
+  </div>
+
+  <div class="split" style="margin-top: 56px;">
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why beautiful tools can solve practical problems</div>
+        <div class="annotation-body">
+          A timezone calculator could be three dropdowns and a result. Making it feel warm doesn't change what it does — it changes whether people enjoy using it, and whether they trust the answer it gives them.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Small utilities deserve thoughtful design</div>
+        <div class="annotation-body">
+          Most tools this small get built and forgotten. Twine treats a five-minute task with the same design care as a flagship product, because the size of a problem doesn't determine how much it deserves to be solved well.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Removing complexity beats adding features</div>
+        <div class="annotation-body">
+          Every screen in this document could have grown a settings panel, a timezone-offset toggle, an advanced mode. Twine stays small on purpose — restraint was the hardest and most important design decision here.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="signoff-block">
+    <div class="signoff-quote">"If I have to survive corporate life, I might as well build beautiful little tools that make it easier."</div>
+    <div class="signoff-credit">Designed &amp; crafted with 💜 by Weiss</div>
+  </div>
+
+  <div class="doc-footer">— end of document · twine / finding time, together —</div>
+</section>
+
+<script>
+  var sectionMap = {
+    cover: 'sec-cover',
+    home: 'sec-home',
+    setup: 'sec-setup',
+    recs: 'sec-recs',
+    timeline: 'sec-timeline',
+    mobile: 'sec-mobile',
+    architecture: 'sec-architecture',
+    philosophy: 'sec-philosophy'
+  };
+
+  function goTo(key) {
+    var targetId = sectionMap[key];
+    if (!targetId) return;
+
+    var sections = document.querySelectorAll('.doc-section');
+    for (var i = 0; i < sections.length; i++) {
+      sections[i].classList.remove('active');
+    }
+    document.getElementById(targetId).classList.add('active');
+
+    var tabs = document.querySelectorAll('.navtab');
+    for (var j = 0; j < tabs.length; j++) {
+      tabs[j].classList.remove('active');
+      if (tabs[j].getAttribute('data-target') === key) {
+        tabs[j].classList.add('active');
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  var navButtons = document.querySelectorAll('.navtab');
+  for (var k = 0; k < navButtons.length; k++) {
+    navButtons[k].addEventListener('click', function () {
+      goTo(this.getAttribute('data-target'));
+    });
+  }
+</script>
+</body>
+</html>
