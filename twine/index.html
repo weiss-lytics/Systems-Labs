@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twine — Finding time, together</title>
+<style>
+/* ── Tokens ── */
+:root {
+  --bg:        #110b1a;
+  --bg2:       #1b1428;
+  --card:      #251d36;
+  --card2:     #2e2440;
+  --border:    rgba(216,196,240,0.08);
+  --border2:   rgba(216,196,240,0.18);
+  --border3:   rgba(216,196,240,0.32);
+  --accent:    #c9a8e8;
+  --accent2:   #e8b8d4;
+  --accent-dim:rgba(201,168,232,0.14);
+  --accent-glow:rgba(201,160,220,0.3);
+  --text:      #f3eefb;
+  --text2:     #a8a0c0;
+  --text3:     #655c7e;
+  --green:     #a8d8b0;
+  --yellow:    #e8d09a;
+  --red:       #e0a8b0;
+  --green-bg:  rgba(168,216,176,0.12);
+  --yellow-bg: rgba(232,208,154,0.12);
+  --red-bg:    rgba(224,168,176,0.12);
+  --r:         18px;
+  --r-sm:      12px;
+  --shadow:    0 8px 32px rgba(0,0,0,0.45);
+  --card-shadow: 0 2px 8px rgba(10,4,18,0.18), 0 12px 28px rgba(10,4,18,0.28);
+  --card-shadow-hover: 0 2px 10px rgba(10,4,18,0.2), 0 16px 36px rgba(10,4,18,0.32);
+  --card-highlight: inset 0 1px 0 rgba(255,255,255,0.04);
+  --t:         0.25s cubic-bezier(.4,0,.2,1);
+  --gradient:  linear-gradient(135deg, #c9a8e8 0%, #e8b8d4 50%, #d4a0d8 100%);
+}
+[data-theme="light"] {
+  --bg:        #f7eef8;
+  --bg2:       #f8f0fa;
+  --card:      #ffffff;
+  --card2:     #fbf3fc;
+  --border:    rgba(180,140,190,0.10);
+  --border2:   rgba(160,110,180,0.20);
+  --border3:   rgba(140,90,160,0.38);
+  --accent:    #a877cc;
+  --accent2:   #d488ae;
+  --accent-dim:rgba(168,119,204,0.12);
+  --accent-glow:rgba(200,140,210,0.24);
+  --text:      #2c2138;
+  --text2:     #7c6e92;
+  --text3:     #c4b4d4;
+  --green:     #4a9858;
+  --yellow:    #b8880a;
+  --red:       #c0586c;
+  --green-bg:  rgba(74,152,88,0.1);
+  --yellow-bg: rgba(184,136,10,0.1);
+  --red-bg:    rgba(192,88,108,0.1);
+  --shadow:    0 4px 24px rgba(180,120,180,0.12);
+  --card-shadow: 0 1px 3px rgba(140,90,150,0.06), 0 10px 26px rgba(160,110,170,0.12);
+  --card-shadow-hover: 0 2px 6px rgba(140,90,150,0.08), 0 14px 32px rgba(160,110,170,0.16);
+  --card-highlight: inset 0 1px 0 rgba(255,255,255,0.6);
+  --gradient:  linear-gradient(135deg, #b888d4 0%, #e8a8c8 50%, #c888d0 100%);
+}
+
+/* ── Reset ── */
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body, .section-card, .glance-card, .timeline-card, .best-card, .alt-card,
+.custom-select-btn, .field-input, .dp-search, .utc-badge, .dropdown-panel,
+.you-badge, .badge, .topbar-clock{
+  transition:background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding-bottom:80px;
+}
+
+/* ── Top bar ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 24px;
+  max-width:620px;margin:0 auto;
+}
+.topbar-clock{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:40px;
+  padding:8px 16px;
+  font-size:13px;color:var(--text2);
+  transition:background var(--t),border-color var(--t);
+}
+.topbar-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 8px var(--accent-glow);
+  flex-shrink:0;
+}
+.topbar-time{font-weight:500;color:var(--text);font-variant-numeric:tabular-nums}
+.topbar-city{color:var(--text2)}
+
+.theme-area{display:flex;align-items:center;gap:10px}
+.theme-icon{font-size:16px;user-select:none}
+.toggle-pill{
+  width:46px;height:26px;border-radius:13px;
+  background:var(--accent);
+  border:none;cursor:pointer;position:relative;
+  transition:background var(--t);
+  flex-shrink:0;
+}
+.toggle-pill:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+.toggle-pill::after{
+  content:'';position:absolute;
+  top:3px;left:3px;
+  width:20px;height:20px;border-radius:50%;
+  background:#fff;
+  transition:transform var(--t);
+  box-shadow:0 1px 4px rgba(0,0,0,0.3);
+}
+[data-theme="light"] .toggle-pill::after{transform:translateX(20px)}
+
+/* ── Brand ── */
+.brand-row{
+  display:flex;align-items:baseline;gap:7px;
+  margin-bottom:3px;
+}
+.brand-sparkle{font-size:11px;opacity:0.75;position:relative;top:-1px}
+.brand-name{
+  font-size:14px;font-weight:700;letter-spacing:0.4px;
+  color:var(--accent);
+}
+.brand-tagline{
+  font-size:12px;color:var(--text3);font-weight:400;
+  letter-spacing:0.1px;
+}
+
+/* ── Wrap ── */
+.wrap{max-width:620px;margin:0 auto;padding:0 20px}
+
+/* ── Greeting hero ── */
+.hero{padding:10px 0 34px}
+.greeting-row{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:10px;
+}
+.greeting-emoji{font-size:25px;line-height:1}
+.hero h1{
+  font-size:clamp(25px,6vw,34px);
+  font-weight:700;
+  letter-spacing:-0.8px;
+  line-height:1.15;
+  color:var(--text);
+}
+.hero h1 em{
+  font-family:Georgia,'Times New Roman',serif;
+  font-style:italic;
+  font-weight:400;
+  color:var(--accent);
+  letter-spacing:-0.5px;
+}
+.hero-meta{
+  display:flex;align-items:center;gap:9px;
+  font-size:14px;color:var(--text2);
+  flex-wrap:wrap;
+}
+.hero-meta .dot-sep{color:var(--text3);font-size:12px}
+.hero-meta b{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums}
+.hero-city-line{
+  display:flex;align-items:center;gap:7px;
+  font-size:14px;color:var(--text2);
+  margin-top:7px;
+}
+.hero-subline{
+  font-size:15px;color:var(--text2);
+  margin-top:16px;font-weight:400;
+  letter-spacing:0.1px;
+}
+
+/* ── Section card ── */
+.section-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:22px;
+  margin-bottom:14px;
+  box-shadow:var(--card-shadow), var(--card-highlight);
+  transition:background var(--t),border-color var(--t),box-shadow var(--t),transform var(--t);
+}
+.section-card:hover{
+  transform:translateY(-1px);
+  box-shadow:var(--card-shadow-hover), var(--card-highlight);
+}
+.section-label{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;
+  color:var(--text2);
+  margin-bottom:16px;
+  letter-spacing:0.1px;
+}
+.section-label-icon{font-size:15px}
+
+/* ── Custom select (your timezone) ── */
+.custom-select-wrap{position:relative}
+.custom-select-btn{
+  width:100%;
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:var(--r-sm);
+  color:var(--text);
+  font-size:15px;font-family:inherit;
+  padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  cursor:pointer;
+  transition:border-color var(--t),background var(--t),box-shadow var(--t);
+  text-align:left;
+}
+.custom-select-btn:hover{border-color:var(--border3)}
+.custom-select-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+.custom-select-btn.open{
+  border-color:rgba(201,168,232,0.5);
+  box-shadow:0 0 0 4px var(--accent-dim);
+}
+.csb-left{display:flex;align-items:center;gap:10px}
+.csb-flag{font-size:17px}
+.csb-city{font-weight:500}
+.csb-arrow{font-size:11px;color:var(--text3);transition:transform var(--t)}
+.custom-select-btn.open .csb-arrow{transform:rotate(180deg)}
+
+/* ── Dropdown panel ── */
+.dropdown-panel{
+  position:absolute;top:calc(100% + 8px);left:0;right:0;
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  z-index:200;
+  display:none;
+  overflow:hidden;
+}
+.dropdown-panel.open{display:block}
+.dp-search-wrap{padding:12px 12px 8px}
+.dp-search{
+  width:100%;
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:var(--r-sm);
+  color:var(--text);
+  font-size:14px;font-family:inherit;
+  padding:12px 16px 12px 38px;
+  outline:none;
+  transition:border-color var(--t),box-shadow var(--t);
+}
+.dp-search:focus{
+  border-color:rgba(201,168,232,0.5);
+  box-shadow:0 0 0 4px var(--accent-dim);
+}
+.dp-search::placeholder{color:var(--text3)}
+.dp-search-wrap{position:relative}
+.dp-search-icon{
+  position:absolute;left:22px;top:50%;transform:translateY(-50%);
+  font-size:14px;color:var(--text3);pointer-events:none;
+}
+.dp-list{max-height:260px;overflow-y:auto;padding-bottom:8px}
+.dp-list::-webkit-scrollbar{width:3px}
+.dp-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.dp-region{
+  font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--text3);
+  padding:10px 16px 5px;
+}
+.dp-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 16px;
+  cursor:pointer;
+  font-size:14px;color:var(--text);
+  transition:background var(--t);
+  gap:10px;
+}
+.dp-item:hover{background:var(--accent-dim)}
+.dp-item.selected{background:var(--accent-dim);color:var(--accent)}
+.dp-item-left{display:flex;align-items:center;gap:10px}
+.dp-flag{font-size:16px}
+.dp-city{font-weight:500}
+.dp-utc{font-size:12px;color:var(--text3)}
+
+/* ── Their timezones ── */
+.participant-row{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:10px;
+}
+.participant-row .custom-select-wrap{flex:1}
+.utc-badge{
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  padding:7px 12px;
+  font-size:12px;font-weight:500;
+  color:var(--text2);
+  white-space:nowrap;
+  flex-shrink:0;
+  transition:background var(--t);
+}
+.remove-participant{
+  width:30px;height:30px;border-radius:50%;
+  background:transparent;border:1px solid var(--border2);
+  color:var(--text3);font-size:16px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:background var(--t),color var(--t),border-color var(--t);
+  font-family:inherit;
+  line-height:1;
+}
+.remove-participant:hover{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.remove-participant:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.add-tz-btn{
+  width:100%;
+  background:transparent;
+  border:1.5px dashed var(--border2);
+  border-radius:var(--r-sm);
+  color:var(--text3);
+  font-size:14px;font-family:inherit;
+  padding:12px;
+  cursor:pointer;
+  transition:border-color var(--t),color var(--t),background var(--t);
+  letter-spacing:0.2px;
+}
+.add-tz-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.add-tz-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.empty-hint{
+  font-size:13.5px;color:var(--text2);
+  margin-bottom:10px;text-align:center;
+  padding:4px 0;
+}
+
+/* ── Date & time inputs ── */
+.date-time-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.field-group label{
+  display:block;font-size:12px;color:var(--text2);
+  margin-bottom:6px;letter-spacing:0.2px;
+}
+.field-input{
+  width:100%;
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:var(--r-sm);
+  color:var(--text);
+  font-size:15px;font-family:inherit;
+  padding:13px 16px;
+  outline:none;
+  transition:border-color var(--t),box-shadow var(--t),background var(--t);
+  -webkit-appearance:none;appearance:none;
+  color-scheme:dark;
+}
+[data-theme="light"] .field-input{color-scheme:light}
+.field-input:focus{
+  border-color:rgba(201,168,232,0.5);
+  box-shadow:0 0 0 4px var(--accent-dim);
+}
+.field-full{grid-column:1/-1}
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── CTA ── */
+.find-btn{
+  width:100%;
+  background:var(--gradient);
+  color:#fff;border:none;
+  border-radius:22px;
+  padding:18px;
+  font-size:16px;font-weight:600;font-family:inherit;
+  letter-spacing:0.2px;
+  cursor:pointer;
+  box-shadow:0 4px 14px rgba(160,110,200,0.18), 0 0 28px var(--accent-glow);
+  transition:opacity 0.3s ease,transform 0.25s cubic-bezier(.34,1.56,.64,1),box-shadow 0.35s ease;
+  margin-bottom:16px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.find-btn:hover{
+  opacity:0.96;
+  transform:translateY(-2px) scale(1.01);
+  box-shadow:0 6px 20px rgba(160,110,200,0.22), 0 0 40px var(--accent-glow);
+}
+.find-btn:active{
+  transform:translateY(0) scale(0.985);
+  opacity:0.9;
+  transition:transform 0.1s ease,opacity 0.1s ease;
+}
+.find-btn:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+.find-btn-star{font-size:14px;opacity:0.9}
+
+/* ── Glance section ── */
+.glance-label{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;
+  color:var(--text2);
+  margin:20px 0 10px;
+}
+.glance-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 6px var(--accent-glow);
+}
+.glance-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+  margin-bottom:14px;
+  box-shadow:var(--card-shadow), var(--card-highlight);
+  transition:background var(--t),border-color var(--t);
+}
+.glance-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  transition:border-color var(--t);
+}
+.glance-row:last-child{border-bottom:none}
+.glance-left{display:flex;align-items:center;gap:10px}
+.glance-flag{font-size:18px}
+.glance-city{font-weight:500;font-size:14px}
+.glance-utc{font-size:12px;color:var(--text3);margin-top:1px}
+.glance-right{display:flex;align-items:center;gap:10px}
+.glance-time{
+  font-size:22px;font-weight:600;
+  color:var(--accent);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-0.5px;
+}
+.you-badge{
+  background:var(--accent-dim);
+  color:var(--accent);
+  border:1px solid rgba(201,160,196,0.3);
+  border-radius:20px;
+  padding:3px 9px;
+  font-size:11px;font-weight:600;
+  letter-spacing:0.5px;
+}
+
+/* ── Results ── */
+
+/* — Best match: the hero card, primary visual focus — */
+.best-card{
+  background:linear-gradient(165deg, var(--card2) 0%, var(--card) 60%);
+  border:1px solid rgba(201,168,232,0.22);
+  border-radius:var(--r);
+  overflow:hidden;
+  margin-bottom:18px;
+  position:relative;
+  box-shadow:0 0 0 1px rgba(201,168,232,0.05), 0 4px 16px rgba(10,4,18,0.2), 0 20px 48px rgba(160,110,200,0.16);
+  transition:transform var(--t),box-shadow var(--t);
+  cursor:pointer;
+}
+.best-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 0 0 1px rgba(201,168,232,0.08), 0 6px 20px rgba(10,4,18,0.22), 0 28px 56px rgba(160,110,200,0.22);
+}
+.best-card::before{
+  content:'';position:absolute;inset:0;
+  background:var(--gradient);opacity:0.07;pointer-events:none;
+}
+.best-card-glow{
+  position:absolute;top:-50%;right:-25%;width:70%;height:140%;
+  background:radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  opacity:0.55;pointer-events:none;
+}
+.best-card-glow-2{
+  position:absolute;bottom:-40%;left:-15%;width:50%;height:100%;
+  background:radial-gradient(circle, rgba(232,184,212,0.22) 0%, transparent 70%);
+  opacity:0.5;pointer-events:none;
+}
+.best-eyebrow{
+  display:flex;align-items:center;gap:7px;
+  padding:26px 28px 0;
+  font-size:13.5px;font-weight:600;color:var(--accent);
+  position:relative;z-index:1;
+  letter-spacing:0.1px;
+}
+.best-stops{
+  padding:18px 28px 4px;
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;
+  gap:6px;
+}
+.best-stop{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  text-align:center;
+}
+.best-stop-time{
+  font-size:42px;font-weight:700;
+  letter-spacing:-1.5px;color:var(--text);
+  font-variant-numeric:tabular-nums;
+  line-height:1.05;
+}
+.best-stop-place{
+  display:flex;align-items:center;gap:6px;
+  font-size:14px;color:var(--text2);
+}
+.best-stop-flag{font-size:16px}
+.best-arrow{
+  font-size:15px;color:var(--text3);opacity:0.7;
+  margin:2px 0;
+}
+.best-note{
+  text-align:center;
+  padding:14px 28px 0;
+  font-size:13.5px;color:var(--text2);line-height:1.55;
+  position:relative;z-index:1;
+}
+.best-people-extra{
+  padding:16px 28px 4px;
+  border-top:1px solid var(--border);
+  margin-top:18px;
+  display:flex;flex-direction:column;gap:9px;
+  position:relative;z-index:1;
+}
+.best-person-row{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:13.5px;
+}
+.best-person-left{display:flex;align-items:center;gap:9px;color:var(--text2)}
+.best-person-flag{font-size:16px}
+.best-person-time{font-weight:600;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
+.best-copy-row{padding:18px 28px 26px;position:relative;z-index:1;display:flex;justify-content:center}
+
+/* — Alternative cards: compact, secondary — */
+.alt-label{
+  font-size:12px;font-weight:600;color:var(--text3);
+  margin:20px 0 9px;
+  letter-spacing:0.1px;
+}
+.alt-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  overflow:hidden;
+  margin-bottom:8px;
+  box-shadow:0 1px 2px rgba(10,4,18,0.08);
+  transition:border-color var(--t),background var(--t),box-shadow var(--t),transform var(--t);
+  cursor:pointer;
+  opacity:0.92;
+}
+.alt-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:var(--card-shadow);opacity:1}
+.alt-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 17px;
+}
+.alt-left{display:flex;align-items:center;gap:10px}
+.alt-time{font-size:15px;font-weight:600;color:var(--text2);font-variant-numeric:tabular-nums}
+.alt-people-inline{font-size:12px;color:var(--text3)}
+.alt-copy-row{padding:0 17px 13px;display:none}
+
+.badge{
+  padding:5px 12px;
+  border-radius:20px;
+  font-size:12px;font-weight:500;
+  display:flex;align-items:center;gap:5px;
+  flex-shrink:0;
+}
+.badge-works{
+  background:var(--green-bg);
+  color:var(--green);
+}
+.badge-rough{
+  background:var(--red-bg);
+  color:var(--red);
+}
+
+.comfort-pip{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
+.pip-great{background:var(--green)}
+.pip-ok{background:var(--yellow)}
+.pip-bad{background:var(--red)}
+
+.copy-btn{
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:var(--r-sm);
+  color:var(--text2);font-size:12px;font-family:inherit;
+  padding:8px 16px;
+  cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:border-color 0.2s ease,color 0.2s ease,background 0.2s ease,transform 0.2s cubic-bezier(.34,1.56,.64,1);
+}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);transform:translateY(-1px)}
+.copy-btn:active{transform:translateY(0) scale(0.96)}
+.copy-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ── Timeline ── */
+.timeline-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:18px 20px;
+  margin-bottom:14px;
+  box-shadow:var(--card-shadow), var(--card-highlight);
+  transition:background var(--t),border-color var(--t);
+}
+.timeline-head{
+  font-size:12px;color:var(--text2);font-weight:500;
+  margin-bottom:14px;
+}
+.tl-row{margin-bottom:18px;position:relative}
+.tl-city{
+  font-size:12px;color:var(--text2);
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:6px;
+}
+.tl-bar{
+  height:24px;background:var(--card2);
+  border-radius:12px;position:relative;overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(10,4,18,0.12);
+}
+.tl-seg{position:absolute;top:0;height:100%;border-radius:12px}
+.tl-seg-pref{background:linear-gradient(90deg, rgba(201,168,232,0.42), rgba(232,184,212,0.42))}
+.tl-seg-ok{background:rgba(201,168,232,0.13)}
+.tl-best{
+  position:absolute;top:3px;bottom:3px;
+  width:3px;background:var(--accent);border-radius:3px;z-index:3;
+  box-shadow:0 0 8px var(--accent-glow);
+}
+.tl-bar-wrap{position:relative}
+.tl-best-sparkle{
+  position:absolute;top:-13px;
+  font-size:11px;z-index:5;transform:translateX(-50%);
+  filter:drop-shadow(0 0 4px var(--accent-glow));
+  pointer-events:none;
+}
+.tl-now{
+  position:absolute;top:0;bottom:0;
+  width:1.5px;background:var(--accent2);opacity:0.5;border-radius:2px;z-index:4;
+}
+.tl-hours{
+  display:flex;justify-content:space-between;
+  margin-top:4px;padding:0 2px;
+}
+.tl-hours span{font-size:10px;color:var(--text3)}
+.tl-legend{
+  display:flex;gap:16px;margin-top:12px;
+  flex-wrap:wrap;
+}
+.tl-legend-item{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--text3);
+}
+.tl-legend-dot{
+  width:10px;height:10px;border-radius:5px;flex-shrink:0;
+}
+
+/* ── Empty ── */
+.empty-state{
+  text-align:center;padding:32px 20px;
+  color:var(--text3);font-size:14px;line-height:1.7;
+}
+.empty-state .empty-icon{font-size:28px;margin-bottom:8px;opacity:0.6}
+
+/* ── Searching state ── */
+.searching-state{
+  text-align:center;padding:36px 20px;
+  color:var(--text2);font-size:14px;
+}
+.searching-emoji{
+  font-size:26px;margin-bottom:10px;
+  display:inline-block;
+  animation:gentle-pulse 1.4s ease-in-out infinite;
+}
+@keyframes gentle-pulse{
+  0%,100%{transform:scale(1);opacity:0.85}
+  50%{transform:scale(1.12);opacity:1}
+}
+.searching-sub{font-size:12.5px;color:var(--text3);margin-top:4px}
+
+/* ── Outcome banner (perfect overlap / few good options) ── */
+.outcome-banner{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;
+  border-radius:var(--r-sm);
+  font-size:13.5px;
+  margin-bottom:14px;
+  background:var(--accent-dim);
+  color:var(--text);
+  border:1px solid rgba(201,168,232,0.22);
+}
+.outcome-emoji{font-size:18px;flex-shrink:0}
+.outcome-banner b{font-weight:600}
+
+/* ── Animations ── */
+.fade-up{animation:fadeUp 0.35s cubic-bezier(.4,0,.2,1)}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes sparkle-spin{
+  0%{transform:rotate(0deg) scale(1)}
+  50%{transform:rotate(15deg) scale(1.15)}
+  100%{transform:rotate(0deg) scale(1)}
+}
+.sparkle{display:inline-block;animation:sparkle-spin 2.2s ease-in-out infinite}
+
+/* ── Responsive ── */
+@media(max-width:480px){
+  .date-time-grid,.time-row{grid-template-columns:1fr}
+  .field-full{grid-column:auto}
+  .hero h1{font-size:26px}
+}
+
+/* ── Reduced motion ── */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="brand-row">
+    <span class="brand-sparkle">✨</span>
+    <span class="brand-name">Twine</span>
+    <span class="brand-tagline">Finding time, together.</span>
+  </div>
+  <div class="theme-area">
+    <span class="theme-icon" id="themeIcon">🌙</span>
+    <button class="toggle-pill" id="themeToggle" role="switch" aria-checked="false" aria-label="Switch to light mode"></button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Greeting hero -->
+  <div class="hero">
+    <div class="greeting-row">
+      <span class="greeting-emoji" id="greetingEmoji">☁️</span>
+      <h1 id="greetingText">Good day</h1>
+    </div>
+    <div class="hero-meta">
+      <b id="heroTime">--:--</b>
+      <span class="dot-sep">·</span>
+      <span id="heroDate">...</span>
+    </div>
+    <div class="hero-city-line" id="heroCity">...</div>
+    <p class="hero-subline">Ready to find a time that works?</p>
+  </div>
+
+  <!-- Your timezone -->
+  <div class="section-card">
+    <div class="section-label">
+      <span class="section-label-icon">🏡</span>
+      Your location
+    </div>
+    <div class="custom-select-wrap" id="ownerSelectWrap">
+      <button class="custom-select-btn" id="ownerBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Choose your location">
+        <div class="csb-left">
+          <span class="csb-flag" id="ownerFlag">🌸</span>
+          <span class="csb-city" id="ownerCity">Loading...</span>
+        </div>
+        <span class="csb-arrow">▾</span>
+      </button>
+      <div class="dropdown-panel" id="ownerDropdown">
+        <div class="dp-search-wrap">
+          <span class="dp-search-icon">🔍</span>
+          <input class="dp-search" type="text" placeholder="Search country or city..." id="ownerSearch" autocomplete="off" aria-label="Search for your city">
+        </div>
+        <div class="dp-list" id="ownerList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Their timezones -->
+  <div class="section-card">
+    <div class="section-label">
+      <span class="section-label-icon">🤝</span>
+      Meeting with
+    </div>
+    <div id="participantRows"></div>
+    <button class="add-tz-btn" id="addTzBtn" aria-label="Add another person to the meeting">🌍 Add another city</button>
+  </div>
+
+  <!-- Date & time -->
+  <div class="section-card">
+    <div class="section-label">
+      <span class="section-label-icon">🗓️</span>
+      Date &amp; your availability
+    </div>
+    <div class="date-time-grid">
+      <div class="field-group field-full">
+        <label for="meetDate">Date</label>
+        <input type="date" class="field-input" id="meetDate">
+      </div>
+    </div>
+    <div class="time-row" style="margin-top:10px">
+      <div class="field-group">
+        <label for="timeStart">⏰ Earliest start</label>
+        <input type="time" class="field-input" id="timeStart" value="09:00">
+      </div>
+      <div class="field-group">
+        <label for="timeEnd">⏰ Latest end</label>
+        <input type="time" class="field-input" id="timeEnd" value="18:00">
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <button class="find-btn" id="findBtn" aria-label="Find a meeting time that works for everyone">
+    <span class="find-btn-star">🌸</span>
+    Find a Time That Works
+  </button>
+
+  <!-- Results area -->
+  <div id="resultsArea"></div>
+
+
+</div>
+
+<script>
+/* ══ City database ══ */
+const REGIONS = [
+  { region:'Asia', cities:[
+    {city:'Manila',country:'Philippines',label:'Philippines — Manila',flag:'🇵🇭',tz:'Asia/Manila'},
+    {city:'Cebu City',country:'Philippines',label:'Philippines — Cebu City',flag:'🇵🇭',tz:'Asia/Manila'},
+    {city:'Davao City',country:'Philippines',label:'Philippines — Davao City',flag:'🇵🇭',tz:'Asia/Manila'},
+    {city:'Singapore',country:'Singapore',label:'Singapore',flag:'🇸🇬',tz:'Asia/Singapore'},
+    {city:'Hong Kong',country:'Hong Kong',label:'Hong Kong',flag:'🇭🇰',tz:'Asia/Hong_Kong'},
+    {city:'Macau',country:'Macau',label:'Macau',flag:'🇲🇴',tz:'Asia/Macau'},
+    {city:'Beijing',country:'China',label:'China — Beijing',flag:'🇨🇳',tz:'Asia/Shanghai'},
+    {city:'Shanghai',country:'China',label:'China — Shanghai',flag:'🇨🇳',tz:'Asia/Shanghai'},
+    {city:'Shenzhen',country:'China',label:'China — Shenzhen',flag:'🇨🇳',tz:'Asia/Shanghai'},
+    {city:'Guangzhou',country:'China',label:'China — Guangzhou',flag:'🇨🇳',tz:'Asia/Shanghai'},
+    {city:'Chengdu',country:'China',label:'China — Chengdu',flag:'🇨🇳',tz:'Asia/Shanghai'},
+    {city:'Urumqi',country:'China',label:'China — Urumqi',flag:'🇨🇳',tz:'Asia/Urumqi'},
+    {city:'Taipei',country:'Taiwan',label:'Taiwan — Taipei',flag:'🇹🇼',tz:'Asia/Taipei'},
+    {city:'Kaohsiung',country:'Taiwan',label:'Taiwan — Kaohsiung',flag:'🇹🇼',tz:'Asia/Taipei'},
+    {city:'Tokyo',country:'Japan',label:'Japan — Tokyo',flag:'🇯🇵',tz:'Asia/Tokyo'},
+    {city:'Osaka',country:'Japan',label:'Japan — Osaka',flag:'🇯🇵',tz:'Asia/Tokyo'},
+    {city:'Yokohama',country:'Japan',label:'Japan — Yokohama',flag:'🇯🇵',tz:'Asia/Tokyo'},
+    {city:'Sapporo',country:'Japan',label:'Japan — Sapporo',flag:'🇯🇵',tz:'Asia/Tokyo'},
+    {city:'Fukuoka',country:'Japan',label:'Japan — Fukuoka',flag:'🇯🇵',tz:'Asia/Tokyo'},
+    {city:'Seoul',country:'South Korea',label:'South Korea — Seoul',flag:'🇰🇷',tz:'Asia/Seoul'},
+    {city:'Busan',country:'South Korea',label:'South Korea — Busan',flag:'🇰🇷',tz:'Asia/Seoul'},
+    {city:'Incheon',country:'South Korea',label:'South Korea — Incheon',flag:'🇰🇷',tz:'Asia/Seoul'},
+    {city:'Pyongyang',country:'North Korea',label:'North Korea — Pyongyang',flag:'🇰🇵',tz:'Asia/Pyongyang'},
+    {city:'Bangkok',country:'Thailand',label:'Thailand — Bangkok',flag:'🇹🇭',tz:'Asia/Bangkok'},
+    {city:'Chiang Mai',country:'Thailand',label:'Thailand — Chiang Mai',flag:'🇹🇭',tz:'Asia/Bangkok'},
+    {city:'Phuket',country:'Thailand',label:'Thailand — Phuket',flag:'🇹🇭',tz:'Asia/Bangkok'},
+    {city:'Ho Chi Minh City',country:'Vietnam',label:'Vietnam — Ho Chi Minh City',flag:'🇻🇳',tz:'Asia/Ho_Chi_Minh'},
+    {city:'Hanoi',country:'Vietnam',label:'Vietnam — Hanoi',flag:'🇻🇳',tz:'Asia/Bangkok'},
+    {city:'Da Nang',country:'Vietnam',label:'Vietnam — Da Nang',flag:'🇻🇳',tz:'Asia/Bangkok'},
+    {city:'Jakarta',country:'Indonesia',label:'Indonesia — Jakarta',flag:'🇮🇩',tz:'Asia/Jakarta'},
+    {city:'Surabaya',country:'Indonesia',label:'Indonesia — Surabaya',flag:'🇮🇩',tz:'Asia/Jakarta'},
+    {city:'Bandung',country:'Indonesia',label:'Indonesia — Bandung',flag:'🇮🇩',tz:'Asia/Jakarta'},
+    {city:'Bali (Denpasar)',country:'Indonesia',label:'Indonesia — Bali (Denpasar)',flag:'🇮🇩',tz:'Asia/Makassar'},
+    {city:'Medan',country:'Indonesia',label:'Indonesia — Medan',flag:'🇮🇩',tz:'Asia/Jakarta'},
+    {city:'Kuala Lumpur',country:'Malaysia',label:'Malaysia — Kuala Lumpur',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur'},
+    {city:'Penang',country:'Malaysia',label:'Malaysia — Penang',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur'},
+    {city:'Johor Bahru',country:'Malaysia',label:'Malaysia — Johor Bahru',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur'},
+    {city:'Bandar Seri Begawan',country:'Bandar Seri Begawan',label:'Brunei',flag:'🇧🇳',tz:'Asia/Brunei'},
+    {city:'Phnom Penh',country:'Cambodia',label:'Cambodia — Phnom Penh',flag:'🇰🇭',tz:'Asia/Phnom_Penh'},
+    {city:'Siem Reap',country:'Cambodia',label:'Cambodia — Siem Reap',flag:'🇰🇭',tz:'Asia/Phnom_Penh'},
+    {city:'Vientiane',country:'Laos',label:'Laos — Vientiane',flag:'🇱🇦',tz:'Asia/Vientiane'},
+    {city:'Yangon',country:'Myanmar',label:'Myanmar — Yangon',flag:'🇲🇲',tz:'Asia/Yangon'},
+    {city:'Naypyidaw',country:'Myanmar',label:'Myanmar — Naypyidaw',flag:'🇲🇲',tz:'Asia/Yangon'},
+    {city:'Dili',country:'Dili',label:'Timor-Leste',flag:'🇹🇱',tz:'Asia/Dili'},
+    {city:'Mumbai',country:'India',label:'India — Mumbai',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'New Delhi',country:'India',label:'India — New Delhi',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'Bengaluru',country:'India',label:'India — Bengaluru',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'Hyderabad',country:'India',label:'India — Hyderabad',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'Chennai',country:'India',label:'India — Chennai',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'Kolkata',country:'India',label:'India — Kolkata',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'Pune',country:'India',label:'India — Pune',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'Ahmedabad',country:'India',label:'India — Ahmedabad',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'Jaipur',country:'India',label:'India — Jaipur',flag:'🇮🇳',tz:'Asia/Kolkata'},
+    {city:'Karachi',country:'Pakistan',label:'Pakistan — Karachi',flag:'🇵🇰',tz:'Asia/Karachi'},
+    {city:'Lahore',country:'Pakistan',label:'Pakistan — Lahore',flag:'🇵🇰',tz:'Asia/Karachi'},
+    {city:'Islamabad',country:'Pakistan',label:'Pakistan — Islamabad',flag:'🇵🇰',tz:'Asia/Karachi'},
+    {city:'Dhaka',country:'Bangladesh',label:'Bangladesh — Dhaka',flag:'🇧🇩',tz:'Asia/Dhaka'},
+    {city:'Chittagong',country:'Bangladesh',label:'Bangladesh — Chittagong',flag:'🇧🇩',tz:'Asia/Dhaka'},
+    {city:'Colombo',country:'Sri Lanka',label:'Sri Lanka — Colombo',flag:'🇱🇰',tz:'Asia/Colombo'},
+    {city:'Kathmandu',country:'Nepal',label:'Nepal — Kathmandu',flag:'🇳🇵',tz:'Asia/Kathmandu'},
+    {city:'Thimphu',country:'Bhutan',label:'Bhutan — Thimphu',flag:'🇧🇹',tz:'Asia/Thimphu'},
+    {city:'Malé',country:'Maldives',label:'Maldives — Malé',flag:'🇲🇻',tz:'Indian/Maldives'},
+    {city:'Kabul',country:'Afghanistan',label:'Afghanistan — Kabul',flag:'🇦🇫',tz:'Asia/Kabul'},
+    {city:'Dubai',country:'UAE',label:'UAE — Dubai',flag:'🇦🇪',tz:'Asia/Dubai'},
+    {city:'Abu Dhabi',country:'UAE',label:'UAE — Abu Dhabi',flag:'🇦🇪',tz:'Asia/Dubai'},
+    {city:'Riyadh',country:'Saudi Arabia',label:'Saudi Arabia — Riyadh',flag:'🇸🇦',tz:'Asia/Riyadh'},
+    {city:'Jeddah',country:'Saudi Arabia',label:'Saudi Arabia — Jeddah',flag:'🇸🇦',tz:'Asia/Riyadh'},
+    {city:'Mecca',country:'Saudi Arabia',label:'Saudi Arabia — Mecca',flag:'🇸🇦',tz:'Asia/Riyadh'},
+    {city:'Doha',country:'Qatar',label:'Qatar — Doha',flag:'🇶🇦',tz:'Asia/Qatar'},
+    {city:'Kuwait City',country:'Kuwait',label:'Kuwait — Kuwait City',flag:'🇰🇼',tz:'Asia/Kuwait'},
+    {city:'Manama',country:'Bahrain',label:'Bahrain — Manama',flag:'🇧🇭',tz:'Asia/Bahrain'},
+    {city:'Muscat',country:'Oman',label:'Oman — Muscat',flag:'🇴🇲',tz:'Asia/Muscat'},
+    {city:'Baghdad',country:'Iraq',label:'Iraq — Baghdad',flag:'🇮🇶',tz:'Asia/Baghdad'},
+    {city:'Erbil',country:'Iraq',label:'Iraq — Erbil',flag:'🇮🇶',tz:'Asia/Baghdad'},
+    {city:'Tehran',country:'Iran',label:'Iran — Tehran',flag:'🇮🇷',tz:'Asia/Tehran'},
+    {city:'Isfahan',country:'Iran',label:'Iran — Isfahan',flag:'🇮🇷',tz:'Asia/Tehran'},
+    {city:'Tel Aviv',country:'Israel',label:'Israel — Tel Aviv',flag:'🇮🇱',tz:'Asia/Jerusalem'},
+    {city:'Jerusalem',country:'Israel',label:'Israel — Jerusalem',flag:'🇮🇱',tz:'Asia/Jerusalem'},
+    {city:'Amman',country:'Jordan',label:'Jordan — Amman',flag:'🇯🇴',tz:'Asia/Amman'},
+    {city:'Beirut',country:'Lebanon',label:'Lebanon — Beirut',flag:'🇱🇧',tz:'Asia/Beirut'},
+    {city:'Damascus',country:'Syria',label:'Syria — Damascus',flag:'🇸🇾',tz:'Asia/Damascus'},
+    {city:'Ramallah',country:'Ramallah',label:'Palestine',flag:'🇵🇸',tz:'Asia/Hebron'},
+    {city:'Sana\'a',country:'Yemen',label:'Yemen — Sana\'a',flag:'🇾🇪',tz:'Asia/Aden'},
+    {city:'Istanbul',country:'Turkey',label:'Turkey — Istanbul',flag:'🇹🇷',tz:'Europe/Istanbul'},
+    {city:'Ankara',country:'Turkey',label:'Turkey — Ankara',flag:'🇹🇷',tz:'Europe/Istanbul'},
+    {city:'Izmir',country:'Turkey',label:'Turkey — Izmir',flag:'🇹🇷',tz:'Europe/Istanbul'},
+    {city:'Tbilisi',country:'Georgia',label:'Georgia — Tbilisi',flag:'🇬🇪',tz:'Asia/Tbilisi'},
+    {city:'Yerevan',country:'Armenia',label:'Armenia — Yerevan',flag:'🇦🇲',tz:'Asia/Yerevan'},
+    {city:'Baku',country:'Azerbaijan',label:'Azerbaijan — Baku',flag:'🇦🇿',tz:'Asia/Baku'},
+    {city:'Tashkent',country:'Uzbekistan',label:'Uzbekistan — Tashkent',flag:'🇺🇿',tz:'Asia/Tashkent'},
+    {city:'Almaty',country:'Kazakhstan',label:'Kazakhstan — Almaty',flag:'🇰🇿',tz:'Asia/Almaty'},
+    {city:'Astana',country:'Kazakhstan',label:'Kazakhstan — Astana',flag:'🇰🇿',tz:'Asia/Almaty'},
+    {city:'Bishkek',country:'Kyrgyzstan',label:'Kyrgyzstan — Bishkek',flag:'🇰🇬',tz:'Asia/Bishkek'},
+    {city:'Dushanbe',country:'Tajikistan',label:'Tajikistan — Dushanbe',flag:'🇹🇯',tz:'Asia/Dushanbe'},
+    {city:'Ashgabat',country:'Turkmenistan',label:'Turkmenistan — Ashgabat',flag:'🇹🇲',tz:'Asia/Ashgabat'},
+    {city:'Ulaanbaatar',country:'Mongolia',label:'Mongolia — Ulaanbaatar',flag:'🇲🇳',tz:'Asia/Ulaanbaatar'},
+  ]},
+  { region:'Europe', cities:[
+    {city:'London',country:'UK',label:'UK — London',flag:'🇬🇧',tz:'Europe/London'},
+    {city:'Manchester',country:'UK',label:'UK — Manchester',flag:'🇬🇧',tz:'Europe/London'},
+    {city:'Edinburgh',country:'UK',label:'UK — Edinburgh',flag:'🇬🇧',tz:'Europe/London'},
+    {city:'Birmingham',country:'UK',label:'UK — Birmingham',flag:'🇬🇧',tz:'Europe/London'},
+    {city:'Paris',country:'France',label:'France — Paris',flag:'🇫🇷',tz:'Europe/Paris'},
+    {city:'Marseille',country:'France',label:'France — Marseille',flag:'🇫🇷',tz:'Europe/Paris'},
+    {city:'Lyon',country:'France',label:'France — Lyon',flag:'🇫🇷',tz:'Europe/Paris'},
+    {city:'Nice',country:'France',label:'France — Nice',flag:'🇫🇷',tz:'Europe/Paris'},
+    {city:'Berlin',country:'Germany',label:'Germany — Berlin',flag:'🇩🇪',tz:'Europe/Berlin'},
+    {city:'Munich',country:'Germany',label:'Germany — Munich',flag:'🇩🇪',tz:'Europe/Berlin'},
+    {city:'Frankfurt',country:'Germany',label:'Germany — Frankfurt',flag:'🇩🇪',tz:'Europe/Berlin'},
+    {city:'Hamburg',country:'Germany',label:'Germany — Hamburg',flag:'🇩🇪',tz:'Europe/Berlin'},
+    {city:'Cologne',country:'Germany',label:'Germany — Cologne',flag:'🇩🇪',tz:'Europe/Berlin'},
+    {city:'Amsterdam',country:'Netherlands',label:'Netherlands — Amsterdam',flag:'🇳🇱',tz:'Europe/Amsterdam'},
+    {city:'Rotterdam',country:'Netherlands',label:'Netherlands — Rotterdam',flag:'🇳🇱',tz:'Europe/Amsterdam'},
+    {city:'The Hague',country:'Netherlands',label:'Netherlands — The Hague',flag:'🇳🇱',tz:'Europe/Amsterdam'},
+    {city:'Madrid',country:'Spain',label:'Spain — Madrid',flag:'🇪🇸',tz:'Europe/Madrid'},
+    {city:'Barcelona',country:'Spain',label:'Spain — Barcelona',flag:'🇪🇸',tz:'Europe/Madrid'},
+    {city:'Valencia',country:'Spain',label:'Spain — Valencia',flag:'🇪🇸',tz:'Europe/Madrid'},
+    {city:'Seville',country:'Spain',label:'Spain — Seville',flag:'🇪🇸',tz:'Europe/Madrid'},
+    {city:'Rome',country:'Italy',label:'Italy — Rome',flag:'🇮🇹',tz:'Europe/Rome'},
+    {city:'Milan',country:'Italy',label:'Italy — Milan',flag:'🇮🇹',tz:'Europe/Rome'},
+    {city:'Naples',country:'Italy',label:'Italy — Naples',flag:'🇮🇹',tz:'Europe/Rome'},
+    {city:'Turin',country:'Italy',label:'Italy — Turin',flag:'🇮🇹',tz:'Europe/Rome'},
+    {city:'Florence',country:'Italy',label:'Italy — Florence',flag:'🇮🇹',tz:'Europe/Rome'},
+    {city:'Venice',country:'Italy',label:'Italy — Venice',flag:'🇮🇹',tz:'Europe/Rome'},
+    {city:'Zurich',country:'Switzerland',label:'Switzerland — Zurich',flag:'🇨🇭',tz:'Europe/Zurich'},
+    {city:'Geneva',country:'Switzerland',label:'Switzerland — Geneva',flag:'🇨🇭',tz:'Europe/Zurich'},
+    {city:'Bern',country:'Switzerland',label:'Switzerland — Bern',flag:'🇨🇭',tz:'Europe/Zurich'},
+    {city:'Vienna',country:'Austria',label:'Austria — Vienna',flag:'🇦🇹',tz:'Europe/Vienna'},
+    {city:'Salzburg',country:'Austria',label:'Austria — Salzburg',flag:'🇦🇹',tz:'Europe/Vienna'},
+    {city:'Warsaw',country:'Poland',label:'Poland — Warsaw',flag:'🇵🇱',tz:'Europe/Warsaw'},
+    {city:'Krakow',country:'Poland',label:'Poland — Krakow',flag:'🇵🇱',tz:'Europe/Warsaw'},
+    {city:'Gdansk',country:'Poland',label:'Poland — Gdansk',flag:'🇵🇱',tz:'Europe/Warsaw'},
+    {city:'Stockholm',country:'Sweden',label:'Sweden — Stockholm',flag:'🇸🇪',tz:'Europe/Stockholm'},
+    {city:'Gothenburg',country:'Sweden',label:'Sweden — Gothenburg',flag:'🇸🇪',tz:'Europe/Stockholm'},
+    {city:'Oslo',country:'Norway',label:'Norway — Oslo',flag:'🇳🇴',tz:'Europe/Oslo'},
+    {city:'Bergen',country:'Norway',label:'Norway — Bergen',flag:'🇳🇴',tz:'Europe/Oslo'},
+    {city:'Copenhagen',country:'Denmark',label:'Denmark — Copenhagen',flag:'🇩🇰',tz:'Europe/Copenhagen'},
+    {city:'Helsinki',country:'Finland',label:'Finland — Helsinki',flag:'🇫🇮',tz:'Europe/Helsinki'},
+    {city:'Reykjavik',country:'Iceland',label:'Iceland — Reykjavik',flag:'🇮🇸',tz:'Atlantic/Reykjavik'},
+    {city:'Athens',country:'Greece',label:'Greece — Athens',flag:'🇬🇷',tz:'Europe/Athens'},
+    {city:'Thessaloniki',country:'Greece',label:'Greece — Thessaloniki',flag:'🇬🇷',tz:'Europe/Athens'},
+    {city:'Lisbon',country:'Portugal',label:'Portugal — Lisbon',flag:'🇵🇹',tz:'Europe/Lisbon'},
+    {city:'Porto',country:'Portugal',label:'Portugal — Porto',flag:'🇵🇹',tz:'Europe/Lisbon'},
+    {city:'Dublin',country:'Ireland',label:'Ireland — Dublin',flag:'🇮🇪',tz:'Europe/Dublin'},
+    {city:'Brussels',country:'Belgium',label:'Belgium — Brussels',flag:'🇧🇪',tz:'Europe/Brussels'},
+    {city:'Antwerp',country:'Belgium',label:'Belgium — Antwerp',flag:'🇧🇪',tz:'Europe/Brussels'},
+    {city:'Luxembourg City',country:'Luxembourg City',label:'Luxembourg',flag:'🇱🇺',tz:'Europe/Luxembourg'},
+    {city:'Prague',country:'Czechia',label:'Czechia — Prague',flag:'🇨🇿',tz:'Europe/Prague'},
+    {city:'Brno',country:'Czechia',label:'Czechia — Brno',flag:'🇨🇿',tz:'Europe/Prague'},
+    {city:'Bratislava',country:'Slovakia',label:'Slovakia — Bratislava',flag:'🇸🇰',tz:'Europe/Bratislava'},
+    {city:'Budapest',country:'Hungary',label:'Hungary — Budapest',flag:'🇭🇺',tz:'Europe/Budapest'},
+    {city:'Bucharest',country:'Romania',label:'Romania — Bucharest',flag:'🇷🇴',tz:'Europe/Bucharest'},
+    {city:'Cluj-Napoca',country:'Romania',label:'Romania — Cluj-Napoca',flag:'🇷🇴',tz:'Europe/Bucharest'},
+    {city:'Sofia',country:'Bulgaria',label:'Bulgaria — Sofia',flag:'🇧🇬',tz:'Europe/Sofia'},
+    {city:'Zagreb',country:'Croatia',label:'Croatia — Zagreb',flag:'🇭🇷',tz:'Europe/Zagreb'},
+    {city:'Split',country:'Croatia',label:'Croatia — Split',flag:'🇭🇷',tz:'Europe/Zagreb'},
+    {city:'Belgrade',country:'Serbia',label:'Serbia — Belgrade',flag:'🇷🇸',tz:'Europe/Belgrade'},
+    {city:'Ljubljana',country:'Slovenia',label:'Slovenia — Ljubljana',flag:'🇸🇮',tz:'Europe/Ljubljana'},
+    {city:'Sarajevo',country:'Sarajevo',label:'Bosnia and Herzegovina',flag:'🇧🇦',tz:'Europe/Sarajevo'},
+    {city:'Podgorica',country:'Montenegro',label:'Montenegro — Podgorica',flag:'🇲🇪',tz:'Europe/Podgorica'},
+    {city:'Skopje',country:'North Macedonia',label:'North Macedonia — Skopje',flag:'🇲🇰',tz:'Europe/Skopje'},
+    {city:'Tirana',country:'Albania',label:'Albania — Tirana',flag:'🇦🇱',tz:'Europe/Tirane'},
+    {city:'Pristina',country:'Kosovo',label:'Kosovo — Pristina',flag:'🇽🇰',tz:'Europe/Belgrade'},
+    {city:'Vilnius',country:'Lithuania',label:'Lithuania — Vilnius',flag:'🇱🇹',tz:'Europe/Vilnius'},
+    {city:'Riga',country:'Latvia',label:'Latvia — Riga',flag:'🇱🇻',tz:'Europe/Riga'},
+    {city:'Tallinn',country:'Estonia',label:'Estonia — Tallinn',flag:'🇪🇪',tz:'Europe/Tallinn'},
+    {city:'Minsk',country:'Belarus',label:'Belarus — Minsk',flag:'🇧🇾',tz:'Europe/Minsk'},
+    {city:'Kyiv',country:'Ukraine',label:'Ukraine — Kyiv',flag:'🇺🇦',tz:'Europe/Kyiv'},
+    {city:'Kharkiv',country:'Ukraine',label:'Ukraine — Kharkiv',flag:'🇺🇦',tz:'Europe/Kyiv'},
+    {city:'Chisinau',country:'Moldova',label:'Moldova — Chisinau',flag:'🇲🇩',tz:'Europe/Chisinau'},
+    {city:'Moscow',country:'Russia',label:'Russia — Moscow',flag:'🇷🇺',tz:'Europe/Moscow'},
+    {city:'Saint Petersburg',country:'Russia',label:'Russia — Saint Petersburg',flag:'🇷🇺',tz:'Europe/Moscow'},
+    {city:'Yekaterinburg',country:'Russia',label:'Russia — Yekaterinburg',flag:'🇷🇺',tz:'Asia/Yekaterinburg'},
+    {city:'Novosibirsk',country:'Russia',label:'Russia — Novosibirsk',flag:'🇷🇺',tz:'Asia/Novosibirsk'},
+    {city:'Vladivostok',country:'Russia',label:'Russia — Vladivostok',flag:'🇷🇺',tz:'Asia/Vladivostok'},
+    {city:'Valletta',country:'Malta',label:'Malta — Valletta',flag:'🇲🇹',tz:'Europe/Malta'},
+    {city:'Monaco',country:'Monaco',label:'Monaco',flag:'🇲🇨',tz:'Europe/Monaco'},
+    {city:'Andorra la Vella',country:'Andorra la Vella',label:'Andorra',flag:'🇦🇩',tz:'Europe/Andorra'},
+    {city:'San Marino',country:'San Marino',label:'San Marino',flag:'🇸🇲',tz:'Europe/San_Marino'},
+    {city:'Vatican City',country:'Vatican City',label:'Vatican City',flag:'🇻🇦',tz:'Europe/Vatican'},
+  ]},
+  { region:'Americas', cities:[
+    {city:'New York City',country:'USA',label:'USA — New York City (ET)',flag:'🇺🇸',tz:'America/New_York'},
+    {city:'Boston',country:'USA',label:'USA — Boston',flag:'🇺🇸',tz:'America/New_York'},
+    {city:'Philadelphia',country:'USA',label:'USA — Philadelphia',flag:'🇺🇸',tz:'America/New_York'},
+    {city:'Washington D.C.',country:'USA',label:'USA — Washington D.C.',flag:'🇺🇸',tz:'America/New_York'},
+    {city:'Miami',country:'USA',label:'USA — Miami',flag:'🇺🇸',tz:'America/New_York'},
+    {city:'Atlanta',country:'USA',label:'USA — Atlanta',flag:'🇺🇸',tz:'America/New_York'},
+    {city:'Orlando',country:'USA',label:'USA — Orlando',flag:'🇺🇸',tz:'America/New_York'},
+    {city:'Detroit',country:'USA',label:'USA — Detroit',flag:'🇺🇸',tz:'America/New_York'},
+    {city:'Chicago',country:'USA',label:'USA — Chicago (CT)',flag:'🇺🇸',tz:'America/Chicago'},
+    {city:'Dallas',country:'USA',label:'USA — Dallas',flag:'🇺🇸',tz:'America/Chicago'},
+    {city:'Houston',country:'USA',label:'USA — Houston',flag:'🇺🇸',tz:'America/Chicago'},
+    {city:'Austin',country:'USA',label:'USA — Austin',flag:'🇺🇸',tz:'America/Chicago'},
+    {city:'San Antonio',country:'USA',label:'USA — San Antonio',flag:'🇺🇸',tz:'America/Chicago'},
+    {city:'Minneapolis',country:'USA',label:'USA — Minneapolis',flag:'🇺🇸',tz:'America/Chicago'},
+    {city:'New Orleans',country:'USA',label:'USA — New Orleans',flag:'🇺🇸',tz:'America/Chicago'},
+    {city:'Denver',country:'USA',label:'USA — Denver (MT)',flag:'🇺🇸',tz:'America/Denver'},
+    {city:'Phoenix',country:'USA',label:'USA — Phoenix (MST, no DST)',flag:'🇺🇸',tz:'America/Phoenix'},
+    {city:'Salt Lake City',country:'USA',label:'USA — Salt Lake City',flag:'🇺🇸',tz:'America/Denver'},
+    {city:'Los Angeles',country:'USA',label:'USA — Los Angeles (PT)',flag:'🇺🇸',tz:'America/Los_Angeles'},
+    {city:'San Francisco',country:'USA',label:'USA — San Francisco',flag:'🇺🇸',tz:'America/Los_Angeles'},
+    {city:'San Diego',country:'USA',label:'USA — San Diego',flag:'🇺🇸',tz:'America/Los_Angeles'},
+    {city:'Seattle',country:'USA',label:'USA — Seattle',flag:'🇺🇸',tz:'America/Los_Angeles'},
+    {city:'Portland',country:'USA',label:'USA — Portland',flag:'🇺🇸',tz:'America/Los_Angeles'},
+    {city:'Las Vegas',country:'USA',label:'USA — Las Vegas',flag:'🇺🇸',tz:'America/Los_Angeles'},
+    {city:'San Jose',country:'USA',label:'USA — San Jose',flag:'🇺🇸',tz:'America/Los_Angeles'},
+    {city:'Anchorage',country:'USA',label:'USA — Anchorage',flag:'🇺🇸',tz:'America/Anchorage'},
+    {city:'Honolulu',country:'USA',label:'USA — Honolulu',flag:'🇺🇸',tz:'Pacific/Honolulu'},
+    {city:'Toronto',country:'Canada',label:'Canada — Toronto',flag:'🇨🇦',tz:'America/Toronto'},
+    {city:'Ottawa',country:'Canada',label:'Canada — Ottawa',flag:'🇨🇦',tz:'America/Toronto'},
+    {city:'Montreal',country:'Canada',label:'Canada — Montreal',flag:'🇨🇦',tz:'America/Toronto'},
+    {city:'Quebec City',country:'Canada',label:'Canada — Quebec City',flag:'🇨🇦',tz:'America/Toronto'},
+    {city:'Vancouver',country:'Canada',label:'Canada — Vancouver',flag:'🇨🇦',tz:'America/Vancouver'},
+    {city:'Calgary',country:'Canada',label:'Canada — Calgary',flag:'🇨🇦',tz:'America/Edmonton'},
+    {city:'Edmonton',country:'Canada',label:'Canada — Edmonton',flag:'🇨🇦',tz:'America/Edmonton'},
+    {city:'Winnipeg',country:'Canada',label:'Canada — Winnipeg',flag:'🇨🇦',tz:'America/Winnipeg'},
+    {city:'Halifax',country:'Canada',label:'Canada — Halifax',flag:'🇨🇦',tz:'America/Halifax'},
+    {city:'St. John\'s',country:'Canada',label:'Canada — St. John\'s',flag:'🇨🇦',tz:'America/St_Johns'},
+    {city:'Mexico City',country:'Mexico',label:'Mexico — Mexico City',flag:'🇲🇽',tz:'America/Mexico_City'},
+    {city:'Guadalajara',country:'Mexico',label:'Mexico — Guadalajara',flag:'🇲🇽',tz:'America/Mexico_City'},
+    {city:'Monterrey',country:'Mexico',label:'Mexico — Monterrey',flag:'🇲🇽',tz:'America/Monterrey'},
+    {city:'Cancún',country:'Mexico',label:'Mexico — Cancún',flag:'🇲🇽',tz:'America/Cancun'},
+    {city:'Tijuana',country:'Mexico',label:'Mexico — Tijuana',flag:'🇲🇽',tz:'America/Tijuana'},
+    {city:'Guatemala City',country:'Guatemala',label:'Guatemala — Guatemala City',flag:'🇬🇹',tz:'America/Guatemala'},
+    {city:'San Salvador',country:'El Salvador',label:'El Salvador — San Salvador',flag:'🇸🇻',tz:'America/El_Salvador'},
+    {city:'Tegucigalpa',country:'Honduras',label:'Honduras — Tegucigalpa',flag:'🇭🇳',tz:'America/Tegucigalpa'},
+    {city:'Managua',country:'Nicaragua',label:'Nicaragua — Managua',flag:'🇳🇮',tz:'America/Managua'},
+    {city:'San José',country:'Costa Rica',label:'Costa Rica — San José',flag:'🇨🇷',tz:'America/Costa_Rica'},
+    {city:'Panama City',country:'Panama',label:'Panama — Panama City',flag:'🇵🇦',tz:'America/Panama'},
+    {city:'Havana',country:'Cuba',label:'Cuba — Havana',flag:'🇨🇺',tz:'America/Havana'},
+    {city:'Santo Domingo',country:'Dominican Republic',label:'Dominican Republic — Santo Domingo',flag:'🇩🇴',tz:'America/Santo_Domingo'},
+    {city:'San Juan',country:'Puerto Rico',label:'Puerto Rico — San Juan',flag:'🇵🇷',tz:'America/Puerto_Rico'},
+    {city:'Kingston',country:'Jamaica',label:'Jamaica — Kingston',flag:'🇯🇲',tz:'America/Jamaica'},
+    {city:'Port-au-Prince',country:'Haiti',label:'Haiti — Port-au-Prince',flag:'🇭🇹',tz:'America/Port-au-Prince'},
+    {city:'Nassau',country:'Bahamas',label:'Bahamas — Nassau',flag:'🇧🇸',tz:'America/Nassau'},
+    {city:'Bridgetown',country:'Barbados',label:'Barbados — Bridgetown',flag:'🇧🇧',tz:'America/Barbados'},
+    {city:'Port of Spain',country:'Trinidad and Tobago',label:'Trinidad and Tobago — Port of Spain',flag:'🇹🇹',tz:'America/Port_of_Spain'},
+    {city:'Bogotá',country:'Colombia',label:'Colombia — Bogotá',flag:'🇨🇴',tz:'America/Bogota'},
+    {city:'Medellín',country:'Colombia',label:'Colombia — Medellín',flag:'🇨🇴',tz:'America/Bogota'},
+    {city:'Cali',country:'Colombia',label:'Colombia — Cali',flag:'🇨🇴',tz:'America/Bogota'},
+    {city:'Caracas',country:'Venezuela',label:'Venezuela — Caracas',flag:'🇻🇪',tz:'America/Caracas'},
+    {city:'Quito',country:'Ecuador',label:'Ecuador — Quito',flag:'🇪🇨',tz:'America/Guayaquil'},
+    {city:'Guayaquil',country:'Ecuador',label:'Ecuador — Guayaquil',flag:'🇪🇨',tz:'America/Guayaquil'},
+    {city:'Lima',country:'Peru',label:'Peru — Lima',flag:'🇵🇪',tz:'America/Lima'},
+    {city:'Arequipa',country:'Peru',label:'Peru — Arequipa',flag:'🇵🇪',tz:'America/Lima'},
+    {city:'La Paz',country:'Bolivia',label:'Bolivia — La Paz',flag:'🇧🇴',tz:'America/La_Paz'},
+    {city:'Santa Cruz',country:'Bolivia',label:'Bolivia — Santa Cruz',flag:'🇧🇴',tz:'America/La_Paz'},
+    {city:'Santiago',country:'Chile',label:'Chile — Santiago',flag:'🇨🇱',tz:'America/Santiago'},
+    {city:'Asunción',country:'Paraguay',label:'Paraguay — Asunción',flag:'🇵🇾',tz:'America/Asuncion'},
+    {city:'Montevideo',country:'Uruguay',label:'Uruguay — Montevideo',flag:'🇺🇾',tz:'America/Montevideo'},
+    {city:'Buenos Aires',country:'Argentina',label:'Argentina — Buenos Aires',flag:'🇦🇷',tz:'America/Argentina/Buenos_Aires'},
+    {city:'Córdoba',country:'Argentina',label:'Argentina — Córdoba',flag:'🇦🇷',tz:'America/Argentina/Cordoba'},
+    {city:'Mendoza',country:'Argentina',label:'Argentina — Mendoza',flag:'🇦🇷',tz:'America/Argentina/Mendoza'},
+    {city:'São Paulo',country:'Brazil',label:'Brazil — São Paulo',flag:'🇧🇷',tz:'America/Sao_Paulo'},
+    {city:'Rio de Janeiro',country:'Brazil',label:'Brazil — Rio de Janeiro',flag:'🇧🇷',tz:'America/Sao_Paulo'},
+    {city:'Brasília',country:'Brazil',label:'Brazil — Brasília',flag:'🇧🇷',tz:'America/Sao_Paulo'},
+    {city:'Salvador',country:'Brazil',label:'Brazil — Salvador',flag:'🇧🇷',tz:'America/Bahia'},
+    {city:'Manaus',country:'Brazil',label:'Brazil — Manaus',flag:'🇧🇷',tz:'America/Manaus'},
+    {city:'Recife',country:'Brazil',label:'Brazil — Recife',flag:'🇧🇷',tz:'America/Recife'},
+    {city:'Georgetown',country:'Guyana',label:'Guyana — Georgetown',flag:'🇬🇾',tz:'America/Guyana'},
+    {city:'Paramaribo',country:'Suriname',label:'Suriname — Paramaribo',flag:'🇸🇷',tz:'America/Paramaribo'},
+  ]},
+  { region:'Africa', cities:[
+    {city:'Cairo',country:'Egypt',label:'Egypt — Cairo',flag:'🇪🇬',tz:'Africa/Cairo'},
+    {city:'Alexandria',country:'Egypt',label:'Egypt — Alexandria',flag:'🇪🇬',tz:'Africa/Cairo'},
+    {city:'Nairobi',country:'Kenya',label:'Kenya — Nairobi',flag:'🇰🇪',tz:'Africa/Nairobi'},
+    {city:'Mombasa',country:'Kenya',label:'Kenya — Mombasa',flag:'🇰🇪',tz:'Africa/Nairobi'},
+    {city:'Lagos',country:'Nigeria',label:'Nigeria — Lagos',flag:'🇳🇬',tz:'Africa/Lagos'},
+    {city:'Abuja',country:'Nigeria',label:'Nigeria — Abuja',flag:'🇳🇬',tz:'Africa/Lagos'},
+    {city:'Kano',country:'Nigeria',label:'Nigeria — Kano',flag:'🇳🇬',tz:'Africa/Lagos'},
+    {city:'Johannesburg',country:'South Africa',label:'South Africa — Johannesburg',flag:'🇿🇦',tz:'Africa/Johannesburg'},
+    {city:'Cape Town',country:'South Africa',label:'South Africa — Cape Town',flag:'🇿🇦',tz:'Africa/Johannesburg'},
+    {city:'Durban',country:'South Africa',label:'South Africa — Durban',flag:'🇿🇦',tz:'Africa/Johannesburg'},
+    {city:'Pretoria',country:'South Africa',label:'South Africa — Pretoria',flag:'🇿🇦',tz:'Africa/Johannesburg'},
+    {city:'Casablanca',country:'Morocco',label:'Morocco — Casablanca',flag:'🇲🇦',tz:'Africa/Casablanca'},
+    {city:'Rabat',country:'Morocco',label:'Morocco — Rabat',flag:'🇲🇦',tz:'Africa/Casablanca'},
+    {city:'Marrakesh',country:'Morocco',label:'Morocco — Marrakesh',flag:'🇲🇦',tz:'Africa/Casablanca'},
+    {city:'Accra',country:'Ghana',label:'Ghana — Accra',flag:'🇬🇭',tz:'Africa/Accra'},
+    {city:'Kumasi',country:'Ghana',label:'Ghana — Kumasi',flag:'🇬🇭',tz:'Africa/Accra'},
+    {city:'Addis Ababa',country:'Ethiopia',label:'Ethiopia — Addis Ababa',flag:'🇪🇹',tz:'Africa/Addis_Ababa'},
+    {city:'Dar es Salaam',country:'Tanzania',label:'Tanzania — Dar es Salaam',flag:'🇹🇿',tz:'Africa/Dar_es_Salaam'},
+    {city:'Dodoma',country:'Tanzania',label:'Tanzania — Dodoma',flag:'🇹🇿',tz:'Africa/Dar_es_Salaam'},
+    {city:'Kampala',country:'Uganda',label:'Uganda — Kampala',flag:'🇺🇬',tz:'Africa/Kampala'},
+    {city:'Kigali',country:'Rwanda',label:'Rwanda — Kigali',flag:'🇷🇼',tz:'Africa/Kigali'},
+    {city:'Algiers',country:'Algeria',label:'Algeria — Algiers',flag:'🇩🇿',tz:'Africa/Algiers'},
+    {city:'Tunis',country:'Tunisia',label:'Tunisia — Tunis',flag:'🇹🇳',tz:'Africa/Tunis'},
+    {city:'Tripoli',country:'Libya',label:'Libya — Tripoli',flag:'🇱🇾',tz:'Africa/Tripoli'},
+    {city:'Khartoum',country:'Sudan',label:'Sudan — Khartoum',flag:'🇸🇩',tz:'Africa/Khartoum'},
+    {city:'Juba',country:'South Sudan',label:'South Sudan — Juba',flag:'🇸🇸',tz:'Africa/Juba'},
+    {city:'Dakar',country:'Senegal',label:'Senegal — Dakar',flag:'🇸🇳',tz:'Africa/Dakar'},
+    {city:'Abidjan',country:'Ivory Coast',label:'Ivory Coast — Abidjan',flag:'🇨🇮',tz:'Africa/Abidjan'},
+    {city:'Bamako',country:'Mali',label:'Mali — Bamako',flag:'🇲🇱',tz:'Africa/Bamako'},
+    {city:'Ouagadougou',country:'Burkina Faso',label:'Burkina Faso — Ouagadougou',flag:'🇧🇫',tz:'Africa/Ouagadougou'},
+    {city:'Conakry',country:'Guinea',label:'Guinea — Conakry',flag:'🇬🇳',tz:'Africa/Conakry'},
+    {city:'Yaoundé',country:'Cameroon',label:'Cameroon — Yaoundé',flag:'🇨🇲',tz:'Africa/Douala'},
+    {city:'Douala',country:'Cameroon',label:'Cameroon — Douala',flag:'🇨🇲',tz:'Africa/Douala'},
+    {city:'Libreville',country:'Gabon',label:'Gabon — Libreville',flag:'🇬🇦',tz:'Africa/Libreville'},
+    {city:'Kinshasa',country:'DR Congo',label:'DR Congo — Kinshasa',flag:'🇨🇩',tz:'Africa/Kinshasa'},
+    {city:'Brazzaville',country:'Brazzaville',label:'Republic of the Congo',flag:'🇨🇬',tz:'Africa/Brazzaville'},
+    {city:'Luanda',country:'Angola',label:'Angola — Luanda',flag:'🇦🇴',tz:'Africa/Luanda'},
+    {city:'Lusaka',country:'Zambia',label:'Zambia — Lusaka',flag:'🇿🇲',tz:'Africa/Lusaka'},
+    {city:'Harare',country:'Zimbabwe',label:'Zimbabwe — Harare',flag:'🇿🇼',tz:'Africa/Harare'},
+    {city:'Maputo',country:'Mozambique',label:'Mozambique — Maputo',flag:'🇲🇿',tz:'Africa/Maputo'},
+    {city:'Gaborone',country:'Botswana',label:'Botswana — Gaborone',flag:'🇧🇼',tz:'Africa/Gaborone'},
+    {city:'Windhoek',country:'Namibia',label:'Namibia — Windhoek',flag:'🇳🇦',tz:'Africa/Windhoek'},
+    {city:'Antananarivo',country:'Madagascar',label:'Madagascar — Antananarivo',flag:'🇲🇬',tz:'Indian/Antananarivo'},
+    {city:'Port Louis',country:'Mauritius',label:'Mauritius — Port Louis',flag:'🇲🇺',tz:'Indian/Mauritius'},
+    {city:'Maseru',country:'Lesotho',label:'Lesotho — Maseru',flag:'🇱🇸',tz:'Africa/Maseru'},
+    {city:'Mbabane',country:'Eswatini',label:'Eswatini — Mbabane',flag:'🇸🇿',tz:'Africa/Mbabane'},
+    {city:'Lomé',country:'Togo',label:'Togo — Lomé',flag:'🇹🇬',tz:'Africa/Lome'},
+    {city:'Cotonou',country:'Benin',label:'Benin — Cotonou',flag:'🇧🇯',tz:'Africa/Porto-Novo'},
+    {city:'Monrovia',country:'Liberia',label:'Liberia — Monrovia',flag:'🇱🇷',tz:'Africa/Monrovia'},
+    {city:'Freetown',country:'Sierra Leone',label:'Sierra Leone — Freetown',flag:'🇸🇱',tz:'Africa/Freetown'},
+    {city:'Nouakchott',country:'Mauritania',label:'Mauritania — Nouakchott',flag:'🇲🇷',tz:'Africa/Nouakchott'},
+    {city:'N\'Djamena',country:'Chad',label:'Chad — N\'Djamena',flag:'🇹🇩',tz:'Africa/Ndjamena'},
+    {city:'Niamey',country:'Niger',label:'Niger — Niamey',flag:'🇳🇪',tz:'Africa/Niamey'},
+    {city:'Bissau',country:'Guinea-Bissau',label:'Guinea-Bissau — Bissau',flag:'🇬🇼',tz:'Africa/Bissau'},
+    {city:'Bangui',country:'Central African Republic',label:'Central African Republic — Bangui',flag:'🇨🇫',tz:'Africa/Bangui'},
+    {city:'Asmara',country:'Eritrea',label:'Eritrea — Asmara',flag:'🇪🇷',tz:'Africa/Asmara'},
+    {city:'Djibouti City',country:'Djibouti',label:'Djibouti — Djibouti City',flag:'🇩🇯',tz:'Africa/Djibouti'},
+    {city:'Mogadishu',country:'Somalia',label:'Somalia — Mogadishu',flag:'🇸🇴',tz:'Africa/Mogadishu'},
+    {city:'Bujumbura',country:'Burundi',label:'Burundi — Bujumbura',flag:'🇧🇮',tz:'Africa/Bujumbura'},
+    {city:'Malabo',country:'Equatorial Guinea',label:'Equatorial Guinea — Malabo',flag:'🇬🇶',tz:'Africa/Malabo'},
+    {city:'Praia',country:'Cape Verde',label:'Cape Verde — Praia',flag:'🇨🇻',tz:'Atlantic/Cape_Verde'},
+  ]},
+  { region:'Oceania', cities:[
+    {city:'Sydney',country:'Australia',label:'Australia — Sydney',flag:'🇦🇺',tz:'Australia/Sydney'},
+    {city:'Melbourne',country:'Australia',label:'Australia — Melbourne',flag:'🇦🇺',tz:'Australia/Melbourne'},
+    {city:'Brisbane',country:'Australia',label:'Australia — Brisbane',flag:'🇦🇺',tz:'Australia/Brisbane'},
+    {city:'Perth',country:'Australia',label:'Australia — Perth',flag:'🇦🇺',tz:'Australia/Perth'},
+    {city:'Adelaide',country:'Australia',label:'Australia — Adelaide',flag:'🇦🇺',tz:'Australia/Adelaide'},
+    {city:'Canberra',country:'Australia',label:'Australia — Canberra',flag:'🇦🇺',tz:'Australia/Sydney'},
+    {city:'Gold Coast',country:'Australia',label:'Australia — Gold Coast',flag:'🇦🇺',tz:'Australia/Brisbane'},
+    {city:'Hobart',country:'Australia',label:'Australia — Hobart',flag:'🇦🇺',tz:'Australia/Hobart'},
+    {city:'Darwin',country:'Australia',label:'Australia — Darwin',flag:'🇦🇺',tz:'Australia/Darwin'},
+    {city:'Auckland',country:'New Zealand',label:'New Zealand — Auckland',flag:'🇳🇿',tz:'Pacific/Auckland'},
+    {city:'Wellington',country:'New Zealand',label:'New Zealand — Wellington',flag:'🇳🇿',tz:'Pacific/Auckland'},
+    {city:'Christchurch',country:'New Zealand',label:'New Zealand — Christchurch',flag:'🇳🇿',tz:'Pacific/Auckland'},
+    {city:'Suva',country:'Fiji',label:'Fiji — Suva',flag:'🇫🇯',tz:'Pacific/Fiji'},
+    {city:'Port Moresby',country:'Papua New Guinea',label:'Papua New Guinea — Port Moresby',flag:'🇵🇬',tz:'Pacific/Port_Moresby'},
+    {city:'Nouméa',country:'New Caledonia',label:'New Caledonia — Nouméa',flag:'🇳🇨',tz:'Pacific/Noumea'},
+    {city:'Papeete',country:'French Polynesia',label:'French Polynesia — Papeete',flag:'🇵🇫',tz:'Pacific/Tahiti'},
+    {city:'Apia',country:'Samoa',label:'Samoa — Apia',flag:'🇼🇸',tz:'Pacific/Apia'},
+    {city:'Nuku\'alofa',country:'Tonga',label:'Tonga — Nuku\'alofa',flag:'🇹🇴',tz:'Pacific/Tongatapu'},
+    {city:'Port Vila',country:'Vanuatu',label:'Vanuatu — Port Vila',flag:'🇻🇺',tz:'Pacific/Efate'},
+    {city:'Honiara',country:'Solomon Islands',label:'Solomon Islands — Honiara',flag:'🇸🇧',tz:'Pacific/Guadalcanal'},
+    {city:'Tarawa',country:'Kiribati',label:'Kiribati — Tarawa',flag:'🇰🇮',tz:'Pacific/Tarawa'},
+    {city:'Majuro',country:'Marshall Islands',label:'Marshall Islands — Majuro',flag:'🇲🇭',tz:'Pacific/Majuro'},
+    {city:'Palikir',country:'Micronesia',label:'Micronesia — Palikir',flag:'🇫🇲',tz:'Pacific/Pohnpei'},
+    {city:'Ngerulmud',country:'Palau',label:'Palau — Ngerulmud',flag:'🇵🇼',tz:'Pacific/Palau'},
+    {city:'Hagåtña',country:'Guam',label:'Guam — Hagåtña',flag:'🇬🇺',tz:'Pacific/Guam'},
+  ]},
+];
+const ALL_CITIES = REGIONS.flatMap(r => r.cities);
+
+/* ══ State ══ */
+let ownerTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+let ownerEntry = ALL_CITIES.find(c => c.tz === ownerTz) ||
+  {city:'Your City',country:'Local',label:'Your City',flag:'📍',tz: ownerTz};
+let participants = [];
+let clockInterval;
+
+/* ══ Init ══ */
+function init(){
+  setToday();
+  renderOwnerBtn();
+  renderGreeting();
+  startClock();
+  setupOwnerDropdown();
+  renderParticipants();
+  document.getElementById('addTzBtn').addEventListener('click', addParticipant);
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  document.getElementById('findBtn').addEventListener('click', findMeetings);
+  document.addEventListener('click', closeAllDropdowns);
+}
+
+function setToday(){
+  const d = new Date();
+  const s = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('meetDate').value = s;
+}
+
+/* ══ Theme ══ */
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').textContent = next === 'dark' ? '🌙' : '☀️';
+  const toggle = document.getElementById('themeToggle');
+  toggle.setAttribute('aria-checked', next === 'light' ? 'true' : 'false');
+  toggle.setAttribute('aria-label', next === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+}
+
+/* ══ Greeting + clock ══ */
+function getGreeting(hour){
+  if(hour >= 5 && hour < 12) return { emoji:'☀️', text:'Good morning' };
+  if(hour >= 12 && hour < 18) return { emoji:'☁️', text:'Good afternoon' };
+  return { emoji:'🌙', text:'Good evening' };
+}
+function renderGreeting(){
+  document.getElementById('heroCity').textContent = `${ownerEntry.flag} ${ownerEntry.label}`;
+}
+function startClock(){
+  if(clockInterval) clearInterval(clockInterval);
+  function tick(){
+    const now = new Date();
+    const hour = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:ownerTz,hour:'numeric',hour12:false}).format(now), 10);
+    const { emoji, text } = getGreeting(hour);
+    document.getElementById('greetingEmoji').textContent = emoji;
+    document.getElementById('greetingText').textContent = text;
+    document.getElementById('heroTime').textContent = getTimeInTz(ownerTz, now);
+    document.getElementById('heroDate').textContent = new Intl.DateTimeFormat('en-US',{timeZone:ownerTz,weekday:'short',month:'short',day:'numeric'}).format(now);
+    updateGlanceTimes();
+  }
+  tick();
+  clockInterval = setInterval(tick, 10000);
+}
+
+/* ══ Time helpers ══ */
+function getTimeInTz(tz, date){
+  try{
+    return new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true}).format(date);
+  }catch(e){return '--:--'}
+}
+function getUtcLabel(tz){
+  try{
+    const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'shortOffset'}).formatToParts(new Date());
+    return parts.find(p=>p.type==='timeZoneName')?.value || tz;
+  }catch(e){return tz}
+}
+function getMinutesInTz(tz, date){
+  try{
+    const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'numeric',hour12:false}).formatToParts(date);
+    const h = parseInt(parts.find(p=>p.type==='hour')?.value||'0');
+    const m = parseInt(parts.find(p=>p.type==='minute')?.value||'0');
+    return h*60+m;
+  }catch(e){return 0}
+}
+function getTzOffsetMinutes(tz, date){
+  try{
+    const u = new Date(date.toLocaleString('en-US',{timeZone:'UTC'}));
+    const l = new Date(date.toLocaleString('en-US',{timeZone:tz}));
+    return (l-u)/60000;
+  }catch(e){return 0}
+}
+
+/* ══ Owner dropdown ══ */
+function renderOwnerBtn(){
+  document.getElementById('ownerFlag').textContent = ownerEntry.flag;
+  document.getElementById('ownerCity').textContent = ownerEntry.label;
+}
+function setupOwnerDropdown(){
+  const btn = document.getElementById('ownerBtn');
+  const panel = document.getElementById('ownerDropdown');
+  const search = document.getElementById('ownerSearch');
+  btn.addEventListener('click', e=>{
+    e.stopPropagation();
+    const open = panel.classList.contains('open');
+    closeAllDropdowns();
+    if(!open){
+      panel.classList.add('open'); btn.classList.add('open'); btn.setAttribute('aria-expanded','true'); search.focus();
+      renderDropdownList('ownerList', search.value, tz=>{
+        ownerTz=tz; ownerEntry=ALL_CITIES.find(c=>c.tz===tz&&c)||{city:tz,country:'',label:tz,flag:'🌍',tz};
+        renderOwnerBtn(); renderGreeting(); startClock();
+        panel.classList.remove('open'); btn.classList.remove('open'); btn.setAttribute('aria-expanded','false');
+      });
+    }
+  });
+  search.addEventListener('input', ()=>renderDropdownList('ownerList', search.value, tz=>{
+    ownerTz=tz; ownerEntry=ALL_CITIES.find(c=>c.tz===tz)||{city:tz,country:'',label:tz,flag:'🌍',tz};
+    renderOwnerBtn(); renderGreeting(); startClock();
+    panel.classList.remove('open'); btn.classList.remove('open'); btn.setAttribute('aria-expanded','false');
+  }));
+  search.addEventListener('click', e=>e.stopPropagation());
+  panel.addEventListener('click', e=>e.stopPropagation());
+}
+
+function normalizeForSearch(s){
+  // Strips accents so "sao paulo" matches "São Paulo", "bogota" matches "Bogotá", etc.
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function renderDropdownList(listId, query, onSelect){
+  const list = document.getElementById(listId);
+  const q = normalizeForSearch(query.trim());
+  let html = '';
+  REGIONS.forEach(r=>{
+    const matches = q ? r.cities.filter(c=>
+      normalizeForSearch(c.label).includes(q) ||
+      normalizeForSearch(c.country).includes(q) ||
+      normalizeForSearch(c.city).includes(q)
+    ) : r.cities;
+    if(!matches.length) return;
+    html += `<div class="dp-region">${r.region}</div>`;
+    matches.forEach(c=>{
+      html += `<div class="dp-item" data-tz="${c.tz}" data-label="${c.label}" data-flag="${c.flag}">
+        <div class="dp-item-left"><span class="dp-flag">${c.flag}</span><span class="dp-city">${c.label}</span></div>
+        <span class="dp-utc">${getUtcLabel(c.tz)}</span>
+      </div>`;
+    });
+  });
+  if(!html) html = '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">No results</div>';
+  list.innerHTML = html;
+  list.querySelectorAll('.dp-item').forEach(el=>{
+    el.addEventListener('click', e=>{ e.stopPropagation(); onSelect(el.dataset.tz, el.dataset.label, el.dataset.flag); });
+  });
+}
+
+function closeAllDropdowns(){
+  document.querySelectorAll('.dropdown-panel').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.custom-select-btn').forEach(b=>b.classList.remove('open'));
+}
+
+/* ══ Participants ══ */
+function addParticipant(){
+  const defaults = ALL_CITIES.filter(c=>c.tz !== ownerTz && !participants.find(p=>p.tz===c.tz));
+  const entry = defaults[participants.length % defaults.length] || ALL_CITIES[0];
+  participants.push({ id: Date.now(), ...entry });
+  renderParticipants();
+}
+function removeParticipant(id){
+  participants = participants.filter(p=>p.id!==id);
+  renderParticipants();
+  document.getElementById('resultsArea').innerHTML = '';
+}
+function renderParticipants(){
+  const cont = document.getElementById('participantRows');
+  if(!participants.length){
+    cont.innerHTML = `<p class="empty-hint">🌸 Let's find someone to meet with.</p>`;
+    return;
+  }
+  cont.innerHTML = participants.map(p=>`
+    <div class="participant-row" id="prow-${p.id}">
+      <div class="custom-select-wrap" style="flex:1">
+        <button class="custom-select-btn" id="pbtn-${p.id}" type="button">
+          <div class="csb-left">
+            <span class="csb-flag" id="pflag-${p.id}">${p.flag}</span>
+            <span class="csb-city" id="pcity-${p.id}">${p.label}</span>
+          </div>
+          <span class="csb-arrow">▾</span>
+        </button>
+        <div class="dropdown-panel" id="pdp-${p.id}">
+          <div class="dp-search-wrap">
+            <span class="dp-search-icon">🔍</span>
+            <input class="dp-search" type="text" placeholder="Search country or city..." id="psearch-${p.id}" autocomplete="off">
+          </div>
+          <div class="dp-list" id="plist-${p.id}"></div>
+        </div>
+      </div>
+      <div class="utc-badge" id="putc-${p.id}">${getUtcLabel(p.tz)}</div>
+      <button class="remove-participant" onclick="removeParticipant(${p.id})">×</button>
+    </div>
+  `).join('');
+
+  participants.forEach(p=>{
+    const btn = document.getElementById(`pbtn-${p.id}`);
+    const panel = document.getElementById(`pdp-${p.id}`);
+    const search = document.getElementById(`psearch-${p.id}`);
+    if(!btn||!panel||!search) return;
+
+    function onSelect(tz, label, flag){
+      const city = ALL_CITIES.find(c=>c.tz===tz) || {city:tz,country:'',label:tz,flag:flag||'🌍',tz};
+      const idx = participants.findIndex(x=>x.id===p.id);
+      if(idx>=0){ participants[idx]={...participants[idx],...city,label}; }
+      document.getElementById(`pflag-${p.id}`).textContent = city.flag;
+      document.getElementById(`pcity-${p.id}`).textContent = label;
+      document.getElementById(`putc-${p.id}`).textContent = getUtcLabel(tz);
+      panel.classList.remove('open'); btn.classList.remove('open');
+      updateGlanceTimes();
+    }
+
+    renderDropdownList(`plist-${p.id}`, '', onSelect);
+
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      const open = panel.classList.contains('open');
+      closeAllDropdowns();
+      if(!open){ panel.classList.add('open'); btn.classList.add('open'); search.focus(); }
+    });
+    search.addEventListener('input', ()=>renderDropdownList(`plist-${p.id}`, search.value, onSelect));
+    search.addEventListener('click', e=>e.stopPropagation());
+    panel.addEventListener('click', e=>e.stopPropagation());
+  });
+}
+
+function updateGlanceTimes(){
+  const now = new Date();
+  // owner
+  const ot = document.getElementById('glance-time-owner');
+  if(ot) ot.textContent = getTimeInTz(ownerTz, now);
+  // participants
+  participants.forEach(p=>{
+    const el = document.getElementById(`glance-time-${p.id}`);
+    if(el) el.textContent = getTimeInTz(p.tz, now);
+  });
+}
+
+/* ══ Find meetings ══ */
+function findMeetings(){
+  if(!participants.length){ alert('Add at least one person to meet with!'); return; }
+
+  showSearchingState();
+
+  // Brief, friendly pause so the searching state is felt (not just a flash)
+  setTimeout(()=>{
+    const dateVal = document.getElementById('meetDate').value;
+    const [startH, startM] = document.getElementById('timeStart').value.split(':').map(Number);
+    const [endH, endM] = document.getElementById('timeEnd').value.split(':').map(Number);
+    const prefStart = startH*60 + startM;
+    const prefEnd = endH*60 + endM;
+
+    const [y,mo,d] = dateVal.split('-').map(Number);
+    const dayBase = new Date(y, mo-1, d);
+
+    const ownerOffset = getTzOffsetMinutes(ownerTz, dayBase);
+
+    const candidates = [];
+    for(let min=0; min<24*60; min+=30){
+      const utcMs = dayBase.getTime() + min*60000 - ownerOffset*60000;
+      const slotUtc = new Date(utcMs);
+      let score = 0;
+      const comfort = [];
+      const allEntries = [{...ownerEntry, isOwner:true, id:'owner'}, ...participants];
+      allEntries.forEach(p=>{
+        const m = getMinutesInTz(p.tz, slotUtc);
+        const c = scoreComfort(m, prefStart, prefEnd);
+        comfort.push({p, m, c});
+        score += c === 'great' ? 2 : c === 'ok' ? 0.5 : -2;
+      });
+      candidates.push({slotUtc, score, comfort, ownerMin:min});
+    }
+
+    candidates.sort((a,b)=>b.score - a.score);
+
+    const picks = [];
+    for(const c of candidates){
+      if(picks.length >= 3) break;
+      const tooClose = picks.some(p=>Math.abs(p.slotUtc-c.slotUtc) < 90*60000);
+      if(!tooClose) picks.push(c);
+    }
+
+    renderResults(picks, dateVal, prefStart, prefEnd);
+  }, 650);
+}
+
+function showSearchingState(){
+  document.getElementById('resultsArea').innerHTML = `
+    <div class="searching-state fade-up">
+      <div class="searching-emoji">✨</div>
+      <div>Twine is finding the perfect time...</div>
+      <div class="searching-sub">Looking across timezones</div>
+    </div>
+  `;
+}
+
+function scoreComfort(min, prefStart, prefEnd){
+  if(min >= prefStart && min < prefEnd) return 'great';
+  const h = Math.floor(min/60);
+  if(h >= 7 && h < 22) return 'ok';
+  return 'bad';
+}
+
+/* ══ Render results ══ */
+function renderResults(picks, dateVal, prefStart, prefEnd){
+  const [y,mo,d] = dateVal.split('-').map(Number);
+  const dateLabel = new Date(y,mo-1,d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const now = new Date();
+  const ownerNowMin = getMinutesInTz(ownerTz, now);
+  const allEntries = [{...ownerEntry, isOwner:true, id:'owner'}, ...participants];
+
+  let html = `<div class="fade-up">`;
+
+  /* — Glance — */
+  html += `
+    <div class="glance-label"><div class="glance-dot"></div>🌍 Everyone's local time</div>
+    <div class="glance-card">
+      <div class="glance-row">
+        <div class="glance-left">
+          <span class="glance-flag">${ownerEntry.flag}</span>
+          <div>
+            <div class="glance-city">${ownerEntry.label}</div>
+            <div class="glance-utc">${getUtcLabel(ownerTz)}</div>
+          </div>
+        </div>
+        <div class="glance-right">
+          <div class="glance-time" id="glance-time-owner">${getTimeInTz(ownerTz,now)}</div>
+          <div class="you-badge">You</div>
+        </div>
+      </div>
+      ${participants.map(p=>`
+      <div class="glance-row">
+        <div class="glance-left">
+          <span class="glance-flag">${p.flag}</span>
+          <div>
+            <div class="glance-city">${p.label}</div>
+            <div class="glance-utc">${getUtcLabel(p.tz)}</div>
+          </div>
+        </div>
+        <div class="glance-right">
+          <div class="glance-time" id="glance-time-${p.id}">${getTimeInTz(p.tz,now)}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  `;
+
+  /* — Outcome banner + best match hero card — */
+  const allGreatBest = picks.length && picks[0].comfort.every(c=>c.c==='great');
+  html += allGreatBest
+    ? `<div class="outcome-banner"><span class="outcome-emoji">🎉</span><span><b>Perfect!</b> Everyone's comfortably within working hours.</span></div>`
+    : `<div class="outcome-banner"><span class="outcome-emoji">🌸</span><span>Twine found a few good options for ${dateLabel}.</span></div>`;
+
+  if(picks.length){
+    const best = picks[0];
+    const bestAllBad = best.comfort.every(c=>c.c==='bad');
+    const ownerTime = getTimeInTz(ownerTz, best.slotUtc);
+    const copyTextBest = buildCopyText(best, dateLabel, allEntries);
+    const ownerStop = best.comfort.find(c=>c.p.isOwner);
+    const otherStops = best.comfort.filter(c=>!c.p.isOwner);
+
+    function renderStop({p,c,time}){
+      const pipCls = c==='great'?'pip-great':c==='ok'?'pip-ok':'pip-bad';
+      return `
+        <div class="best-stop">
+          <div class="best-stop-time">${time}</div>
+          <div class="best-stop-place">
+            <div class="comfort-pip ${pipCls}"></div>
+            <span class="best-stop-flag">${p.flag}</span>
+            ${p.city}${p.isOwner?' (you)':''}
+          </div>
+        </div>`;
+    }
+
+    // First two stops get the large vertical treatment (matches the spec's two-city example);
+    // any additional participants list below in the compact row style.
+    const primaryStops = [ownerStop, ...otherStops.slice(0,1)].filter(Boolean);
+    const extraStops = otherStops.slice(1);
+
+    html += `
+      <div class="best-card fade-up" onclick="toggleCopyRow('best')">
+        <div class="best-card-glow"></div>
+        <div class="best-card-glow-2"></div>
+        <div class="best-eyebrow"><span class="sparkle">💜</span> We found a great time!</div>
+        <div class="best-stops">
+          ${primaryStops.map((s,i)=>{
+            const time = getTimeInTz(s.p.tz, best.slotUtc);
+            return renderStop({...s, time}) + (i===0 && primaryStops.length>1 ? '<div class="best-arrow">↓</div>' : '');
+          }).join('')}
+        </div>
+        <div class="best-note">${friendlyNote(best, bestAllBad)}</div>
+        ${extraStops.length ? `
+        <div class="best-people-extra">
+          ${extraStops.map(({p,c})=>{
+            const pipCls = c==='great'?'pip-great':c==='ok'?'pip-ok':'pip-bad';
+            const pTime = getTimeInTz(p.tz, best.slotUtc);
+            return `<div class="best-person-row">
+              <div class="best-person-left">
+                <div class="comfort-pip ${pipCls}"></div>
+                <span class="best-person-flag">${p.flag}</span>
+                ${p.city}
+              </div>
+              <div class="best-person-time">${pTime}</div>
+            </div>`;
+          }).join('')}
+        </div>` : ''}
+        <div class="best-copy-row" id="copyrow-best" style="display:none">
+          <button class="copy-btn" onclick="doCopy(event,'${encodeURIComponent(copyTextBest)}',this)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy times for everyone
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  /* — Alternatives: compact, secondary — */
+  const alts = picks.slice(1);
+  if(alts.length){
+    html += `<div class="alt-label">A couple of other options</div>`;
+    alts.forEach((pick, i)=>{
+      const hasBad = pick.comfort.some(c=>c.c==='bad');
+      const earlyLate = pick.comfort.filter(c=>c.c==='bad').map(({m})=>m<420?'early':'late');
+      const word = earlyLate.includes('late') ? 'A little late' : 'A little early';
+      const badge = hasBad ? `🌙 ${word}` : '🌼 Pretty good';
+      const badgeCls = hasBad ? 'badge-rough' : 'badge-works';
+      const ownerTime = getTimeInTz(ownerTz, pick.slotUtc);
+      const peopleInline = pick.comfort.filter(c=>!c.p.isOwner).map(({p})=>`${p.flag} ${getTimeInTz(p.tz,pick.slotUtc)}`).join('  ·  ');
+      const copyTextAlt = buildCopyText(pick, dateLabel, allEntries);
+      const altId = `alt${i}`;
+
+      html += `
+        <div class="alt-card fade-up" onclick="toggleCopyRow('${altId}')">
+          <div class="alt-row">
+            <div class="alt-left">
+              <span class="alt-time">${ownerTime}</span>
+              <span class="alt-people-inline">${peopleInline}</span>
+            </div>
+            <div class="badge ${badgeCls}">${badge}</div>
+          </div>
+          <div class="alt-copy-row" id="copyrow-${altId}">
+            <button class="copy-btn" onclick="doCopy(event,'${encodeURIComponent(copyTextAlt)}',this)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copy times for everyone
+            </button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  /* — Timeline — */
+  html += renderTimeline(picks, allEntries, prefStart, prefEnd, now);
+
+  html += `</div>`;
+  document.getElementById('resultsArea').innerHTML = html;
+}
+
+function friendlyNote(pick, allBad){
+  if(allBad) return `This is the closest fit we found — someone will be outside their usual hours, but it's the best overlap available.`;
+  const great = pick.comfort.filter(c=>c.c==='great').length;
+  const total = pick.comfort.length;
+  if(great === total) return `This sits right in everyone's preferred hours — about as easy as it gets.`;
+  return `Most people are comfortable here, with one or two just outside their preferred window.`;
+}
+
+function buildCopyText(pick, dateLabel, allEntries){
+  const lines = [`Meeting on ${dateLabel}:`];
+  pick.comfort.forEach(({p})=>{
+    lines.push(`${p.flag} ${p.label||p.city}: ${getTimeInTz(p.tz, pick.slotUtc)}`);
+  });
+  return lines.join('\n');
+}
+
+function toggleCopyRow(idx){
+  const el = document.getElementById(`copyrow-${idx}`);
+  if(el) el.style.display = el.style.display==='none'?'block':'none';
+}
+function doCopy(e, encoded, btn){
+  e.stopPropagation();
+  const text = decodeURIComponent(encoded);
+
+  function showCopied(){
+    btn.textContent = '✓ Copied!';
+    setTimeout(()=>{ btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy times for everyone`; }, 2000);
+  }
+  function showFailed(){
+    btn.textContent = 'Copy failed — select text manually';
+    setTimeout(()=>{ btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy times for everyone`; }, 2500);
+  }
+
+  // Fallback for contexts where the Clipboard API is unavailable or blocked:
+  // sandboxed iframes (like in-chat previews), file:// pages, and non-HTTPS origins
+  // all commonly block navigator.clipboard. document.execCommand('copy') via a
+  // temporary textarea works in those same contexts as a reliable fallback.
+  function legacyCopy(){
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch(err) { ok = false; }
+    document.body.removeChild(textarea);
+    if (ok) showCopied(); else showFailed();
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext !== false) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(legacyCopy);
+  } else {
+    legacyCopy();
+  }
+}
+
+/* ══ Timeline ══ */
+function renderTimeline(picks, allEntries, prefStart, prefEnd, now){
+  const nowOwnerMin = getMinutesInTz(ownerTz, now);
+  const nowPct = (nowOwnerMin/1440)*100;
+
+  let html = `<div class="timeline-card">
+    <div class="timeline-head">🌍 A look across everyone's day</div>`;
+
+  allEntries.forEach(p=>{
+    const tzDiff = getTzOffsetMinutes(p.tz, now) - getTzOffsetMinutes(ownerTz, now);
+    const pref0 = Math.max(0, prefStart + tzDiff);
+    const pref1 = Math.min(1440, prefEnd + tzDiff);
+    const ok0 = Math.max(0, 7*60 + tzDiff);
+    const ok1 = Math.min(1440, 22*60 + tzDiff);
+    const pct = v => Math.min(100, Math.max(0, (v/1440)*100));
+
+    const curMin = getMinutesInTz(p.tz, now);
+    const curHour = Math.floor(curMin/60);
+    const dayIcon = (curHour >= 6 && curHour < 18) ? '☀️' : '🌙';
+    const bestPct = picks.length ? pct(getMinutesInTz(p.tz,picks[0].slotUtc)) : null;
+
+    html += `<div class="tl-row">
+      <div class="tl-city"><span>${dayIcon}</span><span>${p.flag}</span>${p.label||p.city}${p.isOwner?' (you)':''}</div>
+      <div class="tl-bar-wrap">
+        <div class="tl-bar">
+          <div class="tl-seg tl-seg-ok" style="left:${pct(ok0)}%;width:${pct(ok1)-pct(ok0)}%"></div>
+          ${pref1>pref0?`<div class="tl-seg tl-seg-pref" style="left:${pct(pref0)}%;width:${pct(pref1)-pct(pref0)}%"></div>`:''}
+          ${bestPct!==null?`<div class="tl-best" style="left:${bestPct}%"></div>`:''}
+          ${p.isOwner?`<div class="tl-now" style="left:${nowPct}%"></div>`:''}
+        </div>
+        ${bestPct!==null?`<span class="tl-best-sparkle" style="left:${bestPct}%">✨</span>`:''}
+      </div>
+      <div class="tl-hours"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>12am</span></div>
+    </div>`;
+  });
+
+  html += `<div class="tl-legend">
+    <div class="tl-legend-item"><div class="tl-legend-dot" style="background:linear-gradient(90deg, rgba(201,168,232,0.6), rgba(232,184,212,0.6))"></div>Preferred hours</div>
+    <div class="tl-legend-item"><div class="tl-legend-dot" style="background:rgba(201,168,232,0.18)"></div>Workable hours</div>
+    <div class="tl-legend-item">✨ Recommended overlap</div>
+  </div>
+  </div>`;
+
+  return html;
+}
+
+init();
+</script>
+</body>
+</html>
