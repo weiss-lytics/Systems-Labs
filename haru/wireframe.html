@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Haru — Product Wireframe</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS — warm stone + sakura accent
+   ============================================================ */
+:root {
+  --paper:    #f7f4ef;
+  --paper-2:  #efe9e0;
+  --paper-3:  #e6ddd2;
+  --ink-1:    #1c1714;
+  --ink-2:    #4a3f36;
+  --ink-3:    #8a7a6e;
+  --ink-4:    #b8aca0;
+  --ink-5:    #d4ccc4;
+  --sakura:   #c4788a;  /* single accent — muted rose */
+  --sakura-s: #f0dde2;
+  --sakura-m: #e8c0cc;
+  --grid:     rgba(180,165,150,0.18);
+  --dash:     rgba(140,120,105,0.35);
+  --wire:     #2c2420;
+  --anno-bg:  #fffbe8;
+  --anno-bd:  #e8d88a;
+  --note-bg:  #f5f0e8;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: var(--paper);
+  color: var(--ink-1);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid paper background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   COVER / HERO
+   ============================================================ */
+.cover {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 40px;
+  border-bottom: 2px dashed var(--dash);
+}
+
+.cover-tag {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--sakura);
+  background: var(--sakura-s);
+  border: 1px dashed var(--sakura);
+  padding: 4px 14px; border-radius: 20px;
+  margin-bottom: 32px;
+}
+
+.cover-title {
+  font-size: clamp(4rem, 10vw, 7.5rem);
+  font-weight: 400; letter-spacing: -0.04em;
+  color: var(--ink-1); line-height: 0.9;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.cover-title span {
+  color: var(--sakura);
+}
+
+.cover-kanji {
+  font-size: 1.1rem; color: var(--ink-4);
+  letter-spacing: 0.12em;
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  margin-bottom: 28px;
+}
+
+.cover-desc {
+  max-width: 520px; text-align: center;
+  font-size: 1rem; line-height: 1.65;
+  color: var(--ink-3);
+  border-top: 1px dashed var(--dash);
+  border-bottom: 1px dashed var(--dash);
+  padding: 20px 0; margin-bottom: 40px;
+}
+
+.cover-meta {
+  display: flex; gap: 40px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.68rem; color: var(--ink-4);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+.cover-meta span { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cover-meta strong { color: var(--ink-2); font-size: 0.72rem; }
+
+/* Decorative corner marks */
+.corner { position: absolute; width: 20px; height: 20px; }
+.corner-tl { top: 24px; left: 24px; border-top: 2px solid var(--sakura); border-left: 2px solid var(--sakura); }
+.corner-tr { top: 24px; right: 24px; border-top: 2px solid var(--sakura); border-right: 2px solid var(--sakura); }
+.corner-bl { bottom: 24px; left: 24px; border-bottom: 2px solid var(--sakura); border-left: 2px solid var(--sakura); }
+.corner-br { bottom: 24px; right: 24px; border-bottom: 2px solid var(--sakura); border-right: 2px solid var(--sakura); }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.sticky-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(247,244,239,0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px dashed var(--dash);
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 6px;
+  height: 48px;
+}
+
+.nav-brand {
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--ink-2); margin-right: 16px;
+  letter-spacing: -0.01em;
+}
+
+.nav-pill {
+  font-family: 'Courier New', monospace;
+  font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 5px 13px; border-radius: 20px;
+  border: 1px dashed var(--dash);
+  background: none; color: var(--ink-3);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.nav-pill:hover, .nav-pill.active {
+  background: var(--sakura-s);
+  border-color: var(--sakura);
+  color: var(--sakura);
+}
+
+/* ============================================================
+   SECTION WRAPPER
+   ============================================================ */
+.section {
+  position: relative; z-index: 1;
+  padding: 72px 40px;
+  border-bottom: 2px dashed var(--dash);
+  display: none;
+}
+
+.section.active { display: block; }
+
+.section-eyebrow {
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--sakura); margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: 2.2rem; font-weight: 400;
+  letter-spacing: -0.03em; color: var(--ink-1);
+  margin-bottom: 6px; line-height: 1.1;
+}
+
+.section-sub {
+  font-size: 0.88rem; color: var(--ink-3);
+  margin-bottom: 48px; line-height: 1.5;
+  max-width: 560px;
+}
+
+/* ============================================================
+   WIREFRAME PRIMITIVES
+   ============================================================ */
+
+/* Main wireframe canvas */
+.wf-canvas {
+  background: var(--paper-2);
+  border: 1.5px dashed var(--dash);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.wf-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.56rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-4);
+  position: absolute; top: -10px; left: 20px;
+  background: var(--paper-2); padding: 0 8px;
+}
+
+/* Wireframe topbar */
+.wf-topbar {
+  background: var(--paper-3);
+  border: 1.5px dashed var(--dash);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+
+.wf-logo-box {
+  width: 28px; height: 28px;
+  border: 1.5px dashed var(--sakura);
+  border-radius: 7px;
+  background: var(--sakura-s);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; color: var(--sakura);
+  flex-shrink: 0;
+}
+
+.wf-app-name {
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--ink-2); flex-shrink: 0;
+}
+
+.wf-search {
+  flex: 1;
+  height: 22px;
+  border: 1.5px dashed var(--dash);
+  border-radius: 20px;
+  background: var(--paper);
+  display: flex; align-items: center;
+  padding: 0 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem; color: var(--ink-4);
+}
+
+.wf-tb-actions {
+  display: flex; gap: 6px; align-items: center; flex-shrink: 0;
+}
+
+.wf-icon-box {
+  width: 22px; height: 22px;
+  border: 1.5px dashed var(--dash);
+  border-radius: 5px;
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+}
+
+.wf-btn {
+  height: 24px; padding: 0 12px;
+  border: 1.5px dashed var(--wire);
+  border-radius: 6px;
+  background: var(--wire);
+  display: flex; align-items: center;
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem; font-weight: 700;
+  color: var(--paper); letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.wf-btn-ghost {
+  height: 24px; padding: 0 12px;
+  border: 1.5px dashed var(--dash);
+  border-radius: 6px;
+  background: var(--paper);
+  display: flex; align-items: center;
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem; color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* Second topbar row */
+.wf-tb-row2 {
+  background: var(--paper);
+  border: 1.5px dashed var(--dash);
+  border-radius: 8px;
+  padding: 7px 14px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+
+.wf-tb-date {
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem; color: var(--ink-4); flex-shrink: 0;
+}
+
+.wf-en-strip {
+  display: flex; gap: 4px;
+}
+
+.wf-en-chip {
+  height: 18px; padding: 0 9px;
+  border: 1.5px dashed var(--dash);
+  border-radius: 20px; background: var(--paper);
+  font-family: 'Courier New', monospace;
+  font-size: 0.55rem; color: var(--ink-3);
+  display: flex; align-items: center;
+}
+
+.wf-en-chip.active-chip {
+  border-color: var(--sakura); background: var(--sakura-s);
+  color: var(--sakura);
+}
+
+.wf-pulse {
+  display: flex; gap: 10px; margin-left: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.55rem; color: var(--ink-4);
+}
+
+/* Board workspace */
+.wf-workspace {
+  display: flex; gap: 12px;
+}
+
+.wf-sidebar {
+  width: 170px; flex-shrink: 0;
+  border: 1.5px dashed var(--dash);
+  border-radius: 10px;
+  background: var(--paper-3);
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.wf-sidebar-hd {
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem; font-weight: 700;
+  color: var(--sakura); letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+
+.wf-sidebar-greet {
+  font-size: 0.72rem; font-weight: 700; color: var(--ink-2); margin-bottom: 2px;
+}
+
+.wf-today-item {
+  display: flex; gap: 5px; align-items: flex-start;
+  padding: 5px 6px;
+  border: 1.5px dashed var(--dash);
+  border-radius: 6px; background: var(--paper);
+}
+
+.wf-today-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--sakura); flex-shrink: 0; margin-top: 3px;
+}
+
+.wf-today-txt { font-family: 'Courier New', monospace; font-size: 0.55rem; color: var(--ink-2); line-height: 1.3; }
+
+.wf-qadd {
+  display: flex; gap: 4px; margin-top: 4px;
+}
+
+.wf-qadd-input {
+  flex: 1; height: 18px;
+  border: 1.5px dashed var(--dash); border-radius: 4px;
+  background: var(--paper);
+}
+
+.wf-qadd-btn {
+  width: 20px; height: 18px;
+  border: 1.5px dashed var(--sakura);
+  border-radius: 4px; background: var(--sakura-s);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; color: var(--sakura);
+}
+
+/* Board columns */
+.wf-board {
+  flex: 1; display: flex; gap: 8px; overflow: hidden;
+}
+
+.wf-col {
+  flex: 1; display: flex; flex-direction: column; gap: 6px;
+  border: 1.5px dashed var(--dash);
+  border-radius: 10px; background: var(--paper);
+  padding: 10px; min-width: 0;
+}
+
+.wf-col.col-focus {
+  border-color: var(--sakura);
+  background: var(--sakura-s);
+}
+
+.wf-col-hd {
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--dash);
+  margin-bottom: 2px;
+}
+
+.wf-col-accent {
+  height: 2px; border-radius: 2px;
+  background: var(--ink-5); margin-bottom: 6px;
+}
+
+.wf-col.col-focus .wf-col-accent { background: var(--sakura); }
+
+.wf-col-title {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.62rem; font-weight: 700; color: var(--ink-2);
+}
+
+.wf-col-cnt {
+  margin-left: auto;
+  background: var(--paper-2); border-radius: 8px;
+  padding: 0 5px; font-size: 0.52rem; color: var(--ink-3);
+}
+
+.wf-col-hint {
+  font-family: 'Courier New', monospace;
+  font-size: 0.5rem; color: var(--ink-4);
+  font-style: italic; margin-top: 3px;
+}
+
+/* Task card skeleton */
+.wf-card {
+  background: var(--paper-3);
+  border: 1.5px dashed var(--dash);
+  border-radius: 7px;
+  padding: 7px 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.wf-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--ink-4);
+  border-radius: 3px 0 0 3px;
+}
+
+.wf-card.c-high::before { background: var(--sakura); }
+.wf-card.c-medium::before { background: var(--ink-3); }
+.wf-card.c-low::before { background: var(--ink-5); }
+
+.wf-card-r1 {
+  display: flex; align-items: center; gap: 5px; margin-bottom: 5px;
+}
+
+.wf-chk {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 1.5px dashed var(--dash); flex-shrink: 0;
+}
+
+.wf-card-ttl {
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem; font-weight: 700;
+  color: var(--ink-2); flex: 1;
+}
+
+.wf-card-dots { font-size: 0.7rem; color: var(--ink-4); }
+
+.wf-card-tags {
+  display: flex; gap: 3px; flex-wrap: wrap; padding-left: 17px;
+}
+
+.wf-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 0.47rem; padding: 1px 5px;
+  border: 1px dashed var(--dash);
+  border-radius: 10px; color: var(--ink-3);
+  background: var(--paper);
+}
+
+.wf-tag.t-rose { border-color: var(--sakura); color: var(--sakura); background: var(--sakura-s); }
+
+.wf-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 16px 8px; gap: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.52rem; color: var(--ink-4);
+  font-style: italic; text-align: center;
+}
+
+/* ============================================================
+   ANNOTATIONS
+   ============================================================ */
+.anno-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px; margin-bottom: 28px;
+}
+
+.anno {
+  background: var(--anno-bg);
+  border: 1.5px dashed var(--anno-bd);
+  border-radius: 10px;
+  padding: 14px 16px;
+  position: relative;
+}
+
+.anno::before {
+  content: '';
+  position: absolute; top: -1px; left: -1px; right: -1px;
+  height: 4px; border-radius: 10px 10px 0 0;
+  background: var(--anno-bd);
+}
+
+.anno-num {
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem; font-weight: 700;
+  color: var(--sakura); letter-spacing: 0.08em;
+  margin-bottom: 5px;
+}
+
+.anno-hd {
+  font-size: 0.8rem; font-weight: 700;
+  color: var(--ink-2); margin-bottom: 5px;
+  letter-spacing: -0.01em;
+}
+
+.anno-body {
+  font-size: 0.72rem; line-height: 1.55;
+  color: var(--ink-3);
+}
+
+/* Sticky note */
+.sticky {
+  background: #fffde6;
+  border: 1px solid #e8d870;
+  border-radius: 3px;
+  padding: 12px 14px;
+  box-shadow: 2px 3px 8px rgba(0,0,0,0.08);
+  font-size: 0.73rem; line-height: 1.5;
+  color: var(--ink-2);
+  position: relative;
+}
+
+.sticky::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: #e8d870;
+}
+
+.sticky-lbl {
+  font-family: 'Courier New', monospace;
+  font-size: 0.55rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #a09030; margin-bottom: 6px;
+}
+
+/* ============================================================
+   USER FLOW
+   ============================================================ */
+.flow-row {
+  display: flex; align-items: center;
+  gap: 0; flex-wrap: wrap;
+}
+
+.flow-node {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px;
+}
+
+.flow-box {
+  border: 1.5px dashed var(--dash);
+  border-radius: 10px;
+  background: var(--paper-2);
+  padding: 14px 20px; text-align: center;
+  min-width: 110px;
+  transition: all 0.18s ease; cursor: default;
+}
+
+.flow-box:hover { border-color: var(--sakura); background: var(--sakura-s); }
+.flow-box:hover .flow-ico { color: var(--sakura); }
+
+.flow-ico { font-size: 1.4rem; margin-bottom: 5px; }
+
+.flow-lbl {
+  font-family: 'Courier New', monospace;
+  font-size: 0.64rem; font-weight: 700;
+  color: var(--ink-2); letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.flow-desc {
+  font-size: 0.62rem; color: var(--ink-4);
+  text-align: center; max-width: 100px;
+  font-style: italic; line-height: 1.3;
+}
+
+.flow-arrow {
+  font-size: 1.2rem; color: var(--ink-5); padding: 0 6px;
+  flex-shrink: 0; align-self: flex-start; margin-top: 24px;
+}
+
+/* ============================================================
+   MODAL WIREFRAME
+   ============================================================ */
+.wf-modal-wrap {
+  position: relative;
+  display: flex; align-items: flex-start; gap: 20px;
+}
+
+.wf-backdrop {
+  flex: 1;
+  border: 1.5px dashed var(--dash);
+  border-radius: 12px;
+  background: rgba(180,165,150,0.12);
+  padding: 20px;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 340px;
+}
+
+.wf-modal {
+  background: var(--paper);
+  border: 1.5px dashed var(--wire);
+  border-radius: 14px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 4px 6px 24px rgba(0,0,0,0.1);
+}
+
+.wf-modal-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; padding-bottom: 10px;
+  border-bottom: 1px dashed var(--dash);
+}
+
+.wf-modal-ttl {
+  font-size: 0.78rem; font-weight: 700; color: var(--ink-2);
+}
+
+.wf-modal-x {
+  width: 18px; height: 18px;
+  border: 1px dashed var(--dash); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; color: var(--ink-3);
+}
+
+.wf-field { margin-bottom: 10px; }
+
+.wf-field-lbl {
+  font-family: 'Courier New', monospace;
+  font-size: 0.52rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-4); margin-bottom: 4px;
+}
+
+.wf-field-inp {
+  width: 100%; height: 26px;
+  border: 1.5px dashed var(--dash);
+  border-radius: 5px; background: var(--paper-2);
+}
+
+.wf-field-ta {
+  width: 100%; height: 44px;
+  border: 1.5px dashed var(--dash);
+  border-radius: 5px; background: var(--paper-2);
+}
+
+.wf-field-row { display: flex; gap: 8px; }
+
+.wf-pill-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+
+.wf-pill-sm {
+  height: 18px; padding: 0 8px;
+  border: 1px dashed var(--dash);
+  border-radius: 10px; background: var(--paper-2);
+  font-family: 'Courier New', monospace;
+  font-size: 0.5rem; color: var(--ink-3);
+  display: flex; align-items: center;
+}
+
+.wf-pill-sm.active { border-color: var(--sakura); background: var(--sakura-s); color: var(--sakura); }
+
+.wf-modal-acts {
+  display: flex; gap: 6px; justify-content: flex-end;
+  margin-top: 14px; padding-top: 10px;
+  border-top: 1px dashed var(--dash);
+}
+
+/* ============================================================
+   POMO WIREFRAME
+   ============================================================ */
+.wf-pomo {
+  background: var(--paper);
+  border: 1.5px dashed var(--wire);
+  border-radius: 14px;
+  padding: 22px;
+  width: 260px;
+  text-align: center;
+  box-shadow: 4px 6px 24px rgba(0,0,0,0.08);
+}
+
+.wf-pomo-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.wf-pomo-ttl { font-size: 0.76rem; font-weight: 700; color: var(--ink-2); }
+
+.wf-pomo-tabs {
+  display: flex; gap: 3px; background: var(--paper-2);
+  border: 1px dashed var(--dash); border-radius: 20px;
+  padding: 3px; margin-bottom: 18px;
+}
+
+.wf-ptab {
+  flex: 1; height: 18px;
+  border: none; border-radius: 15px;
+  background: transparent;
+  font-family: 'Courier New', monospace;
+  font-size: 0.5rem; color: var(--ink-3);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.wf-ptab.active { background: var(--paper); color: var(--ink-2); }
+
+.wf-ring {
+  width: 110px; height: 110px; margin: 0 auto 14px;
+  border: 7px dashed var(--ink-5);
+  border-radius: 50%; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.wf-ring-inner {
+  text-align: center;
+}
+
+.wf-ring-time {
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--ink-1); letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.wf-ring-lbl {
+  font-family: 'Courier New', monospace;
+  font-size: 0.48rem; color: var(--ink-4);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+.wf-pomo-dots {
+  display: flex; gap: 5px; justify-content: center; margin-bottom: 14px;
+}
+
+.wf-pdot {
+  width: 7px; height: 7px; border-radius: 50%;
+  border: 1.5px dashed var(--dash); background: var(--paper);
+}
+
+.wf-pdot.lit { background: var(--sakura); border-color: var(--sakura); }
+
+.wf-pomo-sel {
+  width: 100%; height: 22px;
+  border: 1.5px dashed var(--dash); border-radius: 5px;
+  background: var(--paper-2); margin-bottom: 12px;
+}
+
+.wf-pomo-ctrls { display: flex; gap: 6px; justify-content: center; }
+
+/* ============================================================
+   SYSTEM ARCHITECTURE
+   ============================================================ */
+.sys-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  max-width: 700px; margin: 0 auto;
+}
+
+.sys-node {
+  width: 100%;
+  border: 1.5px dashed var(--dash);
+  border-radius: 12px;
+  background: var(--paper-2);
+  padding: 18px 24px;
+  display: flex; align-items: flex-start; gap: 16px;
+  position: relative;
+  transition: all 0.18s ease; cursor: default;
+}
+
+.sys-node:hover { border-color: var(--sakura); background: var(--sakura-s); }
+.sys-node:hover .sys-num { color: var(--sakura); }
+
+.sys-num {
+  font-family: 'Courier New', monospace;
+  font-size: 1.6rem; font-weight: 700;
+  color: var(--ink-5); line-height: 1; flex-shrink: 0;
+  width: 40px;
+}
+
+.sys-content { flex: 1; }
+
+.sys-hd {
+  font-size: 0.9rem; font-weight: 700;
+  color: var(--ink-1); margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.sys-desc {
+  font-size: 0.72rem; color: var(--ink-3);
+  line-height: 1.5; margin-bottom: 8px;
+}
+
+.sys-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.sys-chip {
+  font-family: 'Courier New', monospace;
+  font-size: 0.55rem; padding: 2px 8px;
+  border: 1px dashed var(--dash); border-radius: 10px;
+  color: var(--ink-3); background: var(--paper);
+}
+
+.sys-arrow {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 6px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem; color: var(--ink-4);
+  letter-spacing: 0.06em;
+}
+
+.sys-arrow-line {
+  flex: 1; height: 1px;
+  background: repeating-linear-gradient(90deg, var(--dash) 0, var(--dash) 6px, transparent 6px, transparent 12px);
+  max-width: 80px;
+}
+
+/* ============================================================
+   TWO-COL LAYOUT
+   ============================================================ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
+.wf-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 32px 0 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem; color: var(--ink-4);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+.wf-divider::before, .wf-divider::after {
+  content: ''; flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--dash) 0, var(--dash) 6px, transparent 6px, transparent 12px);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.doc-footer {
+  position: relative; z-index: 1;
+  text-align: center; padding: 48px 40px;
+  border-top: 2px dashed var(--dash);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+
+.footer-title {
+  font-size: 2rem; font-weight: 400;
+  letter-spacing: -0.03em; color: var(--ink-2);
+}
+
+.footer-title span { color: var(--sakura); }
+
+.footer-meta {
+  font-family: 'Courier New', monospace;
+  font-size: 0.62rem; color: var(--ink-4);
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 760px) {
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .anno-grid { grid-template-columns: 1fr; }
+  .wf-workspace { flex-direction: column; }
+  .wf-sidebar { width: 100%; }
+  .wf-board { overflow-x: auto; }
+  .wf-modal-wrap { flex-direction: column; }
+  .flow-row { flex-direction: column; align-items: flex-start; }
+  .flow-arrow { transform: rotate(90deg); margin: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     COVER
+     ============================================================ -->
+<section class="cover" id="cover">
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <div class="cover-tag">Product Wireframe Document · 2025</div>
+
+  <h1 class="cover-title">Ha<span>ru</span></h1>
+  <p class="cover-kanji">春 — Spring / A New Beginning</p>
+
+  <p class="cover-desc">
+    A calm kanban workspace for busy minds.<br>
+    Soft workflow management with an integrated Pomodoro timer,
+    Today's Focus panel, and smart nudges — built for focus without overwhelm.
+  </p>
+
+  <div class="cover-meta">
+    <span><strong>Type</strong>Productivity App</span>
+    <span><strong>Format</strong>Single HTML File</span>
+    <span><strong>Screens</strong>6 Wireframes</span>
+    <span><strong>Version</strong>V3</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     STICKY NAV
+     ============================================================ -->
+<nav class="sticky-nav">
+  <span class="nav-brand">Haru · WF</span>
+  <button class="nav-pill active" onclick="showSection('home')">01 Dashboard</button>
+  <button class="nav-pill" onclick="showSection('capture')">02 Quick Capture</button>
+  <button class="nav-pill" onclick="showSection('board')">03 Kanban Board</button>
+  <button class="nav-pill" onclick="showSection('modal')">04 Task Modal</button>
+  <button class="nav-pill" onclick="showSection('pomo')">05 Pomodoro</button>
+  <button class="nav-pill" onclick="showSection('system')">06 Architecture</button>
+</nav>
+
+<!-- ============================================================
+     01 — DASHBOARD
+     ============================================================ -->
+<section class="section active" id="home">
+  <p class="section-eyebrow">Screen 01 · Dashboard</p>
+  <h2 class="section-title">The Calm Desk</h2>
+  <p class="section-sub">The primary workspace — where every session begins. Designed to orient without overwhelming.</p>
+
+  <div class="wf-canvas">
+    <span class="wf-label">HARU · MAIN DASHBOARD</span>
+
+    <!-- Topbar R1 -->
+    <div class="wf-topbar">
+      <div class="wf-logo-box">🌸</div>
+      <span class="wf-app-name">Haru</span>
+      <div class="wf-search">🔍 &nbsp;Search tasks…</div>
+      <div class="wf-tb-actions">
+        <div class="wf-icon-box">🎯</div>
+        <div class="wf-icon-box">🍅</div>
+        <div class="wf-icon-box">🌙</div>
+        <div class="wf-btn">＋ New Task</div>
+      </div>
+    </div>
+
+    <!-- Topbar R2 -->
+    <div class="wf-tb-row2">
+      <span class="wf-tb-date">Friday, July 17</span>
+      <div class="wf-en-strip">
+        <div class="wf-en-chip">🌙 Low</div>
+        <div class="wf-en-chip active-chip">☕ Medium</div>
+        <div class="wf-en-chip">⚡ Focus</div>
+        <div class="wf-en-chip">🎨 Creative</div>
+      </div>
+      <div class="wf-pulse">
+        <span>● 2 done</span>
+        <span>● 3 active</span>
+        <span>● 1 blocked</span>
+        <span>● 8 total</span>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="wf-workspace">
+
+      <!-- Sidebar -->
+      <div class="wf-sidebar">
+        <div>
+          <div class="wf-sidebar-hd">Today's Focus</div>
+          <div class="wf-sidebar-greet">Good morning 🌸</div>
+          <div style="font-family:'Courier New',monospace;font-size:0.52rem;color:var(--ink-4);font-style:italic;margin-bottom:8px">Small progress still blooms.</div>
+        </div>
+
+        <div style="font-family:'Courier New',monospace;font-size:0.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:3px">🌸 Due Today</div>
+        <div class="wf-today-item">
+          <div class="wf-today-dot"></div>
+          <div class="wf-today-txt">Finalize design docs</div>
+        </div>
+
+        <div style="font-family:'Courier New',monospace;font-size:0.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:3px;margin-top:4px">🌿 Active</div>
+        <div class="wf-today-item">
+          <div class="wf-today-dot" style="background:var(--ink-3)"></div>
+          <div class="wf-today-txt">Write API docs</div>
+        </div>
+        <div class="wf-today-item">
+          <div class="wf-today-dot" style="background:var(--ink-3)"></div>
+          <div class="wf-today-txt">Review pull requests</div>
+        </div>
+
+        <div style="font-family:'Courier New',monospace;font-size:0.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:3px;margin-top:4px">⚡ High Priority</div>
+        <div class="wf-today-item">
+          <div class="wf-today-dot" style="background:#c49a5a"></div>
+          <div class="wf-today-txt">Client presentation prep</div>
+        </div>
+
+        <div class="wf-qadd" style="margin-top:8px">
+          <div class="wf-qadd-input"></div>
+          <div class="wf-qadd-btn">＋</div>
+        </div>
+      </div>
+
+      <!-- Board -->
+      <div class="wf-board">
+        <div class="wf-col">
+          <div class="wf-col-hd">
+            <div class="wf-col-accent"></div>
+            <div class="wf-col-title">🗂 Backlog<span class="wf-col-cnt">5</span></div>
+            <div class="wf-col-hint">Ideas waiting quietly 🌱</div>
+          </div>
+          <div class="wf-card c-low">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Research competitors</div><div class="wf-card-dots">⋯</div></div>
+            <div class="wf-card-tags"><div class="wf-tag">Low</div><div class="wf-tag">🌙</div></div>
+          </div>
+          <div class="wf-card c-medium">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Draft blog post</div><div class="wf-card-dots">⋯</div></div>
+            <div class="wf-card-tags"><div class="wf-tag">Med</div><div class="wf-tag">🎨</div></div>
+          </div>
+        </div>
+
+        <div class="wf-col">
+          <div class="wf-col-hd">
+            <div class="wf-col-accent"></div>
+            <div class="wf-col-title">💤 Not Started<span class="wf-col-cnt">2</span></div>
+            <div class="wf-col-hint">Clear skies ahead</div>
+          </div>
+          <div class="wf-card c-high">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Client presentation</div><div class="wf-card-dots">⋯</div></div>
+            <div class="wf-card-tags"><div class="wf-tag t-rose">High</div><div class="wf-tag">⚡</div><div class="wf-tag" style="margin-left:auto">Jul 18</div></div>
+          </div>
+        </div>
+
+        <div class="wf-col col-focus">
+          <div class="wf-col-hd">
+            <div class="wf-col-accent"></div>
+            <div class="wf-col-title">🌿 In Progress<span class="wf-col-cnt">3</span></div>
+            <div class="wf-col-hint">Momentum is building ✨</div>
+          </div>
+          <div class="wf-card c-high">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Write API docs</div><div class="wf-card-dots">⋯</div></div>
+            <div class="wf-card-tags"><div class="wf-tag t-rose">High</div><div class="wf-tag">⚡</div></div>
+          </div>
+          <div class="wf-card c-medium">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Review pull requests</div><div class="wf-card-dots">⋯</div></div>
+            <div class="wf-card-tags"><div class="wf-tag">Med</div><div class="wf-tag">☕</div></div>
+          </div>
+        </div>
+
+        <div class="wf-col">
+          <div class="wf-col-hd">
+            <div class="wf-col-accent" style="background:var(--clay-s,#f0dbd6)"></div>
+            <div class="wf-col-title">🚫 Blocker<span class="wf-col-cnt">1</span></div>
+            <div class="wf-col-hint">Pause. Reset. Continue.</div>
+          </div>
+          <div class="wf-card c-high">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Waiting on legal review</div><div class="wf-card-dots">⋯</div></div>
+            <div class="wf-card-tags"><div class="wf-tag t-rose">High</div></div>
+          </div>
+        </div>
+
+        <div class="wf-col">
+          <div class="wf-col-hd">
+            <div class="wf-col-accent" style="background:var(--vio-s,#e4deef)"></div>
+            <div class="wf-col-title">✨ Complete<span class="wf-col-cnt">2</span></div>
+            <div class="wf-col-hint">Small wins still bloom 🌸</div>
+          </div>
+          <div class="wf-empty">✨<br>2 tasks done today</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wf-divider">Design Rationale</div>
+
+  <div class="anno-grid">
+    <div class="anno">
+      <div class="anno-num">A·01</div>
+      <div class="anno-hd">Two-row topbar</div>
+      <div class="anno-body">Splitting primary actions (row 1) from secondary context (row 2) reduces cognitive load. The energy mode selector and stats live in the quieter second row — present but not competing.</div>
+    </div>
+    <div class="anno">
+      <div class="anno-num">A·02</div>
+      <div class="anno-hd">Today's Focus sidebar</div>
+      <div class="anno-body">Acts as a daily briefing panel — not just backlog storage. It surfaces due today, active work, and high priority without requiring the user to scan all five columns.</div>
+    </div>
+    <div class="anno">
+      <div class="anno-num">A·03</div>
+      <div class="anno-hd">In Progress is the widest column</div>
+      <div class="anno-body">Asymmetric column widths reflect workflow priority. Your active work deserves the most visual space. Backlog and Complete are intentionally compact — they're peripheral states.</div>
+    </div>
+    <div class="anno">
+      <div class="anno-num">A·04</div>
+      <div class="anno-hd">Priority as left border stripe</div>
+      <div class="anno-body">One 3px stripe communicates priority without a noisy label. High = sakura rose. Medium = warm amber. Low = sage. Information density stays low, signal stays high.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     02 — QUICK CAPTURE
+     ============================================================ -->
+<section class="section" id="capture">
+  <p class="section-eyebrow">Screen 02 · Quick Capture</p>
+  <h2 class="section-title">Brain Dump, Untangled</h2>
+  <p class="section-sub">The fastest path from thought to system. Zero friction, zero decisions required at capture time.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="wf-canvas">
+        <span class="wf-label">SIDEBAR QUICK ADD</span>
+        <div class="wf-sidebar" style="width:100%">
+          <div class="wf-sidebar-hd">Today's Focus</div>
+          <div style="font-family:'Courier New',monospace;font-size:0.55rem;color:var(--ink-3);margin-bottom:10px">Your canvas is clear.<br>Add something to begin 🌱</div>
+          <div style="font-family:'Courier New',monospace;font-size:0.52rem;font-weight:700;color:var(--ink-4);margin-bottom:5px;letter-spacing:.08em;text-transform:uppercase">Quick Add to Backlog</div>
+          <div class="wf-qadd">
+            <div class="wf-qadd-input" style="height:26px;border-radius:5px;background:var(--paper);border:1.5px dashed var(--sakura)"></div>
+            <div class="wf-qadd-btn" style="width:26px;height:26px">＋</div>
+          </div>
+          <div style="font-family:'Courier New',monospace;font-size:0.5rem;color:var(--ink-4);font-style:italic;margin-top:4px;text-align:center">Press Enter to capture</div>
+        </div>
+      </div>
+
+      <div class="sticky">
+        <div class="sticky-lbl">Design Decision</div>
+        The quick-add field sits at the bottom of the Today panel — always in view, never requiring a modal. The goal: capture a thought in under 3 seconds. Everything goes to Backlog first, sorted later.
+      </div>
+    </div>
+
+    <div>
+      <div class="wf-canvas">
+        <span class="wf-label">SMART NUDGE BAR</span>
+        <div style="background:var(--anno-bg);border:1.5px dashed var(--anno-bd);border-radius:8px;padding:9px 14px;display:flex;align-items:center;gap:8px;margin-bottom:14px">
+          <span style="font-size:0.85rem">🌿</span>
+          <span style="font-family:'Courier New',monospace;font-size:0.6rem;color:#8a7030;font-style:italic">Clearing blockers may restore your momentum.</span>
+          <span style="margin-left:auto;font-size:0.8rem;color:#a09030;cursor:pointer">✕</span>
+        </div>
+
+        <div style="background:var(--paper-2);border:1.5px dashed var(--dash);border-radius:8px;padding:9px 14px;display:flex;align-items:center;gap:8px;margin-bottom:14px">
+          <span style="font-size:0.85rem">🌿</span>
+          <span style="font-family:'Courier New',monospace;font-size:0.6rem;color:var(--ink-3);font-style:italic">You have 6 active tasks — focusing on one helps 🌿</span>
+          <span style="margin-left:auto;font-size:0.8rem;color:var(--ink-4)">✕</span>
+        </div>
+
+        <div style="background:var(--paper-2);border:1.5px dashed var(--dash);border-radius:8px;padding:9px 14px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:0.85rem">🌱</span>
+          <span style="font-family:'Courier New',monospace;font-size:0.6rem;color:var(--ink-3);font-style:italic">"Research competitors" has been resting for a while 🌱</span>
+          <span style="margin-left:auto;font-size:0.8rem;color:var(--ink-4)">✕</span>
+        </div>
+      </div>
+
+      <div class="sticky">
+        <div class="sticky-lbl">Local Intelligence — No AI Required</div>
+        Nudges are generated by pure JS logic: task age, blocker count, active task volume. No API calls. The system feels smart without being invasive — a gentle tap on the shoulder, not a notification storm.
+      </div>
+    </div>
+  </div>
+
+  <div class="wf-divider">Capture User Flow</div>
+
+  <div class="flow-row" style="justify-content:center;gap:0">
+    <div class="flow-node">
+      <div class="flow-box">
+        <div class="flow-ico">💭</div>
+        <div class="flow-lbl">Thought</div>
+      </div>
+      <div class="flow-desc">Idea surfaces, no time to think</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-box">
+        <div class="flow-ico">⌨️</div>
+        <div class="flow-lbl">Type</div>
+      </div>
+      <div class="flow-desc">Quick-add field, always visible</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-box">
+        <div class="flow-ico">↵</div>
+        <div class="flow-lbl">Capture</div>
+      </div>
+      <div class="flow-desc">Enter key, zero clicks</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-box" style="border-color:var(--sakura);background:var(--sakura-s)">
+        <div class="flow-ico">🗂</div>
+        <div class="flow-lbl">Backlog</div>
+      </div>
+      <div class="flow-desc">Lands safely, triage later</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-box">
+        <div class="flow-ico">🌿</div>
+        <div class="flow-lbl">Promote</div>
+      </div>
+      <div class="flow-desc">Drag or move to active col</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     03 — KANBAN BOARD
+     ============================================================ -->
+<section class="section" id="board">
+  <p class="section-eyebrow">Screen 03 · Kanban Board</p>
+  <h2 class="section-title">Five-Stage Workflow</h2>
+  <p class="section-sub">A structured but soft workflow model. Each column has a distinct personality and visual identity.</p>
+
+  <div class="wf-canvas">
+    <span class="wf-label">COLUMN ANATOMY</span>
+    <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px">
+
+      <!-- Each column with full annotation -->
+      <div style="min-width:160px;flex:1">
+        <div style="background:var(--amber-soft,#f2e8d4);border:1.5px dashed #c49a5a;border-radius:10px;padding:10px;margin-bottom:8px">
+          <div style="height:2px;background:#c49a5a;border-radius:2px;margin-bottom:7px"></div>
+          <div style="font-family:'Courier New',monospace;font-size:0.62rem;font-weight:700;color:var(--ink-2);margin-bottom:4px">🗂 Backlog</div>
+          <div style="font-family:'Courier New',monospace;font-size:0.5rem;color:var(--ink-4);font-style:italic;margin-bottom:8px">Ideas waiting quietly 🌱</div>
+          <div class="wf-card c-low" style="margin-bottom:6px">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Idea: new onboarding</div></div>
+            <div class="wf-card-tags"><div class="wf-tag">Low</div><div class="wf-tag">🎨</div></div>
+          </div>
+        </div>
+        <div class="sticky" style="font-size:0.62rem">
+          <div class="sticky-lbl">Backlog</div>
+          Brain dump zone. Narrower width signals lower urgency. Tasks start here.
+        </div>
+      </div>
+
+      <div style="min-width:160px;flex:1.1">
+        <div style="background:var(--dusk-soft,#dde0ec);border:1.5px dashed #8892b0;border-radius:10px;padding:10px;margin-bottom:8px">
+          <div style="height:2px;background:#8892b0;border-radius:2px;margin-bottom:7px"></div>
+          <div style="font-family:'Courier New',monospace;font-size:0.62rem;font-weight:700;color:var(--ink-2);margin-bottom:4px">💤 Not Started</div>
+          <div style="font-family:'Courier New',monospace;font-size:0.5rem;color:var(--ink-4);font-style:italic;margin-bottom:8px">Clear skies ahead</div>
+          <div class="wf-card c-high" style="margin-bottom:6px">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Client presentation</div></div>
+            <div class="wf-card-tags"><div class="wf-tag t-rose">High</div><div class="wf-tag" style="margin-left:auto">Jul 18</div></div>
+          </div>
+        </div>
+        <div class="sticky" style="font-size:0.62rem">
+          <div class="sticky-lbl">Not Started</div>
+          Committed but not yet begun. Wider than Backlog — it's in the queue.
+        </div>
+      </div>
+
+      <div style="min-width:180px;flex:1.5">
+        <div style="background:var(--sage-soft,#d8ecda);border:1.5px dashed #7a9e80;border-radius:10px;padding:10px;margin-bottom:8px">
+          <div style="height:2px;background:#7a9e80;border-radius:2px;margin-bottom:7px"></div>
+          <div style="font-family:'Courier New',monospace;font-size:0.62rem;font-weight:700;color:var(--ink-2);margin-bottom:4px">🌿 In Progress</div>
+          <div style="font-family:'Courier New',monospace;font-size:0.5rem;color:var(--ink-4);font-style:italic;margin-bottom:8px">Momentum is building ✨</div>
+          <div class="wf-card c-high" style="margin-bottom:6px">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Write API documentation</div></div>
+            <div class="wf-card-tags"><div class="wf-tag t-rose">High</div><div class="wf-tag">⚡</div></div>
+          </div>
+          <div class="wf-card c-medium">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Review pull requests</div></div>
+            <div class="wf-card-tags"><div class="wf-tag">Med</div><div class="wf-tag">☕</div></div>
+          </div>
+        </div>
+        <div class="sticky" style="font-size:0.62rem">
+          <div class="sticky-lbl">In Progress ← WIDEST</div>
+          Primary work zone. Gets the most real estate. Sage green signals active momentum.
+        </div>
+      </div>
+
+      <div style="min-width:145px;flex:1">
+        <div style="background:var(--clay-soft,#f0dbd6);border:1.5px dashed #b87060;border-radius:10px;padding:10px;margin-bottom:8px">
+          <div style="height:2px;background:#b87060;border-radius:2px;margin-bottom:7px"></div>
+          <div style="font-family:'Courier New',monospace;font-size:0.62rem;font-weight:700;color:var(--ink-2);margin-bottom:4px">🚫 Blocker</div>
+          <div style="font-family:'Courier New',monospace;font-size:0.5rem;color:var(--ink-4);font-style:italic;margin-bottom:8px">Pause. Reset. Continue.</div>
+          <div class="wf-card c-high" style="margin-bottom:6px">
+            <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Awaiting legal review</div></div>
+            <div style="background:var(--clay-soft,#f0dbd6);border-radius:4px;border-left:2px solid #b87060;padding:3px 6px;margin:4px 0 0 16px;font-family:'Courier New',monospace;font-size:0.48rem;color:#b87060">⚠ External dependency</div>
+          </div>
+        </div>
+        <div class="sticky" style="font-size:0.62rem">
+          <div class="sticky-lbl">Blocker</div>
+          Clay/red tint signals friction. Compact — you shouldn't have many here.
+        </div>
+      </div>
+
+      <div style="min-width:145px;flex:1">
+        <div style="background:var(--vio-soft,#e4deef);border:1.5px dashed #9888b8;border-radius:10px;padding:10px;margin-bottom:8px">
+          <div style="height:2px;background:#9888b8;border-radius:2px;margin-bottom:7px"></div>
+          <div style="font-family:'Courier New',monospace;font-size:0.62rem;font-weight:700;color:var(--ink-2);margin-bottom:4px">✨ Complete</div>
+          <div style="font-family:'Courier New',monospace;font-size:0.5rem;color:var(--ink-4);font-style:italic;margin-bottom:8px">Small wins still bloom 🌸</div>
+          <div style="text-align:center;padding:16px 8px;font-family:'Courier New',monospace;font-size:0.52rem;color:var(--ink-4);font-style:italic">✨<br>2 tasks done today</div>
+        </div>
+        <div class="sticky" style="font-size:0.62rem">
+          <div class="sticky-lbl">Complete</div>
+          Muted violet — done is done. Compact width, lavender = rest state.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="wf-divider">Drag & Drop Interaction States</div>
+
+  <div class="three-col">
+    <div class="wf-canvas" style="margin-bottom:0">
+      <span class="wf-label">STATE: IDLE</span>
+      <div class="wf-card c-high" style="margin-bottom:0">
+        <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Normal card at rest</div><div class="wf-card-dots">⋯</div></div>
+        <div class="wf-card-tags"><div class="wf-tag t-rose">High</div><div class="wf-tag">⚡</div></div>
+      </div>
+      <div style="font-family:'Courier New',monospace;font-size:0.52rem;color:var(--ink-4);margin-top:8px">Default state. Subtle shadow. Priority stripe visible.</div>
+    </div>
+
+    <div class="wf-canvas" style="margin-bottom:0">
+      <span class="wf-label">STATE: HOVER</span>
+      <div class="wf-card c-high" style="transform:translateY(-3px);box-shadow:0 8px 24px rgba(42,33,24,.14);border-color:rgba(42,33,24,.18);margin-bottom:0">
+        <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Card lifts on hover</div><div class="wf-card-dots" style="opacity:1;color:var(--ink-2)">⋯</div></div>
+        <div class="wf-card-tags"><div class="wf-tag t-rose">High</div><div class="wf-tag">⚡</div></div>
+      </div>
+      <div style="font-family:'Courier New',monospace;font-size:0.52rem;color:var(--ink-4);margin-top:8px">−3px lift + deeper shadow. ⋯ menu button appears.</div>
+    </div>
+
+    <div class="wf-canvas" style="margin-bottom:0">
+      <span class="wf-label">STATE: DRAGGING</span>
+      <div class="wf-card c-high" style="transform:rotate(2deg) scale(1.03);opacity:0.4;box-shadow:0 12px 40px rgba(42,33,24,.2);margin-bottom:0">
+        <div class="wf-card-r1"><div class="wf-chk"></div><div class="wf-card-ttl">Card tilts during drag</div></div>
+        <div class="wf-card-tags"><div class="wf-tag t-rose">High</div></div>
+      </div>
+      <div style="font-family:'Courier New',monospace;font-size:0.52rem;color:var(--ink-4);margin-top:8px">Rotate 2°, scale 1.03, 40% opacity. Drop targets glow.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     04 — TASK MODAL
+     ============================================================ -->
+<section class="section" id="modal">
+  <p class="section-eyebrow">Screen 04 · Task Modal</p>
+  <h2 class="section-title">Creating & Editing Tasks</h2>
+  <p class="section-sub">A focused, elegant modal that guides without dictating. Every field has a clear purpose.</p>
+
+  <div class="wf-modal-wrap">
+    <div class="wf-backdrop">
+      <div class="wf-modal">
+        <div class="wf-modal-hd">
+          <span class="wf-modal-ttl">New Task 🌱</span>
+          <div class="wf-modal-x">✕</div>
+        </div>
+
+        <div class="wf-field">
+          <div class="wf-field-lbl">Task Title</div>
+          <div class="wf-field-inp" style="border-color:var(--sakura);background:var(--paper-2);display:flex;align-items:center;padding:0 8px;font-family:'Courier New',monospace;font-size:0.58rem;color:var(--ink-3)">Write API documentation…</div>
+        </div>
+
+        <div class="wf-field">
+          <div class="wf-field-lbl">Notes (optional)</div>
+          <div class="wf-field-ta" style="display:flex;align-items:flex-start;padding:6px 8px;font-family:'Courier New',monospace;font-size:0.55rem;color:var(--ink-4)">Include auth endpoints and rate limits…</div>
+        </div>
+
+        <div class="wf-field-row">
+          <div class="wf-field" style="flex:1">
+            <div class="wf-field-lbl">Priority</div>
+            <div class="wf-pill-row">
+              <div class="wf-pill-sm">Low</div>
+              <div class="wf-pill-sm">Med</div>
+              <div class="wf-pill-sm active">High</div>
+            </div>
+          </div>
+          <div class="wf-field" style="flex:1">
+            <div class="wf-field-lbl">Energy</div>
+            <div class="wf-pill-row">
+              <div class="wf-pill-sm">🌙</div>
+              <div class="wf-pill-sm">☕</div>
+              <div class="wf-pill-sm active">⚡</div>
+              <div class="wf-pill-sm">🎨</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-field-row">
+          <div class="wf-field" style="flex:1">
+            <div class="wf-field-lbl">Due Date</div>
+            <div class="wf-field-inp" style="display:flex;align-items:center;padding:0 8px;font-family:'Courier New',monospace;font-size:0.55rem;color:var(--ink-3)">Jul 18, 2025</div>
+          </div>
+          <div class="wf-field" style="flex:1">
+            <div class="wf-field-lbl">Column</div>
+            <div class="wf-pill-row">
+              <div class="wf-pill-sm">🗂</div>
+              <div class="wf-pill-sm">💤</div>
+              <div class="wf-pill-sm active">🌿</div>
+              <div class="wf-pill-sm">🚫</div>
+              <div class="wf-pill-sm">✨</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-field">
+          <div class="wf-field-lbl">Progress % (0–100)</div>
+          <div class="wf-field-inp" style="display:flex;align-items:center;padding:0 8px;font-family:'Courier New',monospace;font-size:0.55rem;color:var(--ink-3)">35</div>
+        </div>
+
+        <div class="wf-modal-acts">
+          <div class="wf-btn-ghost">Cancel</div>
+          <div class="wf-btn">Save Task</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:14px">
+      <div class="anno">
+        <div class="anno-num">A·01</div>
+        <div class="anno-hd">Column picker as pills</div>
+        <div class="anno-body">No dropdown — a scannable pill row. You see all 5 options at once and tap. Faster than a select menu for 5 or fewer options.</div>
+      </div>
+      <div class="anno">
+        <div class="anno-num">A·02</div>
+        <div class="anno-hd">Blocker reason field</div>
+        <div class="anno-body">Conditionally revealed only when Blocker column is selected. Reduces form complexity — context determines what you see.</div>
+      </div>
+      <div class="anno">
+        <div class="anno-num">A·03</div>
+        <div class="anno-hd">Progress bar input</div>
+        <div class="anno-body">A 0–100% field that renders as a mini progress bar on the card. Visual feedback motivates completion. Optional — defaults to 0.</div>
+      </div>
+      <div class="anno">
+        <div class="anno-num">A·04</div>
+        <div class="anno-hd">Enter to save</div>
+        <div class="anno-body">Title field responds to Enter key. Power users never need to reach for the mouse. Reduces friction for fast task entry.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     05 — POMODORO
+     ============================================================ -->
+<section class="section" id="pomo">
+  <p class="section-eyebrow">Screen 05 · Pomodoro Timer</p>
+  <h2 class="section-title">Focus Without Pressure</h2>
+  <p class="section-sub">A dedicated timer modal that links sessions to tasks. Calm, minimal, purposeful.</p>
+
+  <div class="two-col">
+    <div style="display:flex;align-items:center;justify-content:center;padding:20px">
+      <div class="wf-pomo">
+        <div class="wf-pomo-hd">
+          <span class="wf-pomo-ttl">🍅 Pomodoro Timer</span>
+          <div class="wf-modal-x">✕</div>
+        </div>
+
+        <div class="wf-pomo-tabs">
+          <div class="wf-ptab active">Focus</div>
+          <div class="wf-ptab">Short Break</div>
+          <div class="wf-ptab">Long Break</div>
+        </div>
+
+        <div class="wf-ring">
+          <div class="wf-ring-inner">
+            <div class="wf-ring-time">25:00</div>
+            <div class="wf-ring-lbl">Focus Time</div>
+          </div>
+        </div>
+
+        <div class="wf-pomo-dots">
+          <div class="wf-pdot lit"></div>
+          <div class="wf-pdot lit"></div>
+          <div class="wf-pdot"></div>
+          <div class="wf-pdot"></div>
+        </div>
+
+        <div class="wf-pomo-sel"></div>
+
+        <div class="wf-pomo-ctrls">
+          <div class="wf-btn-ghost">Reset</div>
+          <div class="wf-btn">Start</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;padding-top:16px">
+      <div class="anno">
+        <div class="anno-num">P·01</div>
+        <div class="anno-hd">Circular ring timer</div>
+        <div class="anno-body">SVG progress ring depletes smoothly. Rose stroke for Focus, sage for Break. Visual state change is immediate — you know which mode you're in at a glance.</div>
+      </div>
+      <div class="anno">
+        <div class="anno-num">P·02</div>
+        <div class="anno-hd">Session dots</div>
+        <div class="anno-body">4 dots track completed focus sessions. After 4 sessions, a long break is encouraged. No configuration required — the dots self-explain.</div>
+      </div>
+      <div class="anno">
+        <div class="anno-num">P·03</div>
+        <div class="anno-hd">Task linking</div>
+        <div class="anno-body">A select dropdown links the timer to a specific open task. This creates intentionality — you declare what you're working on before the session starts.</div>
+      </div>
+      <div class="anno">
+        <div class="anno-num">P·04</div>
+        <div class="anno-hd">3 modes</div>
+        <div class="anno-body">Focus (25 min), Short Break (5 min), Long Break (15 min). Switching mid-session is blocked — a gentle forcing function for staying in the zone.</div>
+      </div>
+
+      <div class="sticky">
+        <div class="sticky-lbl">Finish State</div>
+        When a session ends, the ring glows, the title tab blinks "🍅 Time's up!", and the session dot fills. No aggressive sound or popup — respectful of deep work states.
+      </div>
+    </div>
+  </div>
+
+  <!-- Modes comparison -->
+  <div class="wf-divider">Timer Modes</div>
+
+  <div class="three-col">
+    <div class="wf-canvas" style="text-align:center;margin-bottom:0">
+      <span class="wf-label">FOCUS MODE · 25 MIN</span>
+      <div class="wf-ring" style="width:80px;height:80px;margin:12px auto;border-color:var(--sakura)">
+        <div class="wf-ring-time" style="font-size:1rem">25:00</div>
+      </div>
+      <div style="font-family:'Courier New',monospace;font-size:0.58rem;color:var(--sakura);font-weight:700">Rose stroke</div>
+      <div style="font-family:'Courier New',monospace;font-size:0.52rem;color:var(--ink-4);margin-top:3px">Standard Pomodoro unit</div>
+    </div>
+
+    <div class="wf-canvas" style="text-align:center;margin-bottom:0">
+      <span class="wf-label">SHORT BREAK · 5 MIN</span>
+      <div class="wf-ring" style="width:80px;height:80px;margin:12px auto;border-color:#7a9e80;border-style:dashed">
+        <div class="wf-ring-time" style="font-size:1rem">05:00</div>
+      </div>
+      <div style="font-family:'Courier New',monospace;font-size:0.58rem;color:#7a9e80;font-weight:700">Sage stroke</div>
+      <div style="font-family:'Courier New',monospace;font-size:0.52rem;color:var(--ink-4);margin-top:3px">Rest & stretch</div>
+    </div>
+
+    <div class="wf-canvas" style="text-align:center;margin-bottom:0">
+      <span class="wf-label">LONG BREAK · 15 MIN</span>
+      <div class="wf-ring" style="width:80px;height:80px;margin:12px auto;border-color:#9888b8;border-style:dashed">
+        <div class="wf-ring-time" style="font-size:1rem">15:00</div>
+      </div>
+      <div style="font-family:'Courier New',monospace;font-size:0.58rem;color:#9888b8;font-weight:700">Violet stroke</div>
+      <div style="font-family:'Courier New',monospace;font-size:0.52rem;color:var(--ink-4);margin-top:3px">After 4 sessions</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     06 — SYSTEM ARCHITECTURE
+     ============================================================ -->
+<section class="section" id="system">
+  <p class="section-eyebrow">Screen 06 · Architecture</p>
+  <h2 class="section-title">System Thinking</h2>
+  <p class="section-sub">How Haru moves data — from user intent to persisted state. Entirely client-side, intentionally constrained.</p>
+
+  <div class="sys-wrap">
+
+    <div class="sys-node">
+      <div class="sys-num">01</div>
+      <div class="sys-content">
+        <div class="sys-hd">User Intent</div>
+        <div class="sys-desc">Every interaction starts with a human decision: capture a thought, move a task, start a timer, switch energy mode. Haru presents minimal friction to each action.</div>
+        <div class="sys-chips">
+          <div class="sys-chip">Quick add</div>
+          <div class="sys-chip">Drag & drop</div>
+          <div class="sys-chip">Modal form</div>
+          <div class="sys-chip">Checkbox complete</div>
+          <div class="sys-chip">Context menu</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sys-arrow">
+      <div class="sys-arrow-line"></div>
+      <span>User action triggers event listener</span>
+      <div class="sys-arrow-line"></div>
+    </div>
+
+    <div class="sys-node">
+      <div class="sys-num">02</div>
+      <div class="sys-content">
+        <div class="sys-hd">Vanilla JS Event Layer</div>
+        <div class="sys-desc">No framework. Event delegation and direct DOM listeners handle all interactions. Functions are modular and named by purpose — buildCard(), tickDone(), setupDropZone().</div>
+        <div class="sys-chips">
+          <div class="sys-chip">addEventListener</div>
+          <div class="sys-chip">Event delegation</div>
+          <div class="sys-chip">Drag API</div>
+          <div class="sys-chip">setInterval (timer)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sys-arrow">
+      <div class="sys-arrow-line"></div>
+      <span>Mutates in-memory task array</span>
+      <div class="sys-arrow-line"></div>
+    </div>
+
+    <div class="sys-node" style="border-color:var(--sakura);background:var(--sakura-s)">
+      <div class="sys-num" style="color:var(--sakura)">03</div>
+      <div class="sys-content">
+        <div class="sys-hd">Task State (Core)</div>
+        <div class="sys-desc">A flat array of task objects. Each task carries: id, title, notes, priority, energy, due, col, done, progress, blockerReason, createdAt, updatedAt. Simple, portable, inspectable.</div>
+        <div class="sys-chips">
+          <div class="sys-chip" style="border-color:var(--sakura);color:var(--sakura)">tasks[]</div>
+          <div class="sys-chip" style="border-color:var(--sakura);color:var(--sakura)">Flat structure</div>
+          <div class="sys-chip" style="border-color:var(--sakura);color:var(--sakura)">Mutated in place</div>
+          <div class="sys-chip" style="border-color:var(--sakura);color:var(--sakura)">No normalization</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sys-arrow">
+      <div class="sys-arrow-line"></div>
+      <span>save() called after every mutation</span>
+      <div class="sys-arrow-line"></div>
+    </div>
+
+    <div class="sys-node">
+      <div class="sys-num">04</div>
+      <div class="sys-content">
+        <div class="sys-hd">Render Pipeline</div>
+        <div class="sys-desc">renderAll() → renderCol() per column + renderToday() + updatePulse(). Each render is a full column repaint — simple and correct, no virtual DOM needed at this scale.</div>
+        <div class="sys-chips">
+          <div class="sys-chip">renderAll()</div>
+          <div class="sys-chip">renderCol()</div>
+          <div class="sys-chip">renderToday()</div>
+          <div class="sys-chip">updatePulse()</div>
+          <div class="sys-chip">buildCard()</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sys-arrow">
+      <div class="sys-arrow-line"></div>
+      <span>DOM diffed manually via innerHTML</span>
+      <div class="sys-arrow-line"></div>
+    </div>
+
+    <div class="sys-node">
+      <div class="sys-num">05</div>
+      <div class="sys-content">
+        <div class="sys-hd">Smart Nudge Engine</div>
+        <div class="sys-desc">Pure JavaScript logic runs on every renderAll(). Checks: blocker count, active task volume, task staleness (3+ days untouched). No AI, no API — behavioral pattern recognition.</div>
+        <div class="sys-chips">
+          <div class="sys-chip">Blocker count</div>
+          <div class="sys-chip">Active task volume</div>
+          <div class="sys-chip">Task age (updatedAt)</div>
+          <div class="sys-chip">Single message shown</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sys-arrow">
+      <div class="sys-arrow-line"></div>
+      <span>Persisted to localStorage on every save()</span>
+      <div class="sys-arrow-line"></div>
+    </div>
+
+    <div class="sys-node">
+      <div class="sys-num">06</div>
+      <div class="sys-content">
+        <div class="sys-hd">localStorage Persistence</div>
+        <div class="sys-desc">JSON.stringify/parse on every state change. Preferences stored separately: theme, energy mode, focus mode. Survives refresh, browser close, power off. Zero dependency on network.</div>
+        <div class="sys-chips">
+          <div class="sys-chip">bf3t (tasks)</div>
+          <div class="sys-chip">bf3p_theme</div>
+          <div class="sys-chip">bf3p_energy</div>
+          <div class="sys-chip">bf3p_focus</div>
+          <div class="sys-chip">Offline first</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="wf-divider">Constraints as Features</div>
+
+  <div class="anno-grid">
+    <div class="anno">
+      <div class="anno-num">C·01</div>
+      <div class="anno-hd">Single HTML file</div>
+      <div class="anno-body">No build step, no deploy pipeline, no dependency rot. Open the file, it works. Shareable as an email attachment. The constraint is the product.</div>
+    </div>
+    <div class="anno">
+      <div class="anno-num">C·02</div>
+      <div class="anno-hd">No frameworks</div>
+      <div class="anno-body">Vanilla JS forces explicit, readable code. Every DOM operation is intentional. No magic, no black boxes — what you see is what runs.</div>
+    </div>
+    <div class="anno">
+      <div class="anno-num">C·03</div>
+      <div class="anno-hd">localStorage only</div>
+      <div class="anno-body">Your data never leaves your machine. No accounts, no sync, no servers. Privacy by architecture — not by policy.</div>
+    </div>
+    <div class="anno">
+      <div class="anno-num">C·04</div>
+      <div class="anno-hd">CSS variables for theming</div>
+      <div class="anno-body">Dark and light mode via 30 CSS custom properties. One dataset.theme = 'dark' flips the entire visual system. No class toggling, no duplication.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="doc-footer">
+  <div style="font-size:1.8rem">🌸</div>
+  <div class="footer-title">Ha<span>ru</span></div>
+  <div class="footer-meta">Product Wireframe Document · 春 · 2025</div>
+  <div style="font-family:'Courier New',monospace;font-size:0.6rem;color:var(--ink-4);max-width:360px;text-align:center;line-height:1.6;margin-top:4px">
+    A calm workspace for busy minds.<br>
+    Single file. No dependencies. Offline first.<br>
+    Built with care, designed with restraint.
+  </div>
+</footer>
+
+<script>
+// ── Nav: show/hide sections ──
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) { target.classList.add('active'); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  const idx = { home:0, capture:1, board:2, modal:3, pomo:4, system:5 }[id];
+  document.querySelectorAll('.nav-pill')[idx]?.classList.add('active');
+}
+
+// ── Hover tooltips on flow boxes ──
+document.querySelectorAll('.flow-box').forEach(box => {
+  box.style.cursor = 'default';
+});
+
+// ── Annotation expand on mobile ──
+document.querySelectorAll('.anno').forEach(anno => {
+  const body = anno.querySelector('.anno-body');
+  if (!body) return;
+  anno.style.cursor = 'default';
+});
+
+// ── System nodes hover pulse ──
+document.querySelectorAll('.sys-node').forEach(node => {
+  node.addEventListener('mouseenter', () => {
+    node.style.transform = 'translateX(4px)';
+    node.style.transition = 'transform 0.18s ease';
+  });
+  node.addEventListener('mouseleave', () => {
+    node.style.transform = '';
+  });
+});
+</script>
+</body>
+</html>
