@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiri — Product Wireframes & Design Rationale</title>
+<style>
+  :root {
+    --paper: #f7f5f1;
+    --paper-line: rgba(60,55,75,0.08);
+    --ink: #2e2b35;
+    --ink-soft: #6b6775;
+    --ink-faint: #a39fad;
+    --lavender: #b8a9d9;
+    --lavender-deep: #8b76b8;
+    --lavender-pale: #ece6f7;
+    --sticky: #f3edd8;
+    --sticky-edge: #e2d8ad;
+    --line: #c9c4d3;
+    --white: #fffdfa;
+    --canvas-grid: rgba(139,118,184,0.07);
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --hand: 'Bradley Hand', 'Segoe Print', 'Comic Sans MS', var(--sans);
+    --mono: 'SF Mono', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    min-height: 100vh;
+  }
+
+  /* ───────── TOP NAV ───────── */
+  .topnav {
+    position: sticky; top: 0; z-index: 500;
+    background: rgba(247,245,241,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand-mark {
+    font-family: var(--serif); font-style: italic; font-size: 22px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-faint); border-left: 1px dashed var(--line); padding-left: 10px;
+  }
+  .navtabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  .navtab {
+    font-family: var(--sans); font-size: 12.5px; color: var(--ink-soft);
+    background: none; border: 1px dashed transparent; border-radius: 20px;
+    padding: 6px 14px; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .navtab:hover { border-color: var(--line); color: var(--ink); }
+  .navtab.active { background: var(--white); border-color: var(--lavender); color: var(--lavender-deep); font-weight: 600; }
+
+  /* ───────── SECTIONS ───────── */
+  .doc-section { display: none; padding: 56px 32px 100px; max-width: 1180px; margin: 0 auto; }
+  .doc-section.active { display: block; animation: fade-up 0.4s ease both; }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--lavender-deep);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  }
+  .section-eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--lavender-deep); }
+  .section-title {
+    font-family: var(--serif); font-size: 38px; font-weight: 400;
+    color: var(--ink); margin-bottom: 12px; line-height: 1.15;
+  }
+  .section-title em { font-style: italic; color: var(--lavender-deep); }
+  .section-desc { font-size: 14.5px; color: var(--ink-soft); max-width: 620px; line-height: 1.7; margin-bottom: 40px; }
+
+  /* ───────── COVER ───────── */
+  .cover {
+    min-height: calc(100vh - 70px);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 40px 32px 80px; max-width: 1180px; margin: 0 auto;
+    position: relative;
+  }
+  .cover-kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--lavender-deep); margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .cover-kicker::before { content: '◇'; }
+  .cover-title {
+    font-family: var(--serif); font-size: clamp(44px, 7vw, 84px);
+    font-weight: 400; line-height: 1.04; color: var(--ink); max-width: 900px;
+  }
+  .cover-title em { font-style: italic; color: var(--lavender-deep); }
+  .cover-philosophy {
+    margin-top: 28px; font-family: var(--serif); font-style: italic;
+    font-size: 19px; color: var(--ink-soft); max-width: 480px; line-height: 1.6;
+  }
+  .cover-meta-row {
+    display: flex; gap: 40px; margin-top: 56px; flex-wrap: wrap;
+    border-top: 1px dashed var(--line); padding-top: 28px;
+  }
+  .cover-meta-item { max-width: 220px; }
+  .cover-meta-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px;
+  }
+  .cover-meta-value { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  .cover-flow {
+    display: flex; align-items: center; gap: 6px; margin-top: 52px; flex-wrap: wrap;
+  }
+  .flow-node {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 16px; border: 1.5px dashed var(--line); border-radius: 14px;
+    background: var(--white); cursor: pointer; transition: all 0.25s;
+  }
+  .flow-node:hover { border-color: var(--lavender-deep); transform: translateY(-3px); box-shadow: 0 6px 18px rgba(139,118,184,0.15); }
+  .flow-node .fn-icon { font-size: 20px; }
+  .flow-node .fn-label { font-size: 11px; color: var(--ink-soft); font-family: var(--sans); white-space: nowrap; }
+  .flow-arrow-h { color: var(--ink-faint); font-size: 16px; }
+
+  /* ───────── WIREFRAME CANVAS ───────── */
+  .canvas {
+    position: relative;
+    background: var(--white);
+    background-image: radial-gradient(var(--canvas-grid) 1px, transparent 1px);
+    background-size: 18px 18px;
+    border: 1.5px dashed var(--line);
+    border-radius: 18px;
+    padding: 44px 40px;
+    overflow: visible;
+  }
+  .canvas-corner {
+    position: absolute; width: 14px; height: 14px;
+    border: 1.5px solid var(--lavender-deep); opacity: 0.45;
+  }
+  .canvas-corner.tl { top: -1px; left: -1px; border-right: none; border-bottom: none; border-radius: 6px 0 0 0; }
+  .canvas-corner.tr { top: -1px; right: -1px; border-left: none; border-bottom: none; border-radius: 0 6px 0 0; }
+  .canvas-corner.bl { bottom: -1px; left: -1px; border-right: none; border-top: none; border-radius: 0 0 0 6px; }
+  .canvas-corner.br { bottom: -1px; right: -1px; border-left: none; border-top: none; border-radius: 0 0 6px 0; }
+
+  /* ───────── WIRE BOXES (low-fi UI elements) ───────── */
+  .wire-box {
+    border: 1.5px dashed var(--ink-faint);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.5);
+  }
+  .wire-label {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .wire-text-line { height: 8px; border-radius: 4px; background: rgba(60,55,75,0.1); }
+  .wire-circle { border-radius: 50%; border: 1.5px dashed var(--ink-faint); display: flex; align-items: center; justify-content: center; }
+
+  /* device frame for screen wireframes */
+  .device-frame {
+    background: var(--white);
+    border: 1.5px solid var(--ink);
+    border-radius: 22px;
+    width: 100%; max-width: 380px; margin: 0 auto;
+    padding: 0; overflow: hidden;
+    box-shadow: 6px 6px 0 var(--lavender-pale), 6px 6px 0 1.5px var(--ink-faint);
+  }
+  .device-statusbar {
+    height: 22px; border-bottom: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; font-family: var(--mono); font-size: 8.5px; color: var(--ink-faint);
+  }
+  .device-screen { padding: 20px 18px; min-height: 480px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* ───────── ANNOTATIONS ───────── */
+  .annotation {
+    position: relative;
+    background: var(--sticky);
+    border: 1px solid var(--sticky-edge);
+    border-radius: 4px 4px 4px 16px;
+    padding: 16px 18px;
+    box-shadow: 3px 4px 10px rgba(60,55,75,0.08);
+    transform: rotate(-0.6deg);
+    font-family: var(--hand);
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #4a4536;
+    cursor: pointer;
+  }
+  .annotation:nth-of-type(even) { transform: rotate(0.8deg); }
+  .annotation::before {
+    content: '📌'; position: absolute; top: -10px; left: 14px; font-size: 14px;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+  }
+  .annotation-title {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--lavender-deep);
+    margin-bottom: 6px; font-weight: 700;
+  }
+  .annotation-body { max-height: 200px; overflow: hidden; transition: max-height 0.3s ease; }
+  .annotation.collapsed .annotation-body { max-height: 38px; }
+  .annotation-toggle {
+    display: inline-block; margin-top: 8px; font-family: var(--mono);
+    font-size: 9.5px; color: var(--lavender-deep); text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* layout helpers */
+  .split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 32px; align-items: start; }
+  .split-rev { display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; align-items: start; }
+  .ann-stack { display: flex; flex-direction: column; gap: 18px; }
+  @media (max-width: 880px) { .split, .split-rev { grid-template-columns: 1fr; } }
+
+  /* flow arrows between vertical wire boxes */
+  .v-flow-arrow { display: flex; justify-content: center; padding: 4px 0; color: var(--ink-faint); font-size: 14px; }
+
+  /* chip / pill */
+  .wire-chip {
+    font-family: var(--mono); font-size: 10px; padding: 4px 10px;
+    border: 1px dashed var(--ink-faint); border-radius: 20px;
+    color: var(--ink-soft); display: inline-block;
+  }
+
+  /* ───────── HOME WIREFRAME SPECIFIC ───────── */
+  .home-wire-cta {
+    border: 1.5px dashed var(--lavender-deep);
+    border-radius: 14px; padding: 16px 18px;
+    background: var(--lavender-pale);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+  }
+  .home-wire-stats { display: flex; gap: 8px; }
+  .home-wire-stat {
+    flex: 1; border: 1.5px dashed var(--ink-faint); border-radius: 10px;
+    padding: 10px; text-align: center;
+  }
+  .spark-row {
+    display: flex; align-items: center; gap: 10px;
+    border: 1.5px dashed var(--ink-faint); border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .spark-icon { width: 26px; height: 26px; border-radius: 8px; border: 1.5px dashed var(--ink-faint); flex-shrink: 0; }
+
+  /* ───────── CAPTURE WIREFRAME ───────── */
+  .capture-textarea-wire {
+    flex: 1; min-height: 220px; border: 1.5px dashed var(--ink-faint);
+    border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .capture-toolbar-wire {
+    display: flex; gap: 8px; border-top: 1px dashed var(--line); padding-top: 10px; margin-top: auto;
+    flex-wrap: wrap;
+  }
+  .capture-tool-btn {
+    display: flex; align-items: center; gap: 5px;
+    border: 1.5px dashed var(--ink-faint); border-radius: 8px;
+    padding: 6px 10px; font-size: 11px; color: var(--ink-soft);
+  }
+
+  /* ───────── STRUCTURE WIREFRAME ───────── */
+  .structure-section-wire {
+    border: 1.5px dashed var(--ink-faint); border-radius: 10px; padding: 12px 14px;
+  }
+
+  /* ───────── SNAPSHOT CARD ───────── */
+  .snapshot-card-wire {
+    border: 1.5px dashed var(--lavender-deep); border-radius: 16px;
+    padding: 22px; background: var(--lavender-pale);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .snapshot-row { display: flex; gap: 10px; align-items: flex-start; }
+  .snapshot-row .sr-label { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; color: var(--lavender-deep); width: 84px; flex-shrink: 0; padding-top: 2px; letter-spacing: 0.06em; }
+  .snapshot-row .sr-lines { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+  /* ───────── BLUEPRINT (HERO) ───────── */
+  .blueprint-canvas {
+    background: #232136;
+    background-image:
+      linear-gradient(rgba(184,169,217,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,169,217,0.08) 1px, transparent 1px);
+    background-size: 22px 22px;
+    border-radius: 18px; border: 1.5px solid #3a3650;
+    padding: 50px 36px;
+    position: relative; overflow: visible;
+    color: #e8e4f3;
+  }
+  .bp-node-wire {
+    position: absolute;
+    border: 1.5px dashed rgba(232,228,243,0.55);
+    border-radius: 12px; background: rgba(35,33,54,0.6);
+    padding: 14px 16px; width: 180px;
+    text-align: center;
+  }
+  .bp-node-wire .bp-icon { font-size: 20px; margin-bottom: 6px; }
+  .bp-node-wire .bp-title { font-family: var(--serif); font-style: italic; font-size: 15px; }
+  .bp-node-wire .bp-sub { font-family: var(--mono); font-size: 9px; color: rgba(232,228,243,0.5); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .bp-svg-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .bp-stage { position: relative; height: 560px; }
+  @media (max-width: 760px) { .bp-stage { height: 1080px; } }
+
+  /* ───────── ARCHITECTURE DIAGRAM ───────── */
+  .arch-flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .arch-node {
+    border: 1.5px dashed var(--ink-faint); border-radius: 12px;
+    padding: 16px 28px; background: var(--white); text-align: center;
+    min-width: 240px; position: relative;
+  }
+  .arch-node.highlight { border-color: var(--lavender-deep); background: var(--lavender-pale); }
+  .arch-node .an-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 4px; }
+  .arch-node .an-title { font-family: var(--serif); font-size: 16px; }
+  .arch-node .an-desc { font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+  .arch-connector { display: flex; flex-direction: column; align-items: center; padding: 4px 0; color: var(--ink-faint); }
+  .arch-connector .line { width: 1.5px; height: 26px; background: repeating-linear-gradient(to bottom, var(--ink-faint) 0 4px, transparent 4px 8px); }
+  .arch-connector .arrow { font-size: 13px; margin-top: -2px; }
+
+  /* ───────── PRINCIPLE BANNER ───────── */
+  .principle-banner {
+    margin-top: 56px; border-top: 1px dashed var(--line); padding-top: 28px;
+    display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap;
+  }
+  .principle-item { flex: 1; min-width: 220px; }
+  .principle-num { font-family: var(--mono); font-size: 10px; color: var(--lavender-deep); margin-bottom: 6px; }
+  .principle-text { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .principle-text strong { color: var(--ink); }
+
+  /* footer */
+  .doc-footer {
+    text-align: center; padding: 40px 32px 70px; color: var(--ink-faint);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+  }
+
+  /* responsive */
+  @media (max-width: 620px) {
+    .topnav { padding: 12px 16px; }
+    .doc-section { padding: 36px 16px 70px; }
+    .cover { padding: 24px 16px 60px; }
+    .section-title { font-size: 28px; }
+    .canvas { padding: 26px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">
+    <span class="brand-mark">Kiri</span>
+    <span class="brand-sub">Wireframe Document</span>
+  </div>
+  <div class="navtabs" id="navtabs">
+    <button class="navtab active" data-target="cover">Cover</button>
+    <button class="navtab" data-target="home">01 · Home</button>
+    <button class="navtab" data-target="capture">02 · Capture</button>
+    <button class="navtab" data-target="structure">03 · Structure</button>
+    <button class="navtab" data-target="snapshot">04 · Snapshot</button>
+    <button class="navtab" data-target="blueprint">05 · Blueprint</button>
+    <button class="navtab" data-target="architecture">06 · Architecture</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ COVER ═══════════════════════ -->
+<section class="doc-section active" id="sec-cover">
+  <div class="cover">
+    <div class="cover-kicker">Product Wireframes &amp; Design Rationale</div>
+    <h1 class="cover-title">A beautiful place<br>where <em>ideas</em> go to grow up.</h1>
+    <p class="cover-philosophy">Kiri is a personal ideation studio — it turns messy, half-formed thoughts into structured notes, snapshots, and blueprints you'll actually want to revisit.</p>
+
+    <div class="cover-flow">
+      <div class="flow-node" onclick="goTo('capture')"><span class="fn-icon">🌱</span><span class="fn-label">Dump</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('structure')"><span class="fn-icon">✨</span><span class="fn-label">Structure</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('snapshot')"><span class="fn-icon">📸</span><span class="fn-label">Snapshot</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('blueprint')"><span class="fn-icon">📐</span><span class="fn-label">Blueprint</span></div>
+      <span class="flow-arrow-h">→</span>
+      <div class="flow-node" onclick="goTo('architecture')"><span class="fn-icon">🗂</span><span class="fn-label">Archive</span></div>
+    </div>
+
+    <div class="cover-meta-row">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Project type</div>
+        <div class="cover-meta-value">Personal productivity tool — ideation-to-documentation pipeline for solo builders</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Core problem</div>
+        <div class="cover-meta-value">Ideas get lost between the moment of inspiration and the moment of action</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Design approach</div>
+        <div class="cover-meta-value">Capture-first, progressive structure — never force organization before clarity exists</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">This document</div>
+        <div class="cover-meta-value">Low-fidelity wireframes with embedded design rationale, click through using the tabs above</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 01 HOME ═══════════════════════ -->
+<section class="doc-section" id="sec-home">
+  <div class="section-eyebrow">Screen 01 / 06</div>
+  <h2 class="section-title">Home — <em>the open door</em></h2>
+  <p class="section-desc">The home screen exists to lower the barrier between having a thought and capturing it. Nothing competes with the primary action.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div class="device-frame">
+        <div class="device-statusbar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="device-screen">
+          <div>
+            <div class="wire-label">Greeting</div>
+            <div class="wire-text-line" style="width:55%; margin-top:6px;"></div>
+          </div>
+          <div>
+            <div class="wire-text-line" style="width:90%; height:18px; margin-bottom:6px;"></div>
+            <div class="wire-text-line" style="width:70%; height:18px;"></div>
+          </div>
+          <div class="wire-text-line" style="width:60%; opacity:0.6;"></div>
+
+          <div class="home-wire-cta">
+            <div>
+              <div class="wire-label" style="color:var(--lavender-deep);">Primary CTA</div>
+              <div style="font-family: var(--serif); font-style: italic; font-size: 15px; margin-top: 4px;">🌱 Plant an Idea</div>
+            </div>
+            <div class="wire-circle" style="width:34px;height:34px;">→</div>
+          </div>
+
+          <div class="home-wire-stats">
+            <div class="home-wire-stat"><div class="wire-label">Sparks</div></div>
+            <div class="home-wire-stat"><div class="wire-label">Wk</div></div>
+            <div class="home-wire-stat"><div class="wire-label">Active</div></div>
+          </div>
+
+          <div>
+            <div class="wire-label" style="margin-bottom:8px;">Recent Sparks</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div class="spark-row"><div class="spark-icon"></div><div style="flex:1;"><div class="wire-text-line" style="width:80%;"></div></div></div>
+              <div class="spark-row"><div class="spark-icon"></div><div style="flex:1;"><div class="wire-text-line" style="width:65%;"></div></div></div>
+              <div class="spark-row"><div class="spark-icon"></div><div style="flex:1;"><div class="wire-text-line" style="width:72%;"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why capture comes before search</div>
+        <div class="annotation-body">
+          Most note apps open on a search bar or a list — both assume you already know what you're looking for. But the person opening Kiri usually just had a thought, not a question. Leading with "Plant an Idea" removes the decision of where to put it.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Greeting sets a gentle tone</div>
+        <div class="annotation-body">
+          "What are we dreaming up today?" reframes the blank page as an invitation, not a task. The "we" matters too — it implies Kiri is a thinking partner, not a filing cabinet.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Recent Sparks, not "all notes"</div>
+        <div class="annotation-body">
+          Calling saved ideas "Sparks" instead of "Notes" keeps language consistent with the garden metaphor — every spark is a seed that may or may not grow into something bigger.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 02 CAPTURE ═══════════════════════ -->
+<section class="doc-section" id="sec-capture">
+  <div class="section-eyebrow">Screen 02 / 06</div>
+  <h2 class="section-title">Capture — <em>no filter required</em></h2>
+  <p class="section-desc">A wide-open writing space with optional input modes. The user should never have to decide on structure before they've finished thinking.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div class="device-frame">
+        <div class="device-statusbar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="device-screen">
+          <div class="wire-label">← Back</div>
+          <div class="wire-text-line" style="width:50%; height:16px;"></div>
+
+          <div class="capture-textarea-wire">
+            <div class="wire-label" style="color:var(--ink-faint); font-style:italic; font-family:var(--hand); font-size:13px; opacity:0.55;">just start typing, anything goes...</div>
+            <div class="wire-text-line" style="width:88%; opacity:0.3;"></div>
+            <div class="wire-text-line" style="width:64%; opacity:0.3;"></div>
+
+            <div class="capture-toolbar-wire">
+              <div class="capture-tool-btn">🎤 Voice</div>
+              <div class="capture-tool-btn">📷 Screenshot</div>
+              <div class="capture-tool-btn">🔗 Link</div>
+              <div class="capture-tool-btn">💻 Code</div>
+            </div>
+          </div>
+
+          <div class="wire-box" style="padding:10px 14px; text-align:center;">
+            <span class="wire-label">Save Spark →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">The core rule of this screen</div>
+        <div class="annotation-body">
+          Users should never feel pressured to organize ideas before capturing them. No required fields, no category picker, no title prompt. Just a cursor and room to think.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Quick actions are optional, not gates</div>
+        <div class="annotation-body">
+          Voice, Screenshot, Link, and Code sit below the text — available, never demanded. They exist for the moments thinking happens outside of words.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Friction is the enemy here</div>
+        <div class="annotation-body">
+          Every extra tap between "I have a thought" and "it's written down" is a chance to lose the thought entirely. This screen is deliberately the simplest in the whole product.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 03 STRUCTURE ═══════════════════════ -->
+<section class="doc-section" id="sec-structure">
+  <div class="section-eyebrow">Screen 03 / 06</div>
+  <h2 class="section-title">Structure — <em>shape without effort</em></h2>
+  <p class="section-desc">The raw dump is gently sorted into recognizable sections. The user reviews and refines rather than building from scratch.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div class="device-frame">
+        <div class="device-statusbar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="device-screen">
+          <div class="wire-label">← Back · Structure</div>
+          <div class="wire-text-line" style="width:55%; height:16px;"></div>
+
+          <div class="structure-section-wire">
+            <div class="wire-label" style="color:var(--lavender-deep);">📋 Overview</div>
+            <div class="wire-text-line" style="width:92%; margin-top:8px;"></div>
+            <div class="wire-text-line" style="width:80%; margin-top:5px;"></div>
+          </div>
+          <div class="structure-section-wire">
+            <div class="wire-label" style="color:var(--lavender-deep);">⚡ Features</div>
+            <div class="wire-text-line" style="width:70%; margin-top:8px;"></div>
+            <div class="wire-text-line" style="width:60%; margin-top:5px;"></div>
+          </div>
+          <div class="structure-section-wire">
+            <div class="wire-label" style="color:var(--lavender-deep);">🛠 Tech Direction</div>
+            <div class="wire-text-line" style="width:65%; margin-top:8px;"></div>
+          </div>
+          <div class="structure-section-wire">
+            <div class="wire-label" style="color:var(--lavender-deep);">⚠ Challenges</div>
+            <div class="wire-text-line" style="width:55%; margin-top:8px;"></div>
+          </div>
+          <div class="structure-section-wire">
+            <div class="wire-label" style="color:var(--lavender-deep);">🔮 Future Ideas</div>
+            <div class="wire-text-line" style="width:50%; margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Progressive refinement, not full structure</div>
+        <div class="annotation-body">
+          Asking someone to fully document an idea the moment they've had it is asking too much, too soon. Structure reveals shape gradually — five gentle categories instead of a blank documentation template.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why this reduces cognitive load</div>
+        <div class="annotation-body">
+          Recognition is easier than recall. Seeing "Challenges" as a labeled section invites a thought, rather than requiring the user to first remember that challenges are worth writing down at all.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Sections can stay empty</div>
+        <div class="annotation-body">
+          Not every idea has a "Challenges" section yet — and that's fine. An empty section is information too; it shows the user what they haven't thought through.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 04 SNAPSHOT ═══════════════════════ -->
+<section class="doc-section" id="sec-snapshot">
+  <div class="section-eyebrow">Screen 04 / 06</div>
+  <h2 class="section-title">Snapshot — <em>for future-you</em></h2>
+  <p class="section-desc">A compressed summary card — the version of the idea you'd want to see six months from now, with zero context loaded in memory.</p>
+
+  <div class="split-rev">
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Designed for someone with no memory of this</div>
+        <div class="annotation-body">
+          The Snapshot's entire job is helping future-you understand the idea in seconds. Not minutes — seconds. That constraint shaped every line of copy on this card.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Five fields, no more</div>
+        <div class="annotation-body">
+          Purpose, Core Features, Tech Stack, Value, Future Plans. Each one answers a single question a returning user would ask first. Anything beyond five fields starts to feel like the documentation Kiri was built to avoid.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">A snapshot, not a blueprint</div>
+        <div class="annotation-body">
+          This is intentionally text-first and compact — the visual diagram lives one step later, in Blueprint. Snapshot is for reading quickly; Blueprint is for seeing relationships.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div style="max-width:420px; margin:0 auto;">
+        <div class="wire-label" style="margin-bottom:10px; text-align:center;">📸 Snapshot Card</div>
+        <div class="snapshot-card-wire">
+          <div class="snapshot-row">
+            <div class="sr-label">Purpose</div>
+            <div class="sr-lines"><div class="wire-text-line" style="width:95%;"></div><div class="wire-text-line" style="width:70%;"></div></div>
+          </div>
+          <div class="snapshot-row">
+            <div class="sr-label">Features</div>
+            <div class="sr-lines" style="flex-direction:row; flex-wrap:wrap; gap:6px;">
+              <span class="wire-chip">capture</span><span class="wire-chip">structure</span><span class="wire-chip">archive</span>
+            </div>
+          </div>
+          <div class="snapshot-row">
+            <div class="sr-label">Tech Stack</div>
+            <div class="sr-lines" style="flex-direction:row; flex-wrap:wrap; gap:6px;">
+              <span class="wire-chip">frontend</span><span class="wire-chip">AI layer</span><span class="wire-chip">storage</span>
+            </div>
+          </div>
+          <div class="snapshot-row">
+            <div class="sr-label">Value</div>
+            <div class="sr-lines"><div class="wire-text-line" style="width:85%;"></div></div>
+          </div>
+          <div class="snapshot-row">
+            <div class="sr-label">Future</div>
+            <div class="sr-lines"><div class="wire-text-line" style="width:60%;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 05 BLUEPRINT (HERO) ═══════════════════════ -->
+<section class="doc-section" id="sec-blueprint">
+  <div class="section-eyebrow">Screen 05 / 06 — Hero Artifact</div>
+  <h2 class="section-title">Blueprint — <em>the system made visible</em></h2>
+  <p class="section-desc">Where Snapshot answers "what is this," Blueprint answers "how does it move." A relationship map of the idea's own lifecycle, rendered like a technical drawing.</p>
+
+  <div class="canvas" style="padding: 28px;">
+    <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+    <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+
+    <div class="blueprint-canvas">
+      <div class="bp-stage" id="bp-stage">
+        <svg class="bp-svg-layer" id="bp-svg" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid meet"></svg>
+
+        <div class="bp-node-wire" id="node-capture" style="top: 14px; left: 50%; transform: translateX(-50%);">
+          <div class="bp-icon">🌱</div>
+          <div class="bp-title">Capture</div>
+          <div class="bp-sub">raw input</div>
+        </div>
+
+        <div class="bp-node-wire" id="node-structure" style="top: 200px; left: 8%;">
+          <div class="bp-icon">✨</div>
+          <div class="bp-title">Structure</div>
+          <div class="bp-sub">organized sections</div>
+        </div>
+
+        <div class="bp-node-wire" id="node-snapshot" style="top: 200px; right: 8%;">
+          <div class="bp-icon">📸</div>
+          <div class="bp-title">Snapshot</div>
+          <div class="bp-sub">compressed summary</div>
+        </div>
+
+        <div class="bp-node-wire" id="node-archive" style="bottom: 18px; left: 50%; transform: translateX(-50%);">
+          <div class="bp-icon">🗂</div>
+          <div class="bp-title">Archive</div>
+          <div class="bp-sub">searchable history</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="principle-banner">
+    <div class="principle-item">
+      <div class="principle-num">01 — Linear, not branching</div>
+      <div class="principle-text">Every idea moves the same direction through the same four states. <strong>Predictability builds trust</strong> — the user always knows where they are in the lifecycle.</div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">02 — Structure feeds both children</div>
+      <div class="principle-text">Snapshot is generated from Structure, not from the raw Capture. <strong>Quality compounds</strong> — a well-organized idea produces a clearer summary.</div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">03 — Archive is a loop, not an ending</div>
+      <div class="principle-text">Old ideas in the Archive can be reopened and re-captured. <strong>Nothing is ever truly finished</strong> — only resting.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 06 SYSTEM ARCHITECTURE ═══════════════════════ -->
+<section class="doc-section" id="sec-architecture">
+  <div class="section-eyebrow">Screen 06 / 06 — Systems View</div>
+  <h2 class="section-title">Architecture — <em>how it actually runs</em></h2>
+  <p class="section-desc">Beneath the soft UI is a simple, linear data pipeline. No unnecessary services, no premature complexity.</p>
+
+  <div class="split">
+    <div class="canvas">
+      <span class="canvas-corner tl"></span><span class="canvas-corner tr"></span>
+      <span class="canvas-corner bl"></span><span class="canvas-corner br"></span>
+      <div class="arch-flow">
+        <div class="arch-node">
+          <div class="an-label">Entry point</div>
+          <div class="an-title">User</div>
+          <div class="an-desc">opens app, captures a thought</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node">
+          <div class="an-label">Client</div>
+          <div class="an-title">Frontend</div>
+          <div class="an-desc">renders Capture, Structure, Snapshot, Blueprint</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node highlight">
+          <div class="an-label">Intelligence layer</div>
+          <div class="an-title">AI Processing</div>
+          <div class="an-desc">interprets raw text into meaningful sections</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node">
+          <div class="an-label">Result</div>
+          <div class="an-title">Structured Output</div>
+          <div class="an-desc">overview · features · tech · challenges · future</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node highlight">
+          <div class="an-label">Visualization</div>
+          <div class="an-title">Blueprint Generator</div>
+          <div class="an-desc">renders relationships between idea components</div>
+        </div>
+        <div class="arch-connector"><div class="line"></div><div class="arrow">▾</div></div>
+
+        <div class="arch-node">
+          <div class="an-label">Persistence</div>
+          <div class="an-title">Archive</div>
+          <div class="an-desc">stores, indexes, and surfaces past ideas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann-stack">
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Why linear over modular</div>
+        <div class="annotation-body">
+          Every layer has exactly one upstream and one downstream dependency. This keeps the system easy to reason about — and easy to rebuild piece by piece as the product matures.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">AI Processing is a layer, not a feature</div>
+        <div class="annotation-body">
+          Treating intelligence as infrastructure — not a bolt-on chat box — keeps the product's actual value (structure, clarity) separate from whichever model powers it underneath.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+      <div class="annotation" onclick="this.classList.toggle('collapsed')">
+        <div class="annotation-title">Archive feeds back to User</div>
+        <div class="annotation-body">
+          Though drawn as a line, this system is conceptually a loop — the Archive is what the User opens next. Systems thinking means designing for the second visit, not just the first.
+          <div class="annotation-toggle">tap to collapse</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-footer">— end of document · kiri / a beautiful place where ideas go to grow up —</div>
+</section>
+
+<script>
+  // ───────── TAB NAVIGATION ─────────
+  var sectionMap = {
+    cover: 'sec-cover',
+    home: 'sec-home',
+    capture: 'sec-capture',
+    structure: 'sec-structure',
+    snapshot: 'sec-snapshot',
+    blueprint: 'sec-blueprint',
+    architecture: 'sec-architecture'
+  };
+
+  function goTo(key) {
+    var targetId = sectionMap[key];
+    if (!targetId) return;
+
+    var sections = document.querySelectorAll('.doc-section');
+    for (var i = 0; i < sections.length; i++) {
+      sections[i].classList.remove('active');
+    }
+    document.getElementById(targetId).classList.add('active');
+
+    var tabs = document.querySelectorAll('.navtab');
+    for (var j = 0; j < tabs.length; j++) {
+      tabs[j].classList.remove('active');
+      if (tabs[j].getAttribute('data-target') === key) {
+        tabs[j].classList.add('active');
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (key === 'blueprint') {
+      // draw connectors after layout settles
+      setTimeout(drawBlueprintConnectors, 60);
+    }
+  }
+
+  var navButtons = document.querySelectorAll('.navtab');
+  for (var k = 0; k < navButtons.length; k++) {
+    navButtons[k].addEventListener('click', function () {
+      goTo(this.getAttribute('data-target'));
+    });
+  }
+
+  // ───────── BLUEPRINT SVG CONNECTORS ─────────
+  function drawBlueprintConnectors() {
+    var stage = document.getElementById('bp-stage');
+    var svg = document.getElementById('bp-svg');
+    if (!stage || !svg) return;
+
+    var stageRect = stage.getBoundingClientRect();
+    if (stageRect.width === 0) return;
+
+    svg.setAttribute('viewBox', '0 0 ' + stageRect.width + ' ' + stageRect.height);
+
+    function center(id) {
+      var el = document.getElementById(id);
+      var r = el.getBoundingClientRect();
+      return {
+        x: r.left - stageRect.left + r.width / 2,
+        y: r.top - stageRect.top + r.height / 2,
+        top: r.top - stageRect.top,
+        bottom: r.top - stageRect.top + r.height,
+        left: r.left - stageRect.left,
+        right: r.left - stageRect.left + r.width
+      };
+    }
+
+    var capture = center('node-capture');
+    var structure = center('node-structure');
+    var snapshot = center('node-snapshot');
+    var archive = center('node-archive');
+
+    var ns = 'http://www.w3.org/2000/svg';
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    function dashedPath(x1, y1, x2, y2) {
+      var path = document.createElementNS(ns, 'path');
+      var midY = (y1 + y2) / 2;
+      var d = 'M ' + x1 + ' ' + y1 + ' C ' + x1 + ' ' + midY + ', ' + x2 + ' ' + midY + ', ' + x2 + ' ' + y2;
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'rgba(232,228,243,0.4)');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('stroke-dasharray', '5 5');
+      return path;
+    }
+
+    function arrowHead(x, y, angle) {
+      var g = document.createElementNS(ns, 'path');
+      var size = 6;
+      var rad = (angle * Math.PI) / 180;
+      var x1 = x - size * Math.cos(rad - 0.4);
+      var y1 = y - size * Math.sin(rad - 0.4);
+      var x2 = x - size * Math.cos(rad + 0.4);
+      var y2 = y - size * Math.sin(rad + 0.4);
+      g.setAttribute('d', 'M ' + x + ' ' + y + ' L ' + x1 + ' ' + y1 + ' M ' + x + ' ' + y + ' L ' + x2 + ' ' + y2);
+      g.setAttribute('stroke', 'rgba(232,228,243,0.55)');
+      g.setAttribute('stroke-width', '1.5');
+      g.setAttribute('fill', 'none');
+      return g;
+    }
+
+    // Capture -> Structure
+    svg.appendChild(dashedPath(capture.x, capture.bottom, structure.x, structure.top));
+    svg.appendChild(arrowHead(structure.x, structure.top, 90));
+
+    // Capture -> Snapshot
+    svg.appendChild(dashedPath(capture.x, capture.bottom, snapshot.x, snapshot.top));
+    svg.appendChild(arrowHead(snapshot.x, snapshot.top, 90));
+
+    // Structure -> Archive
+    svg.appendChild(dashedPath(structure.x, structure.bottom, archive.x, archive.top));
+    svg.appendChild(arrowHead(archive.x, archive.top, 90));
+
+    // Snapshot -> Archive
+    svg.appendChild(dashedPath(snapshot.x, snapshot.bottom, archive.x, archive.top));
+    svg.appendChild(arrowHead(archive.x, archive.top, 90));
+
+    // Structure -> Snapshot (relationship line, horizontal, curved)
+    var relPath = document.createElementNS(ns, 'path');
+    var midX = (structure.right + snapshot.left) / 2;
+    var dRel = 'M ' + structure.right + ' ' + structure.y + ' Q ' + midX + ' ' + (structure.y - 50) + ', ' + snapshot.left + ' ' + snapshot.y;
+    relPath.setAttribute('d', dRel);
+    relPath.setAttribute('fill', 'none');
+    relPath.setAttribute('stroke', 'rgba(184,169,217,0.5)');
+    relPath.setAttribute('stroke-width', '1.5');
+    relPath.setAttribute('stroke-dasharray', '2 6');
+    svg.appendChild(relPath);
+
+    var relLabel = document.createElementNS(ns, 'text');
+    relLabel.setAttribute('x', midX);
+    relLabel.setAttribute('y', structure.y - 56);
+    relLabel.setAttribute('text-anchor', 'middle');
+    relLabel.setAttribute('fill', 'rgba(232,228,243,0.45)');
+    relLabel.setAttribute('font-size', '9');
+    relLabel.setAttribute('font-family', 'monospace');
+    relLabel.setAttribute('letter-spacing', '1');
+    relLabel.textContent = 'FEEDS';
+    svg.appendChild(relLabel);
+  }
+
+  window.addEventListener('resize', function () {
+    if (document.getElementById('sec-blueprint').classList.contains('active')) {
+      drawBlueprintConnectors();
+    }
+  });
+
+  window.addEventListener('load', function () {
+    setTimeout(drawBlueprintConnectors, 100);
+  });
+</script>
+</body>
+</html>
