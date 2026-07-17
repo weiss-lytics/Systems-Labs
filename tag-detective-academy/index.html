@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tag Detective Academy</title>
+<style>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --primary: #4F46E5;
+  --primary-light: #6366F1;
+  --primary-dark: #3730A3;
+  --secondary: #8B5CF6;
+  --accent: #F59E0B;
+  --accent-light: #FCD34D;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #0F172A;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+  --success: #10B981;
+  --danger: #EF4444;
+  --border: #E2E8F0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.07);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 24px;
+  --transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: 'Georgia', serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+button { cursor: pointer; font-family: inherit; border: none; outline: none; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+a { text-decoration: none; color: inherit; }
+
+/* ===== SCREEN SYSTEM ===== */
+.screen { display: none; min-height: 100vh; animation: fadeInScreen 0.35s ease; }
+.screen.active { display: flex; flex-direction: column; }
+@keyframes fadeInScreen { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ===== NAVIGATION ===== */
+.nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.1rem; font-weight: 700; color: var(--primary);
+}
+.nav-logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.nav-stats { display: flex; align-items: center; gap: 12px; }
+.nav-stat {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.8rem; font-weight: 600;
+  background: var(--bg);
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+.nav-stat .icon { font-size: 14px; }
+.nav-tabs {
+  display: flex; gap: 4px;
+}
+.nav-tab {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--text-muted);
+  transition: var(--transition);
+  border: none;
+}
+.nav-tab:hover, .nav-tab.active { background: var(--primary); color: white; }
+
+/* ===== BOTTOM NAV (mobile) ===== */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: none;
+  padding: 8px 0 env(safe-area-inset-bottom, 8px);
+  z-index: 100;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+}
+.bottom-nav-items { display: flex; justify-content: space-around; }
+.bottom-nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 4px 16px;
+  font-size: 0.65rem; font-weight: 600;
+  color: var(--text-muted);
+  background: none; border: none;
+  transition: var(--transition);
+}
+.bottom-nav-item .bnav-icon { font-size: 20px; }
+.bottom-nav-item.active { color: var(--primary); }
+
+@media (max-width: 640px) {
+  .bottom-nav { display: block; }
+  .nav-tabs { display: none; }
+  .screen-content { padding-bottom: 80px !important; }
+}
+
+/* ===== CONTENT WRAPPER ===== */
+.screen-content {
+  flex: 1;
+  padding: 24px 20px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ===== WELCOME SCREEN ===== */
+.welcome-hero {
+  text-align: center;
+  padding: 40px 20px 32px;
+}
+.welcome-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+  border: 1px solid #C7D2FE;
+  color: var(--primary);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.welcome-title {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.welcome-title span { color: var(--primary); }
+.welcome-sub {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+  max-width: 480px;
+  margin-left: auto; margin-right: auto;
+}
+.welcome-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 36px; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.15);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  box-shadow: 0 4px 14px rgba(79,70,229,0.35);
+}
+.btn-primary:hover { box-shadow: 0 6px 20px rgba(79,70,229,0.45); transform: translateY(-1px); }
+.btn-outline {
+  background: var(--card);
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+.btn-outline:hover { background: var(--primary); color: white; }
+.btn-success {
+  background: linear-gradient(135deg, var(--success), #059669);
+  color: white;
+  box-shadow: 0 4px 14px rgba(16,185,129,0.35);
+}
+.btn-accent {
+  background: linear-gradient(135deg, var(--accent), #D97706);
+  color: white;
+  box-shadow: 0 4px 14px rgba(245,158,11,0.35);
+}
+.btn-sm { padding: 7px 16px; font-size: 0.8rem; }
+.btn-lg { padding: 15px 32px; font-size: 1rem; }
+
+/* ===== WELCOME STATS ===== */
+.welcome-stats {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  text-align: center;
+  min-width: 110px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+.stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
+/* ===== BYTE MASCOT ===== */
+.byte-container {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.byte-bubble {
+  background: var(--card);
+  border: 2px solid var(--primary);
+  border-radius: 16px 16px 4px 16px;
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  color: var(--text);
+  max-width: 200px;
+  box-shadow: var(--shadow-md);
+  animation: fadeInBubble 0.3s ease;
+  position: relative;
+  font-weight: 500;
+}
+.byte-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; right: 16px;
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 0px solid transparent;
+  border-top: 8px solid var(--primary);
+}
+@keyframes fadeInBubble { from { opacity: 0; transform: scale(0.8) translateY(10px); } to { opacity: 1; transform: none; } }
+
+.byte-mascot {
+  width: 64px; height: 72px;
+  position: relative;
+  animation: byteFloat 3s ease-in-out infinite;
+  cursor: pointer;
+}
+@keyframes byteFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+/* Byte body */
+.byte-body {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  border-radius: 14px 14px 18px 18px;
+  position: absolute;
+  bottom: 0; left: 8px;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+}
+/* Byte head */
+.byte-head {
+  width: 52px; height: 46px;
+  background: linear-gradient(135deg, #FDE68A, #F59E0B);
+  border-radius: 50% 50% 45% 45%;
+  position: absolute;
+  top: 0; left: 6px;
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+}
+/* Byte hat */
+.byte-hat {
+  width: 40px; height: 16px;
+  background: var(--text);
+  border-radius: 4px;
+  position: absolute;
+  top: -8px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.byte-hat::before {
+  content: '';
+  width: 50px; height: 6px;
+  background: var(--text);
+  border-radius: 3px;
+  position: absolute;
+  bottom: -2px; left: -5px;
+}
+/* Byte eyes */
+.byte-eyes { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; }
+.byte-eye {
+  width: 10px; height: 12px;
+  background: var(--text);
+  border-radius: 50%;
+  position: relative;
+  animation: byteBlink 4s ease-in-out infinite;
+}
+@keyframes byteBlink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+.byte-eye::after {
+  content: '';
+  width: 3px; height: 3px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px; right: 2px;
+}
+/* Byte mouth */
+.byte-mouth {
+  width: 16px; height: 8px;
+  border: 2px solid #92400E;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  position: absolute;
+  top: 28px; left: 50%; transform: translateX(-50%);
+}
+/* Byte arms */
+.byte-arm-l, .byte-arm-r {
+  width: 8px; height: 22px;
+  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  border-radius: 4px;
+  position: absolute;
+  bottom: 12px;
+}
+.byte-arm-l { left: -4px; transform: rotate(15deg); }
+.byte-arm-r { right: -4px; transform: rotate(-15deg); }
+/* Magnifying glass */
+.byte-glass {
+  width: 14px; height: 14px;
+  border: 3px solid #F59E0B;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -2px; right: -8px;
+}
+.byte-glass::after {
+  content: '';
+  width: 5px; height: 3px;
+  background: #F59E0B;
+  border-radius: 1px;
+  position: absolute;
+  bottom: -4px; right: -4px;
+  transform: rotate(45deg);
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.card:hover { box-shadow: var(--shadow-md); }
+
+/* ===== CASE CARDS ===== */
+.cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+.case-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.case-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.case-card.difficulty-easy::before { background: var(--success); }
+.case-card.difficulty-medium::before { background: var(--accent); }
+.case-card.difficulty-hard::before { background: var(--danger); }
+.case-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.case-card.solved { opacity: 0.75; }
+.case-card.solved::after {
+  content: '✓ SOLVED';
+  position: absolute; top: 14px; right: 14px;
+  background: var(--success);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+.case-number {
+  font-size: 0.7rem; font-weight: 700;
+  color: var(--text-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.case-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.case-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.case-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.badge-easy { background: #DCFCE7; color: #166534; }
+.badge-medium { background: #FEF3C7; color: #92400E; }
+.badge-hard { background: #FEE2E2; color: #991B1B; }
+.badge-xp { background: #EEF2FF; color: var(--primary); }
+.badge-tag { background: #F5F3FF; color: var(--secondary); }
+
+.case-progress { margin-bottom: 14px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+.progress-bar-wrap { background: var(--border); border-radius: 99px; height: 6px; overflow: hidden; }
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ===== SECTION HEADERS ===== */
+.section-header { margin-bottom: 20px; }
+.section-title { font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.section-sub { font-size: 0.88rem; color: var(--text-muted); }
+
+/* ===== INVESTIGATION SCREEN ===== */
+.investigation-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .investigation-layout { grid-template-columns: 1fr; }
+}
+.investigation-title {
+  font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 4px;
+}
+.investigation-sub { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px; }
+.clue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 480px) { .clue-grid { grid-template-columns: 1fr; } }
+.clue-card {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.clue-card:hover { border-color: var(--primary); background: #EEF2FF; }
+.clue-card.selected {
+  border-color: var(--primary);
+  background: #EEF2FF;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+}
+.clue-card.selected::after {
+  content: '✓';
+  position: absolute; top: 8px; right: 8px;
+  width: 20px; height: 20px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+}
+.clue-icon { font-size: 22px; margin-bottom: 6px; }
+.clue-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.clue-detail { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+.evidence-log {
+  background: #0F172A;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #94A3B8;
+  margin-top: 14px;
+  max-height: 160px;
+  overflow-y: auto;
+  line-height: 1.8;
+}
+.log-line.highlight { color: var(--accent); }
+.log-line.error { color: var(--danger); }
+.log-line.success { color: var(--success); }
+.hint-card {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border: 1px solid #FCD34D;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-top: 14px;
+}
+.hint-title { font-size: 0.78rem; font-weight: 700; color: #92400E; margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
+.hint-text { font-size: 0.8rem; color: #78350F; line-height: 1.5; }
+
+/* ===== CHALLENGE SCREEN ===== */
+.challenge-wrap { max-width: 600px; margin: 0 auto; }
+.challenge-question {
+  font-size: 1.15rem; font-weight: 700; color: var(--text);
+  margin-bottom: 8px; line-height: 1.4;
+}
+.challenge-context {
+  font-size: 0.85rem; color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 22px;
+  line-height: 1.6;
+}
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 0.88rem;
+  color: var(--text);
+  transition: var(--transition);
+  display: flex; align-items: center; gap: 12px;
+  font-weight: 500;
+}
+.option-btn:hover { border-color: var(--primary); background: #EEF2FF; }
+.option-btn.correct { border-color: var(--success); background: #DCFCE7; color: #166534; }
+.option-btn.wrong { border-color: var(--danger); background: #FEE2E2; color: #991B1B; }
+.option-btn.disabled { pointer-events: none; opacity: 0.6; }
+.option-letter {
+  width: 30px; height: 30px;
+  background: var(--bg);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.8rem;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.option-btn.correct .option-letter { background: var(--success); color: white; border-color: var(--success); }
+.option-btn.wrong .option-letter { background: var(--danger); color: white; border-color: var(--danger); }
+.challenge-feedback {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  display: none;
+  animation: fadeInBubble 0.3s ease;
+}
+.challenge-feedback.correct { background: #DCFCE7; border: 1px solid #86EFAC; color: #166534; }
+.challenge-feedback.wrong { background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; }
+
+/* ===== CASE CLOSED ===== */
+.case-closed-wrap { text-align: center; max-width: 500px; margin: 0 auto; padding: 20px; }
+.stamp-container { position: relative; display: inline-block; margin-bottom: 28px; }
+.case-closed-stamp {
+  width: 200px; height: 200px;
+  border: 6px solid var(--success);
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  animation: stampIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  background: #DCFCE7;
+}
+@keyframes stampIn {
+  0% { transform: scale(3) rotate(-15deg); opacity: 0; }
+  100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+}
+.stamp-text { font-size: 1.4rem; font-weight: 700; color: var(--success); text-transform: uppercase; letter-spacing: 2px; line-height: 1.2; }
+.stamp-sub { font-size: 0.65rem; letter-spacing: 4px; text-transform: uppercase; color: #166534; margin-top: 4px; }
+.rewards-grid { display: flex; gap: 14px; justify-content: center; margin: 24px 0; flex-wrap: wrap; }
+.reward-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  text-align: center;
+  min-width: 100px;
+  box-shadow: var(--shadow-sm);
+  animation: rewardSlide 0.4s ease both;
+}
+.reward-card:nth-child(2) { animation-delay: 0.1s; }
+.reward-card:nth-child(3) { animation-delay: 0.2s; }
+@keyframes rewardSlide { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+.reward-icon { font-size: 26px; margin-bottom: 6px; }
+.reward-value { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+.reward-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+.learning-summary {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+.summary-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.summary-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.summary-item:last-child { border-bottom: none; }
+.summary-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+.summary-text { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+/* ===== ACADEMY SCREEN ===== */
+.academy-sections { display: flex; flex-direction: column; gap: 16px; }
+.academy-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.academy-section-header {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.academy-section-header:hover { background: var(--bg); }
+.section-info { display: flex; align-items: center; gap: 12px; }
+.section-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.section-icon.blue { background: #EEF2FF; }
+.section-icon.purple { background: #F5F3FF; }
+.section-icon.green { background: #DCFCE7; }
+.section-icon.orange { background: #FEF3C7; }
+.section-name { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.section-lessons { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.section-toggle { font-size: 18px; color: var(--text-muted); transition: transform 0.25s; }
+.section-toggle.open { transform: rotate(180deg); }
+.academy-section-body { display: none; padding: 0 20px 16px; border-top: 1px solid var(--border); }
+.academy-section-body.open { display: block; }
+.lesson-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.lesson-item:last-child { border-bottom: none; }
+.lesson-item:hover { opacity: 0.75; }
+.lesson-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.lesson-dot.done { background: var(--success); color: white; }
+.lesson-dot.active { background: var(--primary); color: white; }
+.lesson-dot.locked { background: var(--border); color: var(--text-light); }
+.lesson-name { font-size: 0.85rem; color: var(--text); font-weight: 500; flex: 1; }
+.lesson-xp { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+
+/* ===== ACHIEVEMENTS ===== */
+.achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.achievement-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  animation: achieveIn 0.4s ease both;
+}
+.achievement-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.achievement-card.locked { opacity: 0.45; filter: grayscale(0.5); }
+@keyframes achieveIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+.achievement-icon { font-size: 36px; margin-bottom: 8px; }
+.achievement-name { font-size: 0.8rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.achievement-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; }
+.achievement-card.unlocked .achievement-name::after { content: ' ✓'; color: var(--success); }
+
+/* ===== PROFILE ===== */
+.profile-header {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--radius);
+  padding: 28px;
+  color: white;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 20px;
+}
+.avatar {
+  width: 72px; height: 72px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  border: 3px solid rgba(255,255,255,0.4);
+  flex-shrink: 0;
+}
+.profile-name { font-size: 1.3rem; font-weight: 700; }
+.profile-rank { font-size: 0.82rem; opacity: 0.85; margin-top: 2px; }
+.profile-xp { font-size: 0.78rem; opacity: 0.7; margin-top: 4px; }
+.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+@media (max-width: 480px) { .profile-grid { grid-template-columns: 1fr; } }
+.profile-stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.profile-stat-icon { font-size: 22px; margin-bottom: 8px; }
+.profile-stat-value { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+.profile-stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+.xp-progress-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-sm); margin-bottom: 14px; }
+.xp-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.xp-bar-wrap { background: var(--border); border-radius: 99px; height: 10px; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 99px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+
+/* ===== RANK BADGE ===== */
+.rank-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* ===== CONFETTI ===== */
+#confetti-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ===== XP POPUP ===== */
+.xp-popup {
+  position: fixed;
+  top: 70px; right: 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  z-index: 500;
+  box-shadow: var(--shadow-md);
+  animation: xpPopAnim 2.5s ease forwards;
+  pointer-events: none;
+}
+@keyframes xpPopAnim {
+  0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+  20% { opacity: 1; transform: translateY(0) scale(1); }
+  70% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+
+/* ===== BACK BUTTON ===== */
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.back-btn:hover { color: var(--primary); }
+
+/* ===== MISC ===== */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+.empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+.tag { display: inline-block; padding: 2px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.gap-8 { gap: 8px; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.text-sm { font-size: 0.85rem; }
+.text-muted { color: var(--text-muted); }
+.fw-600 { font-weight: 600; }
+.text-center { text-align: center; }
+
+/* ===== STREAK FLAME ===== */
+.streak-flame { display: inline-flex; align-items: center; gap: 4px; }
+
+/* ===== LOADING DOTS ===== */
+.loading-dots { display: inline-flex; gap: 4px; align-items: center; }
+.loading-dots span {
+  width: 6px; height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CANVAS -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- NAVIGATION (desktop) -->
+<nav class="nav" id="main-nav">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🔍</div>
+    Tag Detective
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showScreen('welcome')" id="tab-welcome">Home</button>
+    <button class="nav-tab" onclick="showScreen('cases')" id="tab-cases">Cases</button>
+    <button class="nav-tab" onclick="showScreen('academy')" id="tab-academy">Academy</button>
+    <button class="nav-tab" onclick="showScreen('achievements')" id="tab-achievements">Badges</button>
+    <button class="nav-tab" onclick="showScreen('profile')" id="tab-profile">Profile</button>
+  </div>
+  <div class="nav-stats">
+    <div class="nav-stat"><span class="icon">⭐</span><span id="nav-xp">0 XP</span></div>
+    <div class="nav-stat"><span class="icon">🔥</span><span id="nav-streak">3</span></div>
+  </div>
+</nav>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-items">
+    <button class="bottom-nav-item active" onclick="showScreen('welcome')" id="bnav-welcome"><span class="bnav-icon">🏠</span>Home</button>
+    <button class="bottom-nav-item" onclick="showScreen('cases')" id="bnav-cases"><span class="bnav-icon">📁</span>Cases</button>
+    <button class="bottom-nav-item" onclick="showScreen('academy')" id="bnav-academy"><span class="bnav-icon">📚</span>Learn</button>
+    <button class="bottom-nav-item" onclick="showScreen('achievements')" id="bnav-achievements"><span class="bnav-icon">🏆</span>Badges</button>
+    <button class="bottom-nav-item" onclick="showScreen('profile')" id="bnav-profile"><span class="bnav-icon">👤</span>Profile</button>
+  </div>
+</nav>
+
+<!-- ===== BYTE MASCOT ===== -->
+<div class="byte-container" id="byte-container">
+  <div class="byte-bubble" id="byte-bubble">Every clue counts, detective! 🔍</div>
+  <div class="byte-mascot" onclick="byteSpeak()" title="Ask Byte for a hint" role="button" aria-label="Talk to Byte for hints">
+    <div class="byte-head">
+      <div class="byte-hat"></div>
+      <div class="byte-eyes">
+        <div class="byte-eye"></div>
+        <div class="byte-eye"></div>
+      </div>
+      <div class="byte-mouth"></div>
+    </div>
+    <div class="byte-body">
+      <div class="byte-arm-l"><div class="byte-glass"></div></div>
+      <div class="byte-arm-r"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     SCREEN 1: WELCOME
+=================================================== -->
+<div class="screen active" id="screen-welcome">
+  <div class="screen-content">
+    <div class="welcome-hero">
+      <div class="welcome-badge">🔍 Detective Academy</div>
+      <h1 class="welcome-title">Every tracking issue<br>leaves <span>clues.</span></h1>
+      <p class="welcome-sub">Learn GA4 and GTM by solving real tracking mysteries. Earn XP, rank up, and become a Tag Detective.</p>
+      <div class="welcome-actions">
+        <button class="btn btn-primary btn-lg" onclick="showScreen('cases')">🕵️ Start Investigation</button>
+        <button class="btn btn-outline" onclick="showScreen('cases')">📁 View Cases</button>
+      </div>
+      <div class="welcome-stats">
+        <div class="stat-card">
+          <div class="stat-value" id="welcome-xp">0</div>
+          <div class="stat-label">Total XP</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="welcome-cases">0</div>
+          <div class="stat-label">Cases Solved</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">🔥 3</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="welcome-rank">Rookie</div>
+          <div class="stat-label">Detective Rank</div>
+        </div>
+      </div>
+    </div>
+    <!-- Quick intro cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:8px;">
+      <div class="card" style="border-left:4px solid var(--primary);">
+        <div style="font-size:24px;margin-bottom:8px;">📊</div>
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;">GA4 Mastery</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">Master events, conversions, and reports through interactive cases.</div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--secondary);">
+        <div style="font-size:24px;margin-bottom:8px;">🏷️</div>
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;">GTM Detective</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">Solve trigger, variable, and tag mysteries in the field.</div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent);">
+        <div style="font-size:24px;margin-bottom:8px;">🏆</div>
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;">Earn Badges</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">Unlock detective ranks and collect achievement badges.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     SCREEN 2: CASE BOARD
+=================================================== -->
+<div class="screen" id="screen-cases">
+  <div class="screen-content">
+    <div class="section-header">
+      <h2 class="section-title">📁 Case Board</h2>
+      <p class="section-sub">Select a case to begin your investigation. New cases unlock as you solve mysteries.</p>
+    </div>
+    <div class="cases-grid" id="cases-grid">
+      <!-- Cases rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     SCREEN 3: INVESTIGATION
+=================================================== -->
+<div class="screen" id="screen-investigation">
+  <div class="screen-content">
+    <button class="back-btn" onclick="showScreen('cases')">← Back to Cases</button>
+    <div id="investigation-content">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     SCREEN 4: CHALLENGE
+=================================================== -->
+<div class="screen" id="screen-challenge">
+  <div class="screen-content">
+    <button class="back-btn" onclick="showScreen('investigation')">← Back to Investigation</button>
+    <div class="challenge-wrap" id="challenge-content">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     SCREEN 5: CASE CLOSED
+=================================================== -->
+<div class="screen" id="screen-caseclosed">
+  <div class="screen-content">
+    <div class="case-closed-wrap" id="caseclosed-content">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     SCREEN 6: ACADEMY
+=================================================== -->
+<div class="screen" id="screen-academy">
+  <div class="screen-content">
+    <div class="section-header">
+      <h2 class="section-title">📚 Detective Academy</h2>
+      <p class="section-sub">Master GA4 and GTM through structured learning paths.</p>
+    </div>
+    <div class="academy-sections" id="academy-content">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     SCREEN 7: ACHIEVEMENTS
+=================================================== -->
+<div class="screen" id="screen-achievements">
+  <div class="screen-content">
+    <div class="section-header">
+      <h2 class="section-title">🏆 Achievements</h2>
+      <p class="section-sub">Earn badges and milestone rewards as you progress.</p>
+    </div>
+    <div class="achievements-grid" id="achievements-grid">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     SCREEN 8: PROFILE
+=================================================== -->
+<div class="screen" id="screen-profile">
+  <div class="screen-content">
+    <div id="profile-content">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================================================
+   STATE MANAGEMENT
+=================================================== */
+const state = {
+  xp: 0,
+  streak: 3,
+  casesCompleted: [],
+  currentCase: null,
+  selectedClues: [],
+  rank: 'Rookie',
+  unlockedAchievements: [],
+  academyProgress: { ga4: 2, events: 0, conversions: 0, reports: 0, gtm: 1, triggers: 0, variables: 0, datalayer: 0 }
+};
+
+const RANKS = [
+  { name: 'Rookie', minXP: 0 },
+  { name: 'Analyst', minXP: 150 },
+  { name: 'Inspector', minXP: 400 },
+  { name: 'Detective', minXP: 750 },
+  { name: 'Senior Detective', minXP: 1200 },
+  { name: 'Chief Inspector', minXP: 2000 }
+];
+
+function getRank(xp) {
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (xp >= r.minXP) rank = r; }
+  return rank;
+}
+
+function getNextRank(xp) {
+  for (const r of RANKS) { if (xp < r.minXP) return r; }
+  return null;
+}
+
+/* ===================================================
+   CASE DATA
+=================================================== */
+const CASES = [
+  {
+    id: 1,
+    title: 'The Vanishing Purchases',
+    number: 'CASE #001',
+    desc: 'An e-commerce store reported that purchase events disappeared overnight. Revenue tracking shows zero for 3 days. Find the culprit.',
+    difficulty: 'easy',
+    xpReward: 100,
+    tag: 'GA4 Events',
+    clues: [
+      { icon: '📉', title: 'Revenue Drop', detail: 'GA4 shows $0 revenue for 72 hours. Historical avg was $4,200/day.' },
+      { icon: '🏷️', title: 'Tag Status', detail: 'GTM container last published 3 days ago. Matches revenue drop timing.' },
+      { icon: '🛒', title: 'Cart Events', detail: 'add_to_cart and begin_checkout events still fire correctly.' },
+      { icon: '📋', title: 'Event Log', detail: 'purchase event missing from dataLayer on confirmation page.' },
+      { icon: '🔧', title: 'Code Change', detail: 'Dev deployed new checkout flow. purchase event trigger unchanged.' },
+      { icon: '⚠️', title: 'Console Error', detail: 'ReferenceError: dataLayer is not defined on order-confirmation.html' }
+    ],
+    eventLog: [
+      { text: '[10:23:11] page_view — /checkout/step1', cls: '' },
+      { text: '[10:23:15] add_to_cart — product_id: P-4421', cls: 'success' },
+      { text: '[10:23:44] begin_checkout — items: 2', cls: 'success' },
+      { text: '[10:24:12] ERROR: dataLayer is not defined', cls: 'error' },
+      { text: '[10:24:12] purchase — FAILED (script blocked)', cls: 'error' },
+      { text: '[10:24:13] page_view — /order-confirmation', cls: '' },
+    ],
+    hint: 'Check the order confirmation page HTML. The dataLayer initialization script may have been removed or moved after the GTM snippet during the recent deployment.',
+    challenge: {
+      question: 'Based on your evidence, why are purchases missing from GA4?',
+      context: 'The console shows: "ReferenceError: dataLayer is not defined" on /order-confirmation. The GTM container fires, but the purchase event never appears in GA4.',
+      options: [
+        { letter: 'A', text: 'The purchase event trigger in GTM has a typo in the event name' },
+        { letter: 'B', text: 'The dataLayer was not initialized before the GTM snippet on the confirmation page', correct: true },
+        { letter: 'C', text: 'GA4 property ID was changed in the configuration tag' },
+        { letter: 'D', text: 'The checkout page is blocked by an ad blocker on the test device' },
+      ],
+      correctFeedback: '🎉 Correct! The new checkout flow removed the `window.dataLayer = window.dataLayer || []` initialization from the confirmation page. When GTM fires, the purchase event pushes to dataLayer, but since it was never initialized, the browser throws an error and the event never reaches GA4.',
+      wrongFeedback: 'Not quite. Look at the console error carefully — "dataLayer is not defined" points to a missing initialization, not a configuration problem.'
+    },
+    summary: [
+      'GA4 purchase events rely on a properly initialized dataLayer array before GTM fires.',
+      'Always include `window.dataLayer = window.dataLayer || []` BEFORE the GTM snippet.',
+      'Code deployments affecting checkout pages should include tracking validation tests.',
+      'Use GA4 DebugView to verify events fire in real-time during QA.'
+    ]
+  },
+  {
+    id: 2,
+    title: 'The Missing Conversion',
+    number: 'CASE #002',
+    desc: 'A lead generation site stopped counting form submissions as conversions in GA4. Ads are running blind without conversion data.',
+    difficulty: 'medium',
+    xpReward: 175,
+    tag: 'GTM Triggers',
+    clues: [
+      { icon: '📊', title: 'Conversion Gap', detail: 'GA4 Conversions report shows 0 for "lead_form_submit" for 5 days.' },
+      { icon: '🖱️', title: 'Form Behavior', detail: 'Form submissions work normally. Users receive confirmation emails.' },
+      { icon: '⚡', title: 'GTM Trigger', detail: 'Trigger: Form Submission. Condition: Form ID equals "contact-form".' },
+      { icon: '🔄', title: 'Form Update', detail: 'Marketing team updated form HTML. New ID: "lead-form-v2".' },
+      { icon: '🔍', title: 'Preview Mode', detail: 'In GTM Preview, form submission fires but "lead_form_submit" tag blocked.' },
+      { icon: '🎯', title: 'Tag Status', detail: 'lead_form_submit tag shows "Blocked" status in preview panel.' }
+    ],
+    eventLog: [
+      { text: '[14:01:33] page_view — /contact', cls: '' },
+      { text: '[14:03:47] gtm.formSubmit — form#lead-form-v2', cls: 'highlight' },
+      { text: '[14:03:47] Trigger check: Form ID = "contact-form" → FALSE', cls: 'error' },
+      { text: '[14:03:47] lead_form_submit — BLOCKED by trigger', cls: 'error' },
+      { text: '[14:03:48] page_view — /thank-you', cls: '' },
+      { text: '[14:03:48] WARN: No conversion event fired', cls: 'highlight' },
+    ],
+    hint: 'The form\'s HTML "id" attribute was changed from "contact-form" to "lead-form-v2". The GTM trigger still looks for the old ID. Update the trigger condition to match the new form ID.',
+    challenge: {
+      question: 'Why is the lead_form_submit conversion not firing in GA4?',
+      context: 'GTM Preview shows the form submission is detected (gtm.formSubmit event fires), but the "lead_form_submit" tag status shows "Blocked". The trigger condition checks Form ID equals "contact-form".',
+      options: [
+        { letter: 'A', text: 'The GA4 event name "lead_form_submit" contains an underscore which is invalid' },
+        { letter: 'B', text: 'The form submission trigger fired but the tag is paused in GTM', correct: false },
+        { letter: 'C', text: 'The GTM trigger condition references the old form ID that no longer exists in the HTML', correct: true },
+        { letter: 'D', text: 'GA4 requires conversion events to be marked manually in the Events report first' },
+      ],
+      correctFeedback: '✅ Exactly right! The marketing team renamed the form\'s ID attribute from "contact-form" to "lead-form-v2". The GTM trigger still filters for "contact-form", so it evaluates to FALSE and blocks the tag. Fix: Update the trigger condition to "Form ID equals lead-form-v2" and republish.',
+      wrongFeedback: 'Look more carefully at the GTM Preview log. The form submission IS detected — the problem is in the trigger condition evaluation.'
+    },
+    summary: [
+      'GTM Form Submission triggers use element attributes (ID, class) to identify specific forms.',
+      'When developers rename form IDs, GTM trigger conditions become stale and break tracking.',
+      'Always test GTM triggers in Preview mode after any HTML changes to forms.',
+      'Consider using CSS class selectors instead of IDs — they tend to be more stable.'
+    ]
+  },
+  {
+    id: 3,
+    title: 'The Duplicate Event Mystery',
+    number: 'CASE #003',
+    desc: 'Page view counts in GA4 are 2x higher than actual traffic. Bounce rates look impossibly low. Something is firing twice.',
+    difficulty: 'hard',
+    xpReward: 250,
+    tag: 'GA4 Config',
+    clues: [
+      { icon: '2️⃣', title: 'Double Counts', detail: 'GA4 sessions are 2.1x Google Analytics 3 baseline for same period.' },
+      { icon: '📦', title: 'Dual Install', detail: 'Site has both GTM and direct GA4 snippet in <head> of all pages.' },
+      { icon: '🏷️', title: 'GTM Config Tag', detail: 'GTM contains GA4 Configuration Tag firing on All Pages trigger.' },
+      { icon: '💻', title: 'Source Code', detail: 'HTML <head> includes: gtag("config", "G-XXXXXXX") hardcoded.' },
+      { icon: '📡', title: 'Network Tab', detail: 'DevTools shows 2x collect requests to google-analytics.com per page.' },
+      { icon: '🔮', title: 'DebugView', detail: 'DebugView shows page_view fires twice within 100ms on each load.' }
+    ],
+    eventLog: [
+      { text: '[09:15:00] page_view — fired (gtag.js direct snippet)', cls: 'error' },
+      { text: '[09:15:00] page_view — fired (GTM GA4 Config Tag)', cls: 'error' },
+      { text: '[09:15:00] WARN: Duplicate page_view detected (100ms apart)', cls: 'highlight' },
+      { text: '[09:15:01] session_start — 2x sessions created', cls: 'error' },
+      { text: '[09:15:02] user_engagement — inflated metrics', cls: 'highlight' },
+      { text: '[09:15:03] CRITICAL: All event counts doubled', cls: 'error' },
+    ],
+    hint: 'The site has GA4 loaded twice: once via a hardcoded gtag.js snippet in the HTML, and again via a GA4 Configuration Tag in GTM. Remove one — either delete the hardcoded snippet or remove the GTM GA4 tag.',
+    challenge: {
+      question: 'What is causing all GA4 events to fire twice?',
+      context: 'DevTools shows two collect requests per page load. GA4 DebugView shows page_view firing twice within 100ms. The site recently migrated to GTM for tag management.',
+      options: [
+        { letter: 'A', text: 'The GA4 Configuration Tag in GTM has "Send a page view when loaded" checked twice', correct: false },
+        { letter: 'B', text: 'There is both a hardcoded GA4 gtag.js snippet in the HTML AND a GTM GA4 Configuration Tag running simultaneously', correct: true },
+        { letter: 'C', text: 'The All Pages trigger in GTM fires on both DOM Ready and Window Loaded events' },
+        { letter: 'D', text: 'GA4 automatically deduplicates page views but the session count has a known bug' }
+      ],
+      correctFeedback: '🕵️ Brilliant deduction! The site implemented GA4 via GTM (correct approach) but forgot to remove the original hardcoded gtag.js snippet from the HTML template. Both are initializing GA4 and sending events independently, causing every hit to be counted twice. Solution: Remove the hardcoded `<script>` tag from the HTML and rely solely on GTM.',
+      wrongFeedback: 'Check the network tab clue again. Two separate collect requests firing simultaneously suggests two separate GA4 initialization points, not a configuration option.'
+    },
+    summary: [
+      'Never run GA4 through both a hardcoded snippet AND GTM simultaneously — it doubles all data.',
+      'When migrating to GTM, always remove hardcoded analytics tags from the HTML template.',
+      'Use browser DevTools Network tab to check for duplicate analytics requests.',
+      'GA4 DebugView is essential for catching duplicate fires during implementation QA.'
+    ]
+  }
+];
+
+/* ===================================================
+   ACADEMY DATA
+=================================================== */
+const ACADEMY_SECTIONS = [
+  {
+    id: 'ga4', name: 'GA4 Basics', icon: '📊', color: 'blue',
+    lessons: [
+      { name: 'What is GA4?', xp: 20, status: 'done' },
+      { name: 'Properties & Data Streams', xp: 20, status: 'done' },
+      { name: 'The GA4 Interface Tour', xp: 25, status: 'active' },
+      { name: 'Sessions vs Events Model', xp: 30, status: 'locked' },
+    ]
+  },
+  {
+    id: 'events', name: 'Events & Parameters', icon: '⚡', color: 'purple',
+    lessons: [
+      { name: 'Automatic Events', xp: 20, status: 'active' },
+      { name: 'Enhanced Measurement', xp: 25, status: 'locked' },
+      { name: 'Custom Events', xp: 30, status: 'locked' },
+      { name: 'Event Parameters', xp: 35, status: 'locked' },
+    ]
+  },
+  {
+    id: 'conversions', name: 'Conversions', icon: '🎯', color: 'green',
+    lessons: [
+      { name: 'Marking Events as Conversions', xp: 25, status: 'locked' },
+      { name: 'Conversion Funnels', xp: 30, status: 'locked' },
+      { name: 'Attribution Models', xp: 35, status: 'locked' },
+    ]
+  },
+  {
+    id: 'gtm', name: 'GTM Fundamentals', icon: '🏷️', color: 'orange',
+    lessons: [
+      { name: 'GTM Overview & Architecture', xp: 20, status: 'done' },
+      { name: 'Tags, Triggers, Variables', xp: 25, status: 'active' },
+      { name: 'Preview & Debug Mode', xp: 25, status: 'locked' },
+      { name: 'Publishing Containers', xp: 20, status: 'locked' },
+    ]
+  },
+  {
+    id: 'triggers', name: 'Triggers', icon: '🔫', color: 'blue',
+    lessons: [
+      { name: 'Click Triggers', xp: 25, status: 'locked' },
+      { name: 'Form Submit Triggers', xp: 25, status: 'locked' },
+      { name: 'Custom Event Triggers', xp: 30, status: 'locked' },
+      { name: 'Scroll Depth Triggers', xp: 25, status: 'locked' },
+    ]
+  },
+  {
+    id: 'datalayer', name: 'Data Layer', icon: '🗄️', color: 'purple',
+    lessons: [
+      { name: 'What is the Data Layer?', xp: 30, status: 'locked' },
+      { name: 'Pushing to dataLayer', xp: 35, status: 'locked' },
+      { name: 'Data Layer Variables', xp: 35, status: 'locked' },
+      { name: 'E-commerce Data Layer', xp: 50, status: 'locked' },
+    ]
+  }
+];
+
+/* ===================================================
+   ACHIEVEMENTS DATA
+=================================================== */
+const ACHIEVEMENTS = [
+  { id: 'first_case', icon: '🔍', name: 'First Clue', desc: 'Complete your first case', req: 1 },
+  { id: 'three_cases', icon: '📁', name: 'Case File', desc: 'Solve 3 cases', req: 3 },
+  { id: 'xp_100', icon: '⭐', name: 'Rising Star', desc: 'Earn 100 XP', req: 100 },
+  { id: 'xp_500', icon: '💫', name: 'Shining Star', desc: 'Earn 500 XP', req: 500 },
+  { id: 'streak_3', icon: '🔥', name: 'On Fire', desc: '3-day streak', req: 3 },
+  { id: 'streak_7', icon: '🌟', name: 'Week Warrior', desc: '7-day streak', req: 7 },
+  { id: 'rank_analyst', icon: '🕵️', name: 'Analyst', desc: 'Reach Analyst rank', req: 150 },
+  { id: 'rank_detective', icon: '🎩', name: 'Detective', desc: 'Reach Detective rank', req: 750 },
+  { id: 'academy_10', icon: '📚', name: 'Scholar', desc: 'Complete 10 lessons', req: 10 },
+  { id: 'clue_master', icon: '🔎', name: 'Clue Master', desc: 'Find all clues in a case', req: 1 },
+  { id: 'speed_solve', icon: '⚡', name: 'Speed Detective', desc: 'Solve a case quickly', req: 1 },
+  { id: 'perfect', icon: '🏆', name: 'Perfect Score', desc: 'Answer correctly first try', req: 1 }
+];
+
+/* ===================================================
+   BYTE MESSAGES
+=================================================== */
+const BYTE_MESSAGES = {
+  welcome: ["Welcome, detective! Cases await on the board.", "Every great detective starts somewhere. Let's go!", "Your magnifying glass is ready. Time to investigate!"],
+  cases: ["Pick a case that matches your skill level.", "Harder cases = more XP rewards!", "Solve cases to unlock new ones."],
+  investigation: ["Examine all the clues before drawing conclusions.", "The event log often holds the smoking gun.", "Click on clues to highlight key evidence!"],
+  challenge: ["Think carefully — one answer is correct!", "Eliminate wrong answers first.", "The console errors are your best friend here."],
+  academy: ["Lessons unlock as you advance.", "Complete cases to earn Academy XP too!", "Theory + practice = great detective."],
+  hint: ["Look at the timing — what changed recently?", "Check the network requests in DevTools.", "The event log timestamps tell a story.", "Compare what SHOULD fire vs what DID fire."]
+};
+
+function byteSpeak(context) {
+  const msgs = BYTE_MESSAGES[context || 'hint'];
+  const msg = msgs[Math.floor(Math.random() * msgs.length)];
+  const bubble = document.getElementById('byte-bubble');
+  bubble.textContent = msg;
+  bubble.style.display = 'block';
+  clearTimeout(window._byteTimer);
+  window._byteTimer = setTimeout(() => { bubble.style.display = 'none'; }, 5000);
+}
+
+/* ===================================================
+   SCREEN NAVIGATION
+=================================================== */
+function showScreen(screenId) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-' + screenId);
+  if (target) target.classList.add('active');
+
+  // Update nav tabs
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const activeTab = document.getElementById('tab-' + screenId);
+  if (activeTab) activeTab.classList.add('active');
+
+  // Update bottom nav
+  document.querySelectorAll('.bottom-nav-item').forEach(t => t.classList.remove('active'));
+  const activeBnav = document.getElementById('bnav-' + screenId);
+  if (activeBnav) activeBnav.classList.add('active');
+
+  // Render screens as needed
+  if (screenId === 'cases') renderCases();
+  if (screenId === 'academy') renderAcademy();
+  if (screenId === 'achievements') renderAchievements();
+  if (screenId === 'profile') renderProfile();
+  if (screenId === 'welcome') updateWelcomeStats();
+
+  // Byte hint
+  setTimeout(() => byteSpeak(screenId), 600);
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+/* ===================================================
+   UPDATE UI HELPERS
+=================================================== */
+function updateNavStats() {
+  document.getElementById('nav-xp').textContent = state.xp + ' XP';
+  document.getElementById('nav-streak').textContent = state.streak;
+  state.rank = getRank(state.xp).name;
+}
+
+function updateWelcomeStats() {
+  document.getElementById('welcome-xp').textContent = state.xp;
+  document.getElementById('welcome-cases').textContent = state.casesCompleted.length;
+  document.getElementById('welcome-rank').textContent = state.rank;
+}
+
+function addXP(amount) {
+  state.xp += amount;
+  state.rank = getRank(state.xp).name;
+  updateNavStats();
+  showXPPopup('+' + amount + ' XP');
+  checkAchievements();
+}
+
+function showXPPopup(text) {
+  const popup = document.createElement('div');
+  popup.className = 'xp-popup';
+  popup.textContent = text;
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 2600);
+}
+
+/* ===================================================
+   RENDER: CASES
+=================================================== */
+function renderCases() {
+  const grid = document.getElementById('cases-grid');
+  grid.innerHTML = '';
+  CASES.forEach(c => {
+    const solved = state.casesCompleted.includes(c.id);
+    const progress = solved ? 100 : (state.currentCase === c.id ? 50 : 0);
+    const div = document.createElement('div');
+    div.className = `case-card difficulty-${c.difficulty}${solved ? ' solved' : ''}`;
+    div.setAttribute('role', 'button');
+    div.setAttribute('tabindex', '0');
+    div.setAttribute('aria-label', 'Open ' + c.title);
+    div.innerHTML = `
+      <div class="case-number">${c.number}</div>
+      <div class="case-title">${c.title}</div>
+      <div class="case-desc">${c.desc}</div>
+      <div class="case-meta">
+        <span class="badge badge-${c.difficulty}">${c.difficulty.charAt(0).toUpperCase()+c.difficulty.slice(1)}</span>
+        <span class="badge badge-xp">⭐ ${c.xpReward} XP</span>
+        <span class="badge badge-tag">🏷️ ${c.tag}</span>
+      </div>
+      <div class="case-progress">
+        <div class="progress-label"><span>Progress</span><span>${progress}%</span></div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${progress}%" data-width="${progress}"></div></div>
+      </div>
+      <button class="btn btn-primary btn-sm" style="width:100%">${solved ? '🔍 Review Case' : '🕵️ Investigate'}</button>
+    `;
+    div.addEventListener('click', () => openCase(c.id));
+    div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openCase(c.id); });
+    grid.appendChild(div);
+    // Animate progress bar
+    setTimeout(() => {
+      const fill = div.querySelector('.progress-bar-fill');
+      if (fill) fill.style.width = fill.dataset.width + '%';
+    }, 100);
+  });
+}
+
+/* ===================================================
+   OPEN CASE / INVESTIGATION
+=================================================== */
+function openCase(caseId) {
+  const c = CASES.find(x => x.id === caseId);
+  if (!c) return;
+  state.currentCase = caseId;
+  state.selectedClues = [];
+  renderInvestigation(c);
+  showScreen('investigation');
+}
+
+function renderInvestigation(c) {
+  const container = document.getElementById('investigation-content');
+  container.innerHTML = `
+    <div class="flex-between" style="margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+      <div>
+        <div class="tag">${c.number}</div>
+        <h2 class="investigation-title" style="margin-top:6px;">${c.title}</h2>
+        <p class="investigation-sub">${c.desc}</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <span class="badge badge-${c.difficulty}">${c.difficulty}</span>
+        <span class="badge badge-xp">⭐ ${c.xpReward} XP</span>
+      </div>
+    </div>
+    <div class="investigation-layout">
+      <div>
+        <!-- Evidence -->
+        <div class="card" style="margin-bottom:16px;">
+          <div style="font-weight:700;font-size:0.9rem;margin-bottom:12px;display:flex;align-items:center;gap:6px;">🔎 Evidence Board <span style="font-size:0.75rem;color:var(--text-muted);font-weight:400;">Click clues to select</span></div>
+          <div class="clue-grid" id="clue-grid-${c.id}">
+            ${c.clues.map((cl, i) => `
+              <div class="clue-card" id="clue-${c.id}-${i}" onclick="toggleClue(${c.id}, ${i})" tabindex="0" role="checkbox" aria-checked="false" onkeydown="if(event.key==='Enter'||event.key===' ')toggleClue(${c.id},${i})">
+                <div class="clue-icon">${cl.icon}</div>
+                <div class="clue-title">${cl.title}</div>
+                <div class="clue-detail">${cl.detail}</div>
+              </div>
+            `).join('')}
+          </div>
+          <!-- Event log -->
+          <div style="font-weight:700;font-size:0.82rem;margin:14px 0 6px;color:var(--text-muted);">📋 LIVE EVENT LOG</div>
+          <div class="evidence-log" id="event-log-${c.id}">
+            ${c.eventLog.map(l => `<div class="log-line ${l.cls}">${l.text}</div>`).join('')}
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="goToChallenge(${c.id})">
+          🔍 Analyze Evidence & Solve Case →
+        </button>
+      </div>
+      <!-- Sidebar -->
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div style="font-weight:700;font-size:0.88rem;margin-bottom:10px;">📄 Case Summary</div>
+          <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">${c.desc}</p>
+          <div style="margin-top:12px;">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">SELECTED CLUES</div>
+            <div id="selected-count-${c.id}" style="font-size:0.85rem;color:var(--primary);font-weight:700;">0 of ${c.clues.length} selected</div>
+          </div>
+        </div>
+        <div class="hint-card">
+          <div class="hint-title">💡 Byte's Hint</div>
+          <div class="hint-text">${c.hint}</div>
+        </div>
+        <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">DIFFICULTY</div>
+          <span class="badge badge-${c.difficulty}">${c.difficulty.charAt(0).toUpperCase()+c.difficulty.slice(1)} Case</span>
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);margin-top:10px;margin-bottom:4px;">TOPIC</div>
+          <span class="badge badge-tag">🏷️ ${c.tag}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleClue(caseId, clueIndex) {
+  const key = `${caseId}-${clueIndex}`;
+  const el = document.getElementById(`clue-${caseId}-${clueIndex}`);
+  if (!el) return;
+  if (state.selectedClues.includes(key)) {
+    state.selectedClues = state.selectedClues.filter(k => k !== key);
+    el.classList.remove('selected');
+    el.setAttribute('aria-checked', 'false');
+  } else {
+    state.selectedClues.push(key);
+    el.classList.add('selected');
+    el.setAttribute('aria-checked', 'true');
+  }
+  const selected = state.selectedClues.filter(k => k.startsWith(caseId + '-')).length;
+  const countEl = document.getElementById(`selected-count-${caseId}`);
+  if (countEl) {
+    const total = CASES.find(c => c.id === caseId)?.clues.length || 0;
+    countEl.textContent = `${selected} of ${total} selected`;
+    if (selected === total) {
+      countEl.style.color = 'var(--success)';
+      showXPPopup('🔍 All clues found!');
+    }
+  }
+}
+
+/* ===================================================
+   CHALLENGE SCREEN
+=================================================== */
+function goToChallenge(caseId) {
+  const c = CASES.find(x => x.id === caseId);
+  if (!c) return;
+  renderChallenge(c);
+  showScreen('challenge');
+}
+
+function renderChallenge(c) {
+  const container = document.getElementById('challenge-content');
+  container.innerHTML = `
+    <div style="margin-bottom:20px;">
+      <div class="tag">${c.number} — Challenge</div>
+      <h2 style="font-size:1.1rem;font-weight:700;color:var(--text);margin:8px 0 4px;">🧩 Solve the Mystery</h2>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <p class="challenge-question">${c.challenge.question}</p>
+      <div class="challenge-context">${c.challenge.context}</div>
+      <div class="options-list" id="options-list-${c.id}">
+        ${c.challenge.options.map((opt, i) => `
+          <button class="option-btn" id="opt-${c.id}-${i}" onclick="selectOption(${c.id}, ${i})" aria-label="Option ${opt.letter}: ${opt.text}">
+            <span class="option-letter">${opt.letter}</span>
+            <span>${opt.text}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="challenge-feedback" id="challenge-feedback-${c.id}"></div>
+    </div>
+    <div class="hint-card">
+      <div class="hint-title">💡 Need a hint?</div>
+      <div class="hint-text">${c.hint}</div>
+    </div>
+  `;
+}
+
+function selectOption(caseId, optionIndex) {
+  const c = CASES.find(x => x.id === caseId);
+  if (!c) return;
+  const opt = c.challenge.options[optionIndex];
+  const isCorrect = !!opt.correct;
+  // Disable all buttons
+  c.challenge.options.forEach((_, i) => {
+    const btn = document.getElementById(`opt-${caseId}-${i}`);
+    if (!btn) return;
+    btn.classList.add('disabled');
+    if (c.challenge.options[i].correct) btn.classList.add('correct');
+  });
+  const selectedBtn = document.getElementById(`opt-${caseId}-${optionIndex}`);
+  if (!isCorrect && selectedBtn) selectedBtn.classList.add('wrong');
+  // Show feedback
+  const feedback = document.getElementById(`challenge-feedback-${caseId}`);
+  if (feedback) {
+    feedback.textContent = isCorrect ? c.challenge.correctFeedback : c.challenge.wrongFeedback;
+    feedback.className = `challenge-feedback ${isCorrect ? 'correct' : 'wrong'}`;
+    feedback.style.display = 'block';
+  }
+  // Award XP and proceed
+  setTimeout(() => {
+    if (isCorrect) {
+      if (!state.casesCompleted.includes(caseId)) {
+        state.casesCompleted.push(caseId);
+        addXP(c.xpReward);
+        if (state.casesCompleted.length === 1) addXP(20); // bonus first case
+      }
+      launchConfetti();
+      showCaseClosed(c);
+    } else {
+      addXP(25); // partial XP for trying
+    }
+  }, isCorrect ? 1800 : 1200);
+}
+
+/* ===================================================
+   CASE CLOSED
+=================================================== */
+function showCaseClosed(c) {
+  setTimeout(() => {
+    renderCaseClosed(c);
+    showScreen('caseclosed');
+  }, 400);
+}
+
+function renderCaseClosed(c) {
+  const nextCase = CASES.find(x => x.id === c.id + 1);
+  const container = document.getElementById('caseclosed-content');
+  container.innerHTML = `
+    <div class="stamp-container">
+      <div class="case-closed-stamp">
+        <div class="stamp-text">CASE<br>CLOSED</div>
+        <div class="stamp-sub">✓ SOLVED</div>
+      </div>
+    </div>
+    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:6px;">${c.title}</h2>
+    <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;">Mystery solved! Here's what you discovered.</p>
+    <div class="rewards-grid">
+      <div class="reward-card">
+        <div class="reward-icon">⭐</div>
+        <div class="reward-value">${c.xpReward}</div>
+        <div class="reward-label">XP Earned</div>
+      </div>
+      <div class="reward-card">
+        <div class="reward-icon">📁</div>
+        <div class="reward-value">${state.casesCompleted.length}</div>
+        <div class="reward-label">Cases Solved</div>
+      </div>
+      <div class="reward-card">
+        <div class="reward-icon">🏅</div>
+        <div class="reward-value">${getRank(state.xp).name}</div>
+        <div class="reward-label">Current Rank</div>
+      </div>
+    </div>
+    <div class="learning-summary">
+      <div class="summary-title">📖 What You Learned</div>
+      ${c.summary.map(s => `
+        <div class="summary-item">
+          <div class="summary-dot"></div>
+          <div class="summary-text">${s}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      ${nextCase ? `<button class="btn btn-primary btn-lg" onclick="openCase(${nextCase.id})">Next Case: ${nextCase.title} →</button>` : ''}
+      <button class="btn btn-outline" onclick="showScreen('cases')">Back to Cases</button>
+    </div>
+  `;
+}
+
+/* ===================================================
+   RENDER: ACADEMY
+=================================================== */
+function renderAcademy() {
+  const container = document.getElementById('academy-content');
+  container.innerHTML = '';
+  ACADEMY_SECTIONS.forEach(section => {
+    const completedLessons = section.lessons.filter(l => l.status === 'done').length;
+    const pct = Math.round((completedLessons / section.lessons.length) * 100);
+    const el = document.createElement('div');
+    el.className = 'academy-section';
+    el.innerHTML = `
+      <div class="academy-section-header" onclick="toggleSection('${section.id}')" aria-expanded="false" id="section-header-${section.id}">
+        <div class="section-info">
+          <div class="section-icon ${section.color}">${section.icon}</div>
+          <div>
+            <div class="section-name">${section.name}</div>
+            <div class="section-lessons">${completedLessons}/${section.lessons.length} lessons • ${pct}% complete</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:80px;">
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+          </div>
+          <span class="section-toggle" id="toggle-${section.id}">▼</span>
+        </div>
+      </div>
+      <div class="academy-section-body" id="body-${section.id}">
+        ${section.lessons.map((l, i) => `
+          <div class="lesson-item" onclick="startLesson('${section.id}', ${i})" tabindex="0" onkeydown="if(event.key==='Enter')startLesson('${section.id}',${i})">
+            <div class="lesson-dot ${l.status}">${l.status === 'done' ? '✓' : l.status === 'active' ? '▶' : '🔒'}</div>
+            <span class="lesson-name">${l.name}</span>
+            <span class="lesson-xp">+${l.xp} XP</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function toggleSection(id) {
+  const body = document.getElementById('body-' + id);
+  const toggle = document.getElementById('toggle-' + id);
+  const header = document.getElementById('section-header-' + id);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (toggle) toggle.classList.toggle('open', !isOpen);
+  if (header) header.setAttribute('aria-expanded', String(!isOpen));
+}
+
+function startLesson(sectionId, lessonIndex) {
+  const section = ACADEMY_SECTIONS.find(s => s.id === sectionId);
+  if (!section) return;
+  const lesson = section.lessons[lessonIndex];
+  if (lesson.status === 'locked') { byteSpeak('academy'); return; }
+  if (lesson.status !== 'done') {
+    lesson.status = 'done';
+    addXP(lesson.xp);
+    renderAcademy();
+    checkAchievements();
+  }
+}
+
+/* ===================================================
+   RENDER: ACHIEVEMENTS
+=================================================== */
+function renderAchievements() {
+  const grid = document.getElementById('achievements-grid');
+  grid.innerHTML = '';
+  checkAchievements();
+  ACHIEVEMENTS.forEach((a, i) => {
+    const unlocked = state.unlockedAchievements.includes(a.id);
+    const div = document.createElement('div');
+    div.className = `achievement-card ${unlocked ? 'unlocked' : 'locked'}`;
+    div.style.animationDelay = (i * 0.05) + 's';
+    div.innerHTML = `
+      <div class="achievement-icon">${a.icon}</div>
+      <div class="achievement-name">${a.name}</div>
+      <div class="achievement-desc">${a.desc}</div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function checkAchievements() {
+  const unlock = (id) => {
+    if (!state.unlockedAchievements.includes(id)) {
+      state.unlockedAchievements.push(id);
+      showXPPopup('🏅 Badge Unlocked!');
+    }
+  };
+  if (state.casesCompleted.length >= 1) unlock('first_case');
+  if (state.casesCompleted.length >= 3) unlock('three_cases');
+  if (state.xp >= 100) unlock('xp_100');
+  if (state.xp >= 500) unlock('xp_500');
+  if (state.streak >= 3) unlock('streak_3');
+  if (state.streak >= 7) unlock('streak_7');
+  if (state.xp >= 150) unlock('rank_analyst');
+  if (state.xp >= 750) unlock('rank_detective');
+  if (state.casesCompleted.length >= 1) unlock('clue_master');
+  if (state.casesCompleted.length >= 1) unlock('perfect');
+  const totalDoneLessons = ACADEMY_SECTIONS.reduce((n, s) => n + s.lessons.filter(l => l.status === 'done').length, 0);
+  if (totalDoneLessons >= 10) unlock('academy_10');
+}
+
+/* ===================================================
+   RENDER: PROFILE
+=================================================== */
+function renderProfile() {
+  const currentRank = getRank(state.xp);
+  const nextRank = getNextRank(state.xp);
+  const xpProgress = nextRank
+    ? Math.round(((state.xp - currentRank.minXP) / (nextRank.minXP - currentRank.minXP)) * 100)
+    : 100;
+  const completedLessons = ACADEMY_SECTIONS.reduce((n, s) => n + s.lessons.filter(l => l.status === 'done').length, 0);
+  const totalLessons = ACADEMY_SECTIONS.reduce((n, s) => n + s.lessons.length, 0);
+
+  const container = document.getElementById('profile-content');
+  container.innerHTML = `
+    <div class="profile-header">
+      <div class="avatar">🕵️</div>
+      <div>
+        <div class="profile-name">Detective in Training</div>
+        <div class="profile-rank"><span class="rank-badge">🏅 ${currentRank.name}</span></div>
+        <div class="profile-xp">${state.xp} XP total</div>
+      </div>
+    </div>
+    <div class="xp-progress-wrap">
+      <div class="xp-label">
+        <span>${currentRank.name}</span>
+        <span>${nextRank ? nextRank.name : 'Max Rank'}</span>
+      </div>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-fill" style="width:0%"></div></div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+        ${nextRank ? `${state.xp} / ${nextRank.minXP} XP to next rank` : '🎉 Maximum rank achieved!'}
+      </div>
+    </div>
+    <div class="profile-grid">
+      <div class="profile-stat-card">
+        <div class="profile-stat-icon">📁</div>
+        <div class="profile-stat-value">${state.casesCompleted.length}</div>
+        <div class="profile-stat-label">Cases Solved</div>
+      </div>
+      <div class="profile-stat-card">
+        <div class="profile-stat-icon">⭐</div>
+        <div class="profile-stat-value">${state.xp}</div>
+        <div class="profile-stat-label">Total XP</div>
+      </div>
+      <div class="profile-stat-card">
+        <div class="profile-stat-icon">🔥</div>
+        <div class="profile-stat-value">${state.streak}</div>
+        <div class="profile-stat-label">Day Streak</div>
+      </div>
+      <div class="profile-stat-card">
+        <div class="profile-stat-icon">🏅</div>
+        <div class="profile-stat-value">${state.unlockedAchievements.length}</div>
+        <div class="profile-stat-label">Badges</div>
+      </div>
+    </div>
+    <div class="xp-progress-wrap">
+      <div class="xp-label"><span>📚 Academy Progress</span><span>${completedLessons}/${totalLessons} lessons</span></div>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="academy-fill" style="width:0%"></div></div>
+    </div>
+    <div style="text-align:center;margin-top:20px;">
+      <button class="btn btn-primary" onclick="showScreen('cases')">🕵️ Continue Investigating</button>
+    </div>
+  `;
+  // Animate bars
+  setTimeout(() => {
+    const xpFill = document.getElementById('xp-fill');
+    const academyFill = document.getElementById('academy-fill');
+    if (xpFill) xpFill.style.width = xpProgress + '%';
+    if (academyFill) academyFill.style.width = Math.round((completedLessons / totalLessons) * 100) + '%';
+  }, 150);
+}
+
+/* ===================================================
+   CONFETTI SYSTEM
+=================================================== */
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = [];
+  const colors = ['#4F46E5','#8B5CF6','#F59E0B','#10B981','#EF4444','#06B6D4','#EC4899'];
+  for (let i = 0; i < 120; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -10 - Math.random() * 60,
+      w: 8 + Math.random() * 8,
+      h: 4 + Math.random() * 4,
+      r: Math.random() * Math.PI * 2,
+      rv: (Math.random() - 0.5) * 0.15,
+      vx: (Math.random() - 0.5) * 3,
+      vy: 2 + Math.random() * 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 1
+    });
+  }
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.r += p.rv;
+      if (frame > 80) p.alpha -= 0.015;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.r);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 140) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+/* ===================================================
+   INIT
+=================================================== */
+function init() {
+  updateNavStats();
+  updateWelcomeStats();
+  // Show initial byte message
+  setTimeout(() => byteSpeak('welcome'), 1200);
+  // Animate welcome progress bars on next tick
+  setTimeout(() => {
+    document.querySelectorAll('.progress-bar-fill').forEach(el => {
+      const w = el.dataset.width || el.style.width;
+      el.style.width = '0%';
+      setTimeout(() => { el.style.width = w; }, 100);
+    });
+  }, 300);
+}
+
+init();
+</script>
+</body>
+</html>

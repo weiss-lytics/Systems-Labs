@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tag Detective Academy — Product Wireframes</title>
+<style>
+/* ── Root & Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1a1a1a;
+  --ink2: #4a4a4a;
+  --ink3: #7a7a7a;
+  --ink4: #aaaaaa;
+  --paper: #f7f5ef;
+  --paper2: #eeebe0;
+  --paper3: #e4e0d0;
+  --grid: rgba(80,90,200,0.07);
+  --accent: #4038c8;
+  --accent-light: rgba(64,56,200,0.10);
+  --accent-mid: rgba(64,56,200,0.22);
+  --accent-str: rgba(64,56,200,0.50);
+  --sticky-y: #f7e87a;
+  --sticky-b: #c4d9f8;
+  --sticky-g: #b8f0c8;
+  --sticky-p: #e8c8f8;
+  --red-warn: #c42020;
+  --dash: 5px dashed rgba(80,90,200,0.28);
+  --dash-ink: 5px dashed rgba(30,30,30,0.25);
+  --sans: 'Georgia', serif;
+  --mono: 'Courier New', monospace;
+}
+
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Grid Paper Background ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ── Shell Layout ── */
+.shell { position: relative; z-index: 1; }
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 230px;
+  background: var(--paper2);
+  border-right: 1.5px solid var(--paper3);
+  display: flex; flex-direction: column;
+  padding: 28px 0 20px;
+  z-index: 200;
+  overflow-y: auto;
+}
+.sidebar-header {
+  padding: 0 22px 20px;
+  border-bottom: 1px dashed var(--paper3);
+  margin-bottom: 16px;
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 1rem; font-weight: 700; color: var(--accent); letter-spacing: -0.01em;
+}
+.sidebar-logo-mark {
+  width: 30px; height: 30px;
+  border: 2px solid var(--accent); border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--accent);
+  background: var(--accent-light);
+}
+.sidebar-tag {
+  font-size: 0.65rem; color: var(--ink3); margin-top: 4px;
+  letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--mono);
+}
+.sidebar-section { padding: 0 16px; margin-bottom: 6px; }
+.sidebar-section-label {
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink4); font-family: var(--mono); padding: 0 6px; margin-bottom: 4px;
+}
+.sidebar-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem; color: var(--ink2);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: var(--sans);
+}
+.sidebar-link:hover { background: var(--accent-light); color: var(--accent); }
+.sidebar-link.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.sidebar-link .snum {
+  width: 18px; height: 18px; border-radius: 4px;
+  background: var(--paper3); color: var(--ink3);
+  font-size: 0.6rem; display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); flex-shrink: 0;
+}
+.sidebar-link.active .snum { background: var(--accent); color: white; }
+.sidebar-meta {
+  margin-top: auto; padding: 16px 22px 0;
+  border-top: 1px dashed var(--paper3);
+  font-size: 0.68rem; color: var(--ink4); font-family: var(--mono);
+  line-height: 1.6;
+}
+
+/* ── Main Content ── */
+.main { margin-left: 230px; }
+
+/* ── Top Bar ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(247,245,239,0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1.5px solid var(--paper3);
+  padding: 14px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-title {
+  font-size: 0.8rem; color: var(--ink3); font-family: var(--mono); letter-spacing: 0.06em;
+}
+.topbar-pills { display: flex; gap: 8px; }
+.pill {
+  font-size: 0.65rem; padding: 3px 10px; border-radius: 20px;
+  font-family: var(--mono); letter-spacing: 0.05em;
+}
+.pill-accent { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-mid); }
+.pill-paper { background: var(--paper3); color: var(--ink3); border: 1px solid var(--paper3); }
+
+/* ── Sections ── */
+.section {
+  padding: 64px 48px;
+  border-bottom: 1px solid var(--paper3);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+.section:last-child { border-bottom: none; }
+
+/* ── Section Header ── */
+.sec-head { margin-bottom: 40px; }
+.sec-num {
+  font-family: var(--mono); font-size: 0.65rem; color: var(--accent);
+  letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px;
+}
+.sec-title {
+  font-size: 1.8rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2;
+}
+.sec-sub {
+  font-size: 0.85rem; color: var(--ink3); margin-top: 6px; max-width: 540px; line-height: 1.6;
+}
+.sec-divider {
+  width: 48px; height: 3px;
+  background: var(--accent);
+  border-radius: 2px; margin-top: 14px;
+}
+
+/* ── Wireframe Canvas ── */
+.wf-canvas {
+  background: white;
+  border: 1.5px solid var(--paper3);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.05), 0 8px 40px rgba(0,0,0,0.03);
+  position: relative;
+}
+.wf-canvas::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(100,110,200,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100,110,200,0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border-radius: 12px;
+  z-index: 0;
+}
+.wf-chrome {
+  background: var(--paper2);
+  border-bottom: 1.5px solid var(--paper3);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 8px;
+  position: relative; z-index: 1;
+}
+.chrome-dots { display: flex; gap: 6px; }
+.cdot { width: 11px; height: 11px; border-radius: 50%; background: var(--paper3); }
+.chrome-url {
+  flex: 1; background: white; border: 1px solid var(--paper3);
+  border-radius: 6px; padding: 4px 12px;
+  font-size: 0.7rem; color: var(--ink4); font-family: var(--mono);
+  max-width: 320px;
+}
+.wf-body { position: relative; z-index: 1; }
+
+/* ── Wireframe Primitives ── */
+.wf-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1.5px dashed var(--paper3);
+}
+.wf-logo-block { display: flex; align-items: center; gap: 8px; }
+.wf-logo-sq {
+  width: 28px; height: 28px; border: 2px solid var(--ink3); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+.wf-logo-text { font-size: 0.8rem; font-weight: 700; color: var(--ink2); }
+.wf-nav-links { display: flex; gap: 18px; }
+.wf-nav-link { font-size: 0.72rem; color: var(--ink3); }
+.wf-nav-link.active { color: var(--accent); font-weight: 700; border-bottom: 1.5px solid var(--accent); }
+.wf-nav-stat {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--paper2); border-radius: 20px; padding: 4px 10px;
+  font-size: 0.65rem; color: var(--ink2); font-family: var(--mono);
+  border: 1px dashed var(--paper3);
+}
+
+/* Placeholder block */
+.wf-block {
+  background: var(--paper2);
+  border: var(--dash);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 4px;
+  font-size: 0.72rem; color: var(--ink4); font-family: var(--mono);
+  position: relative;
+}
+.wf-block.accent { border-color: var(--accent-str); background: var(--accent-light); color: var(--accent); }
+.wf-block.solid { background: var(--ink); border: none; color: white; border-radius: 6px; }
+.wf-block.outline { background: white; border: 1.5px solid var(--ink3); color: var(--ink2); border-radius: 6px; }
+
+/* Headline placeholders */
+.wf-h1 { height: 10px; background: var(--ink); border-radius: 2px; }
+.wf-h2 { height: 7px; background: var(--ink2); border-radius: 2px; opacity: 0.5; }
+.wf-line { height: 5px; background: var(--ink4); border-radius: 2px; }
+.wf-line.short { width: 60%; }
+.wf-line.med { width: 80%; }
+.wf-avatar {
+  border-radius: 50%; border: 2px dashed var(--ink3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; color: var(--ink4); font-family: var(--mono);
+}
+
+/* Badge */
+.wf-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 12px;
+  font-size: 0.6rem; font-family: var(--mono); font-weight: 700;
+  border: 1px solid;
+}
+.wf-badge.easy { border-color: #3a9a5c; color: #3a9a5c; background: rgba(58,154,92,0.08); }
+.wf-badge.med { border-color: #c08020; color: #c08020; background: rgba(192,128,32,0.08); }
+.wf-badge.hard { border-color: #c03030; color: #c03030; background: rgba(192,48,48,0.08); }
+.wf-badge.xp { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+/* Card */
+.wf-card {
+  background: white;
+  border: 1.5px solid var(--paper3);
+  border-radius: 10px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.wf-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.wf-card.easy::before { background: #3a9a5c; }
+.wf-card.med::before { background: #c08020; }
+.wf-card.hard::before { background: #c03030; }
+
+/* Progress bar */
+.wf-progress-wrap { background: var(--paper3); border-radius: 99px; height: 5px; }
+.wf-progress-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+
+/* ── Sticky Notes ── */
+.sticky {
+  padding: 12px 14px;
+  border-radius: 3px 12px 12px 3px;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  position: relative;
+  box-shadow: 2px 3px 8px rgba(0,0,0,0.10), -1px -1px 0px rgba(0,0,0,0.06);
+}
+.sticky::before {
+  content: '';
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: 4px; border-radius: 3px 0 0 3px;
+}
+.sticky.yellow { background: var(--sticky-y); }
+.sticky.yellow::before { background: #d4c020; }
+.sticky.blue { background: var(--sticky-b); }
+.sticky.blue::before { background: #5080d4; }
+.sticky.green { background: var(--sticky-g); }
+.sticky.green::before { background: #30a050; }
+.sticky.purple { background: var(--sticky-p); }
+.sticky.purple::before { background: #8040b8; }
+.sticky-label {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em;
+  text-transform: uppercase; font-weight: 700;
+  margin-bottom: 5px; opacity: 0.6;
+}
+.sticky-text { font-family: var(--sans); font-size: 0.75rem; color: var(--ink); }
+
+/* ── Callout Boxes ── */
+.callout {
+  border: 1.5px dashed var(--accent-str);
+  border-radius: 8px;
+  padding: 13px 16px;
+  background: var(--accent-light);
+  font-size: 0.78rem;
+  color: var(--ink2);
+  line-height: 1.55;
+  position: relative;
+}
+.callout-label {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); font-weight: 700;
+  margin-bottom: 5px;
+}
+.callout-ink {
+  border: 1.5px dashed rgba(30,30,30,0.22);
+  border-radius: 8px;
+  padding: 11px 14px;
+  background: var(--paper2);
+  font-size: 0.75rem; color: var(--ink2); line-height: 1.5;
+}
+.callout-ink .callout-label { color: var(--ink3); }
+
+/* ── Flow Arrow ── */
+.flow-arrow {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.72rem; color: var(--ink3); font-family: var(--mono);
+}
+.flow-step {
+  background: white; border: 1.5px solid var(--paper3);
+  border-radius: 6px; padding: 7px 14px;
+  font-size: 0.72rem; font-family: var(--mono); color: var(--ink2);
+  white-space: nowrap;
+}
+.flow-step.active { background: var(--accent); color: white; border-color: var(--accent); }
+.flow-connector { color: var(--ink4); font-size: 1rem; }
+
+/* ── Layout Helpers ── */
+.row { display: flex; gap: 20px; }
+.col { display: flex; flex-direction: column; gap: 14px; }
+.flex1 { flex: 1; }
+.flex2 { flex: 2; }
+.flex3 { flex: 3; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.annotations { display: flex; flex-direction: column; gap: 12px; }
+.p8 { padding: 8px; }
+.p12 { padding: 12px; }
+.p16 { padding: 16px; }
+.p20 { padding: 20px; }
+.p24 { padding: 24px; }
+.p32 { padding: 32px; }
+.mb4 { margin-bottom: 4px; }
+.mb8 { margin-bottom: 8px; }
+.mb12 { margin-bottom: 12px; }
+.mb16 { margin-bottom: 16px; }
+.mb20 { margin-bottom: 20px; }
+.mb24 { margin-bottom: 24px; }
+.mt8 { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+.mt16 { margin-top: 16px; }
+.mt20 { margin-top: 20px; }
+.gap8 { gap: 8px; }
+.gap12 { gap: 12px; }
+.gap16 { gap: 16px; }
+.gap20 { gap: 20px; }
+
+/* ── Label / Annotation ── */
+.label {
+  font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ink3);
+}
+.label.accent { color: var(--accent); }
+.label.red { color: var(--red-warn); }
+
+/* ── Section Layout Pair ── */
+.sec-layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; flex: 1; }
+.sec-layout.wide { grid-template-columns: 1fr 280px; }
+.sec-layout.full { grid-template-columns: 1fr; }
+@media (max-width: 1000px) {
+  .sec-layout, .sec-layout.wide { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .section { padding: 40px 24px; }
+  .topbar { padding: 12px 24px; }
+}
+
+/* ── Typography ── */
+.fs10 { font-size: 0.65rem; }
+.fs11 { font-size: 0.72rem; }
+.fs12 { font-size: 0.8rem; }
+.fs13 { font-size: 0.85rem; }
+.fs14 { font-size: 0.9rem; }
+.fw6 { font-weight: 600; }
+.fw7 { font-weight: 700; }
+.c-ink { color: var(--ink); }
+.c-ink2 { color: var(--ink2); }
+.c-ink3 { color: var(--ink3); }
+.c-ink4 { color: var(--ink4); }
+.c-accent { color: var(--accent); }
+.mono { font-family: var(--mono); }
+.ta-c { text-align: center; }
+
+/* ── System Diagram (Screen 6) ── */
+.sys-node {
+  background: white;
+  border: 1.5px solid var(--paper3);
+  border-radius: 10px;
+  padding: 14px 18px;
+  position: relative;
+}
+.sys-node.accent { border-color: var(--accent-str); background: var(--accent-light); }
+.sys-node.dark { background: var(--ink); color: white; border-color: var(--ink); }
+.sys-connector {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  padding: 4px 0;
+}
+.sys-arrow {
+  width: 1.5px; height: 28px; background: var(--accent-str);
+  position: relative;
+}
+.sys-arrow::after {
+  content: '';
+  position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid var(--accent-str);
+}
+.sys-arrow-label {
+  font-family: var(--mono); font-size: 0.58rem; color: var(--accent);
+  letter-spacing: 0.07em; padding: 2px 8px;
+  background: white; border: 1px dashed var(--accent-str);
+  border-radius: 4px; margin: 2px 0;
+}
+
+/* ── Accordion (Collapsible annotations) ── */
+details > summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: var(--paper2);
+  border: 1px solid var(--paper3);
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--ink2);
+  user-select: none;
+  transition: background 0.15s;
+}
+details > summary:hover { background: var(--paper3); }
+details > summary::after { content: '▼'; font-size: 0.55rem; opacity: 0.5; }
+details[open] > summary::after { content: '▲'; }
+details > .detail-body {
+  padding: 12px 14px;
+  background: var(--paper2);
+  border: 1px solid var(--paper3); border-top: none;
+  border-radius: 0 0 6px 6px;
+  font-size: 0.75rem; color: var(--ink2); line-height: 1.6;
+}
+
+/* ── Cover Page ── */
+.cover {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 64px 40px;
+  position: relative;
+}
+.cover-eyebrow {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+}
+.cover-title {
+  font-size: 3rem; font-weight: 700; letter-spacing: -0.03em;
+  color: var(--ink); margin-bottom: 6px; line-height: 1.1;
+}
+.cover-title span { color: var(--accent); }
+.cover-sub {
+  font-size: 1.05rem; color: var(--ink3); margin-bottom: 36px;
+  max-width: 480px; line-height: 1.6;
+}
+.cover-meta-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  max-width: 560px; width: 100%; margin-bottom: 40px;
+}
+.cover-meta-card {
+  background: white; border: 1px solid var(--paper3); border-radius: 10px;
+  padding: 16px 12px; text-align: center;
+}
+.cover-meta-num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+.cover-meta-label { font-size: 0.65rem; color: var(--ink3); font-family: var(--mono); margin-top: 2px; letter-spacing: 0.06em; }
+.cover-flow {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap; justify-content: center;
+  padding: 16px 22px;
+  background: white; border: 1px solid var(--paper3); border-radius: 10px;
+  margin-bottom: 40px;
+}
+.cover-flow-step {
+  font-size: 0.72rem; font-family: var(--mono); color: var(--ink2);
+  padding: 4px 10px; background: var(--paper2); border-radius: 4px;
+  border: 1px dashed var(--paper3);
+}
+.cover-flow-arrow { font-size: 0.9rem; color: var(--ink4); }
+.corner-stamp {
+  position: absolute; bottom: 36px; right: 48px;
+  font-family: var(--mono); font-size: 0.6rem; color: var(--ink4);
+  text-align: right; line-height: 1.6;
+}
+
+/* ── Byte Mascot (ASCII-ish) ── */
+.byte-ascii {
+  font-family: var(--mono); font-size: 0.6rem; color: var(--ink3);
+  line-height: 1.3; text-align: center; padding: 8px;
+  background: var(--paper2); border-radius: 8px;
+  border: 1px dashed var(--paper3);
+}
+
+/* ── Scrollspy active ── */
+.sidebar-link[data-active="true"] { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" aria-label="Wireframe sections">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark">🔍</div>
+      Tag Detective
+    </div>
+    <div class="sidebar-tag">Product Wireframes v1.0</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Overview</div>
+    <button class="sidebar-link active" data-target="cover" onclick="navTo('cover', this)">
+      <span class="snum">0</span> Cover & Philosophy
+    </button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Screens</div>
+    <button class="sidebar-link" data-target="s1" onclick="navTo('s1', this)"><span class="snum">1</span> Home / Welcome</button>
+    <button class="sidebar-link" data-target="s2" onclick="navTo('s2', this)"><span class="snum">2</span> Case Board</button>
+    <button class="sidebar-link" data-target="s3" onclick="navTo('s3', this)"><span class="snum">3</span> Investigation</button>
+    <button class="sidebar-link" data-target="s4" onclick="navTo('s4', this)"><span class="snum">4</span> Challenge</button>
+    <button class="sidebar-link" data-target="s5" onclick="navTo('s5', this)"><span class="snum">5</span> Case Closed</button>
+    <button class="sidebar-link" data-target="s6" onclick="navTo('s6', this)"><span class="snum">6</span> Academy</button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Systems</div>
+    <button class="sidebar-link" data-target="s7" onclick="navTo('s7', this)"><span class="snum">7</span> System Architecture</button>
+  </div>
+
+  <div class="sidebar-meta">
+    Project: Tag Detective Academy<br>
+    Status: Discovery Phase<br>
+    Format: Low-Fidelity<br>
+    Date: 2026
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main" role="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <span class="topbar-title">TAG DETECTIVE ACADEMY — WIREFRAME DOCUMENT</span>
+    <div class="topbar-pills">
+      <span class="pill pill-accent">Low-Fi</span>
+      <span class="pill pill-paper">GA4 + GTM</span>
+      <span class="pill pill-paper">7 Screens</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       COVER
+  ══════════════════════════════════════════════════════════ -->
+  <section class="section cover" id="cover">
+    <div class="cover-eyebrow">Product Wireframe Document · Low Fidelity · 2026</div>
+    <h1 class="cover-title">Tag Detective<br><span>Academy</span></h1>
+    <p class="cover-sub">A gamified GA4 & GTM learning platform built around detective mystery cases. Users solve real tracking issues to master analytics.</p>
+
+    <div class="cover-meta-grid">
+      <div class="cover-meta-card">
+        <div class="cover-meta-num">8</div>
+        <div class="cover-meta-label">Core Screens</div>
+      </div>
+      <div class="cover-meta-card">
+        <div class="cover-meta-num">3</div>
+        <div class="cover-meta-label">Mystery Cases</div>
+      </div>
+      <div class="cover-meta-card">
+        <div class="cover-meta-num">6</div>
+        <div class="cover-meta-label">Learning Paths</div>
+      </div>
+    </div>
+
+    <div class="cover-flow">
+      <div class="cover-flow-step">Welcome</div>
+      <div class="cover-flow-arrow">→</div>
+      <div class="cover-flow-step">Case Board</div>
+      <div class="cover-flow-arrow">→</div>
+      <div class="cover-flow-step">Investigate</div>
+      <div class="cover-flow-arrow">→</div>
+      <div class="cover-flow-step">Challenge</div>
+      <div class="cover-flow-arrow">→</div>
+      <div class="cover-flow-step">Case Closed</div>
+      <div class="cover-flow-arrow">→</div>
+      <div class="cover-flow-step">Academy</div>
+    </div>
+
+    <div class="grid3" style="max-width:680px;width:100%;">
+      <div class="sticky yellow">
+        <div class="sticky-label">Core Philosophy</div>
+        <div class="sticky-text">"Every tracking issue leaves clues." — Learning through mystery-solving creates durable retention.</div>
+      </div>
+      <div class="sticky blue">
+        <div class="sticky-label">Target Users</div>
+        <div class="sticky-text">Digital marketers, analysts, and developers learning GA4 & GTM through hands-on detective work.</div>
+      </div>
+      <div class="sticky green">
+        <div class="sticky-label">Key Mechanic</div>
+        <div class="sticky-text">Evidence collection → hypothesis → challenge → XP reward. The game loop reinforces the learning loop.</div>
+      </div>
+    </div>
+
+    <div class="corner-stamp">
+      Tag Detective Academy<br>
+      Wireframe Doc · v1.0<br>
+      All screens low-fidelity
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 1 — HOME / WELCOME
+  ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s1">
+    <div class="sec-head">
+      <div class="sec-num">Screen 01 / 07</div>
+      <h2 class="sec-title">Home — Welcome</h2>
+      <p class="sec-sub">The entry point. Must immediately communicate the product's unique detective identity, show progress context, and drive first action within 5 seconds.</p>
+      <div class="sec-divider"></div>
+    </div>
+
+    <div class="sec-layout">
+      <!-- Wireframe -->
+      <div class="col">
+        <!-- User flow -->
+        <div class="flow-arrow mb8">
+          <span class="flow-step active">Home</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step">Cases</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step">Investigate</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step">Challenge</span>
+        </div>
+
+        <div class="wf-canvas">
+          <div class="wf-chrome">
+            <div class="chrome-dots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div>
+            <div class="chrome-url">tagdetective.app</div>
+          </div>
+          <div class="wf-body p20">
+            <!-- Nav -->
+            <div class="wf-nav mb16">
+              <div class="wf-logo-block">
+                <div class="wf-logo-sq">🔍</div>
+                <span class="wf-logo-text">Tag Detective</span>
+              </div>
+              <div class="wf-nav-links">
+                <span class="wf-nav-link active">Home</span>
+                <span class="wf-nav-link">Cases</span>
+                <span class="wf-nav-link">Academy</span>
+                <span class="wf-nav-link">Badges</span>
+              </div>
+              <div class="wf-nav-stat">⭐ 0 XP &nbsp;|&nbsp; 🔥 3</div>
+            </div>
+
+            <!-- Hero -->
+            <div class="p24" style="text-align:center; border-bottom: 1px dashed var(--paper3); margin-bottom: 16px;">
+              <!-- Byte mascot sketch -->
+              <div style="display:inline-block; margin-bottom: 16px;">
+                <div class="byte-ascii">
+    ╭────────────╮<br>
+    │  ( ◉  ◉ ) │  ← BYTE<br>
+    │     ∪     │  mascot<br>
+    ╰─────┬─────╯<br>
+          │   🔍<br>
+          ▼
+                </div>
+              </div>
+
+              <div style="display:inline-block; background: var(--accent-light); border: 1px dashed var(--accent-str); border-radius: 20px; padding: 4px 14px; font-size: 0.65rem; font-family: var(--mono); color: var(--accent); margin-bottom: 14px;">
+                🔍 DETECTIVE ACADEMY
+              </div>
+              <div style="margin-bottom: 8px;">
+                <div class="wf-h1 mb4" style="width:75%; margin: 0 auto 6px;"></div>
+                <div class="wf-h1" style="width:55%; margin: 0 auto; opacity: 0.4; height: 7px;"></div>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--ink3); font-family: var(--mono); margin-bottom: 4px;">"Every tracking issue leaves clues."</div>
+              <div class="wf-line short mt8" style="margin: 8px auto; width: 50%;"></div>
+              <div class="wf-line med mt4" style="margin: 4px auto;"></div>
+
+              <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px;">
+                <div class="wf-block solid" style="padding: 10px 22px; font-family: var(--mono); font-size: 0.72rem;">🕵️ Start Investigation</div>
+                <div class="wf-block outline" style="padding: 10px 18px; font-family: var(--mono); font-size: 0.72rem;">View Cases</div>
+              </div>
+            </div>
+
+            <!-- Stats row -->
+            <div class="grid4 mb16">
+              <div class="wf-card" style="text-align:center;">
+                <div class="fw7 c-accent fs14">0</div>
+                <div class="label">Total XP</div>
+              </div>
+              <div class="wf-card" style="text-align:center;">
+                <div class="fw7 c-accent fs14">0</div>
+                <div class="label">Cases Solved</div>
+              </div>
+              <div class="wf-card" style="text-align:center;">
+                <div class="fw7 c-accent fs14">🔥 3</div>
+                <div class="label">Day Streak</div>
+              </div>
+              <div class="wf-card" style="text-align:center;">
+                <div class="fw7 c-accent fs14">Rookie</div>
+                <div class="label">Rank</div>
+              </div>
+            </div>
+
+            <!-- Feature cards row -->
+            <div class="grid3">
+              <div class="wf-card" style="border-left: 3px solid var(--accent);">
+                <div class="mb4" style="font-size: 18px;">📊</div>
+                <div class="fw7 fs11 mb4">GA4 Mastery</div>
+                <div class="wf-line mb4"></div>
+                <div class="wf-line short"></div>
+              </div>
+              <div class="wf-card" style="border-left: 3px solid #8040b8;">
+                <div class="mb4" style="font-size: 18px;">🏷️</div>
+                <div class="fw7 fs11 mb4">GTM Detective</div>
+                <div class="wf-line mb4"></div>
+                <div class="wf-line short"></div>
+              </div>
+              <div class="wf-card" style="border-left: 3px solid #c08020;">
+                <div class="mb4" style="font-size: 18px;">🏆</div>
+                <div class="fw7 fs11 mb4">Earn Badges</div>
+                <div class="wf-line mb4"></div>
+                <div class="wf-line short"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Design decision callout -->
+        <div class="callout mt8">
+          <div class="callout-label">Design Decision</div>
+          Byte mascot appears immediately on home — establishes personality before any content. Stats are prominently visible to create a progress hook even at 0 XP ("empty state = opportunity").
+        </div>
+      </div>
+
+      <!-- Annotations -->
+      <div class="annotations">
+        <div class="sticky yellow">
+          <div class="sticky-label">UX Decision #1</div>
+          <div class="sticky-text">Hero CTA is "Start Investigation" not "Sign Up" — task-framing from word one sets the detective tone and reduces perceived commitment.</div>
+        </div>
+        <div class="sticky blue">
+          <div class="sticky-label">UX Decision #2</div>
+          <div class="sticky-text">4 stat cards visible immediately (XP, Cases, Streak, Rank) creates psychological investment even for new users. Empty is motivating, not discouraging.</div>
+        </div>
+        <div class="sticky green">
+          <div class="sticky-label">The Byte Mascot</div>
+          <div class="sticky-text">CSS-only chibi detective with float + blink animations. Never blocks content. Gives contextual hints per screen. Clickable for tips.</div>
+        </div>
+        <details>
+          <summary>Information Architecture Note</summary>
+          <div class="detail-body">The welcome screen serves 3 functions: (1) Identity establishment via detective metaphor, (2) Status display for returning users, (3) Clear entry point to the core loop. Navigation is secondary — the hero CTA drives the primary action.</div>
+        </details>
+        <details>
+          <summary>Accessibility Considerations</summary>
+          <div class="detail-body">Stat cards use semantic HTML. CTAs have descriptive aria-labels. Byte mascot has role="button" with aria-label. All interactive elements have visible focus states. Contrast ratios meet WCAG AA throughout.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 2 — CASE BOARD
+  ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s2">
+    <div class="sec-head">
+      <div class="sec-num">Screen 02 / 07</div>
+      <h2 class="sec-title">Case Board</h2>
+      <p class="sec-sub">The core content hub. Users browse mystery cases, assess difficulty and XP rewards, and choose their investigation path.</p>
+      <div class="sec-divider"></div>
+    </div>
+
+    <div class="sec-layout">
+      <div class="col">
+        <div class="flow-arrow mb8">
+          <span class="flow-step">Home</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step active">Cases</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step">Investigate</span>
+        </div>
+
+        <div class="wf-canvas">
+          <div class="wf-chrome">
+            <div class="chrome-dots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div>
+            <div class="chrome-url">tagdetective.app/cases</div>
+          </div>
+          <div class="wf-body p20">
+            <!-- Nav -->
+            <div class="wf-nav mb16">
+              <div class="wf-logo-block">
+                <div class="wf-logo-sq">🔍</div>
+                <span class="wf-logo-text">Tag Detective</span>
+              </div>
+              <div class="wf-nav-links">
+                <span class="wf-nav-link">Home</span>
+                <span class="wf-nav-link active">Cases</span>
+                <span class="wf-nav-link">Academy</span>
+                <span class="wf-nav-link">Badges</span>
+              </div>
+              <div class="wf-nav-stat">⭐ 0 XP &nbsp;|&nbsp; 🔥 3</div>
+            </div>
+
+            <!-- Header -->
+            <div class="mb16">
+              <div class="fw7 fs14 mb4">📁 Case Board</div>
+              <div class="wf-line" style="width: 60%;"></div>
+            </div>
+
+            <!-- Case cards -->
+            <div class="col gap12">
+              <!-- Case 1 -->
+              <div class="wf-card easy">
+                <div class="row gap12" style="align-items: flex-start;">
+                  <div class="flex3">
+                    <div class="label mb4">CASE #001</div>
+                    <div class="fw7 fs13 mb4">The Vanishing Purchases</div>
+                    <div class="wf-line mb4"></div>
+                    <div class="wf-line short mb8"></div>
+                    <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                      <span class="wf-badge easy">Easy</span>
+                      <span class="wf-badge xp">⭐ 100 XP</span>
+                      <span class="wf-badge" style="border-color: #7040c0; color: #7040c0; background: rgba(112,64,192,0.08);">🏷️ GA4 Events</span>
+                    </div>
+                    <div class="mb4" style="display: flex; justify-content: space-between;">
+                      <span class="label">Progress</span>
+                      <span class="label">0%</span>
+                    </div>
+                    <div class="wf-progress-wrap mb8">
+                      <div class="wf-progress-fill" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                  <div class="wf-block accent" style="width: 110px; height: 36px; font-size: 0.65rem;">🕵️ Investigate</div>
+                </div>
+              </div>
+
+              <!-- Case 2 -->
+              <div class="wf-card med">
+                <div class="row gap12" style="align-items: flex-start;">
+                  <div class="flex3">
+                    <div class="label mb4">CASE #002</div>
+                    <div class="fw7 fs13 mb4">The Missing Conversion</div>
+                    <div class="wf-line mb4"></div>
+                    <div class="wf-line short mb8"></div>
+                    <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                      <span class="wf-badge med">Medium</span>
+                      <span class="wf-badge xp">⭐ 175 XP</span>
+                      <span class="wf-badge" style="border-color: #7040c0; color: #7040c0; background: rgba(112,64,192,0.08);">🏷️ GTM Triggers</span>
+                    </div>
+                    <div class="mb4" style="display: flex; justify-content: space-between;">
+                      <span class="label">Progress</span>
+                      <span class="label">0%</span>
+                    </div>
+                    <div class="wf-progress-wrap mb8">
+                      <div class="wf-progress-fill" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                  <div class="wf-block accent" style="width: 110px; height: 36px; font-size: 0.65rem;">🕵️ Investigate</div>
+                </div>
+              </div>
+
+              <!-- Case 3 -->
+              <div class="wf-card hard">
+                <div class="row gap12" style="align-items: flex-start;">
+                  <div class="flex3">
+                    <div class="label mb4">CASE #003</div>
+                    <div class="fw7 fs13 mb4">The Duplicate Event Mystery</div>
+                    <div class="wf-line mb4"></div>
+                    <div class="wf-line short mb8"></div>
+                    <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                      <span class="wf-badge hard">Hard</span>
+                      <span class="wf-badge xp">⭐ 250 XP</span>
+                      <span class="wf-badge" style="border-color: #7040c0; color: #7040c0; background: rgba(112,64,192,0.08);">🏷️ GA4 Config</span>
+                    </div>
+                    <div class="mb4" style="display: flex; justify-content: space-between;">
+                      <span class="label">Progress</span>
+                      <span class="label">0%</span>
+                    </div>
+                    <div class="wf-progress-wrap mb8">
+                      <div class="wf-progress-fill" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                  <div class="wf-block accent" style="width: 110px; height: 36px; font-size: 0.65rem;">🕵️ Investigate</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout mt8">
+          <div class="callout-label">Design Decision</div>
+          Colored top-border on cards (green/amber/red) provides instant difficulty scanability without reading labels. XP rewards are always visible to motivate case selection by ambition level.
+        </div>
+      </div>
+
+      <div class="annotations">
+        <div class="sticky yellow">
+          <div class="sticky-label">Card Architecture</div>
+          <div class="sticky-text">Each case card shows: difficulty, XP reward, topic tag, and progress. Users choose cases by their own risk/reward calculation — this is intentional self-pacing.</div>
+        </div>
+        <div class="sticky purple">
+          <div class="sticky-label">Progressive Disclosure</div>
+          <div class="sticky-text">Case descriptions are brief — details revealed in investigation. This preserves the mystery. Don't spoil the puzzle on the case board.</div>
+        </div>
+        <div class="sticky blue">
+          <div class="sticky-label">Difficulty Encoding</div>
+          <div class="sticky-text">Color stripe at card top (green/amber/red), badge label, and XP reward all communicate difficulty independently. Three redundant signals for accessibility.</div>
+        </div>
+        <details>
+          <summary>Solved State Behavior</summary>
+          <div class="detail-body">Solved cases show a ✓ SOLVED badge, reduced opacity (0.75), and "Review Case" CTA. Progress bar fills to 100%. This allows revisiting without penalizing completion — reinforcement is positive.</div>
+        </details>
+        <details>
+          <summary>Future: Dynamic Case Loading</summary>
+          <div class="detail-body">The case grid is designed for dynamic content — cases can be loaded from a CMS or API. Card structure remains identical regardless of content. This screen scales to 50+ cases with virtual scrolling.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 3 — INVESTIGATION
+  ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s3">
+    <div class="sec-head">
+      <div class="sec-num">Screen 03 / 07</div>
+      <h2 class="sec-title">Investigation Workspace</h2>
+      <p class="sec-sub">The core experience. A detective's workspace where users examine evidence, read event logs, and select relevant clues before solving the case.</p>
+      <div class="sec-divider"></div>
+    </div>
+
+    <div class="sec-layout">
+      <div class="col">
+        <div class="flow-arrow mb8">
+          <span class="flow-step">Cases</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step active">Investigate</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step">Challenge</span>
+        </div>
+
+        <div class="wf-canvas">
+          <div class="wf-chrome">
+            <div class="chrome-dots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div>
+            <div class="chrome-url">tagdetective.app/case/001</div>
+          </div>
+          <div class="wf-body p20">
+            <!-- Back + header -->
+            <div class="row gap12 mb12" style="align-items: center;">
+              <div class="wf-block outline" style="padding: 5px 12px; font-size: 0.65rem; font-family: var(--mono);">← Cases</div>
+              <div>
+                <div class="label">CASE #001</div>
+                <div class="fw7 fs13">The Vanishing Purchases</div>
+              </div>
+              <div style="margin-left: auto; display: flex; gap: 6px;">
+                <span class="wf-badge easy">Easy</span>
+                <span class="wf-badge xp">⭐ 100 XP</span>
+              </div>
+            </div>
+
+            <!-- 2-col layout -->
+            <div class="row gap16">
+              <!-- Left: Evidence -->
+              <div class="flex2 col gap12">
+                <div class="wf-card">
+                  <div class="fw7 fs11 mb8">🔎 Evidence Board
+                    <span class="label" style="font-weight: 400; margin-left: 8px;">Click clues to select</span>
+                  </div>
+                  <div class="grid2 gap8">
+                    <!-- Clue cards (selected and unselected) -->
+                    <div class="wf-block" style="padding: 10px; align-items: flex-start; height: 80px; border-radius: 8px;">
+                      <div style="font-size: 16px; margin-bottom: 4px;">📉</div>
+                      <div class="fw7 fs10 mb4">Revenue Drop</div>
+                      <div class="wf-line short"></div>
+                    </div>
+                    <div class="wf-block" style="padding: 10px; align-items: flex-start; height: 80px; border-radius: 8px; border-color: var(--accent-str); background: var(--accent-light);">
+                      <div style="position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: white;">✓</div>
+                      <div style="font-size: 16px; margin-bottom: 4px;">🏷️</div>
+                      <div class="fw7 fs10 mb4 c-accent">Tag Status</div>
+                      <div class="wf-line short" style="background: var(--accent); opacity: 0.3;"></div>
+                    </div>
+                    <div class="wf-block" style="padding: 10px; align-items: flex-start; height: 80px; border-radius: 8px; border-color: var(--accent-str); background: var(--accent-light);">
+                      <div style="position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: white;">✓</div>
+                      <div style="font-size: 16px; margin-bottom: 4px;">⚠️</div>
+                      <div class="fw7 fs10 mb4 c-accent">Console Error</div>
+                      <div class="wf-line short" style="background: var(--accent); opacity: 0.3;"></div>
+                    </div>
+                    <div class="wf-block" style="padding: 10px; align-items: flex-start; height: 80px; border-radius: 8px;">
+                      <div style="font-size: 16px; margin-bottom: 4px;">🔧</div>
+                      <div class="fw7 fs10 mb4">Code Change</div>
+                      <div class="wf-line short"></div>
+                    </div>
+                  </div>
+
+                  <!-- Event log -->
+                  <div class="label mt12 mb4">📋 LIVE EVENT LOG</div>
+                  <div style="background: #1a1a1a; border-radius: 6px; padding: 10px; font-family: var(--mono); font-size: 0.6rem; line-height: 1.8;">
+                    <div style="color: #94a3b8;">[10:23:11] page_view — /checkout/step1</div>
+                    <div style="color: #10b981;">[10:23:15] add_to_cart — product_id: P-4421</div>
+                    <div style="color: #ef4444;">[10:24:12] ERROR: dataLayer is not defined</div>
+                    <div style="color: #ef4444;">[10:24:12] purchase — FAILED (script blocked)</div>
+                    <div style="color: #f59e0b;">[10:24:13] page_view — /order-confirmation</div>
+                  </div>
+
+                  <!-- CTA -->
+                  <div class="wf-block accent mt12" style="padding: 11px; font-size: 0.72rem; font-family: var(--mono);">🔍 Analyze Evidence & Solve Case →</div>
+                </div>
+              </div>
+
+              <!-- Right: Sidebar -->
+              <div class="flex1 col gap10">
+                <div class="wf-card">
+                  <div class="fw7 fs11 mb8">📄 Case Summary</div>
+                  <div class="wf-line mb4"></div>
+                  <div class="wf-line mb4"></div>
+                  <div class="wf-line short mb10"></div>
+                  <div class="label mb4">SELECTED CLUES</div>
+                  <div class="c-accent fw7 fs12">2 of 6 selected</div>
+                </div>
+                <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 12px;">
+                  <div class="label mb4" style="color: #92400e;">💡 BYTE'S HINT</div>
+                  <div class="fs11" style="color: #78350f; line-height: 1.5;">
+                    <div class="wf-line mb4" style="background: #b45309; opacity: 0.3;"></div>
+                    <div class="wf-line short" style="background: #b45309; opacity: 0.3;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout mt8">
+          <div class="callout-label">Layout Rationale</div>
+          Two-column layout: 2/3 for evidence (the work), 1/3 for context + hint. The event log uses dark terminal styling intentionally — it's a real developer artifact. This creates credibility and teaches real debugging patterns.
+        </div>
+      </div>
+
+      <div class="annotations">
+        <div class="sticky yellow">
+          <div class="sticky-label">Clue Selection UX</div>
+          <div class="sticky-text">Clue cards are toggle-selectable. Selected state shows accent border + checkmark. Counter ("2 of 6") creates completionist pull. No required minimum — users self-direct inquiry.</div>
+        </div>
+        <div class="sticky blue">
+          <div class="sticky-label">The Event Log</div>
+          <div class="sticky-text">Dark terminal-style log teaches real GA4 debugging patterns. Color-coded: gray = normal, green = success, red = error, amber = warning. Authentic developer experience.</div>
+        </div>
+        <div class="sticky green">
+          <div class="sticky-label">Cognitive Load Design</div>
+          <div class="sticky-text">Byte's hint is always visible but subtle. Evidence board is scannable before deep reading. Case summary keeps context. Nothing requires scrolling to find key info.</div>
+        </div>
+        <details>
+          <summary>Mobile Adaptation</summary>
+          <div class="detail-body">Below 768px: two-column layout stacks vertically. Sidebar moves below evidence. Clue grid collapses to single column. Event log height is capped at 120px. CTA remains full-width and sticky.</div>
+        </details>
+        <details>
+          <summary>Why Clue Selection Matters</summary>
+          <div class="detail-body">Asking users to actively identify relevant evidence before answering builds real analytical thinking. It's not just a UI affordance — it mirrors the actual debugging workflow: observe → hypothesize → test → conclude.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 4 — CHALLENGE
+  ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s4">
+    <div class="sec-head">
+      <div class="sec-num">Screen 04 / 07</div>
+      <h2 class="sec-title">Challenge — Solve the Mystery</h2>
+      <p class="sec-sub">The assessment moment. Multiple-choice challenge where users apply their evidence analysis. Immediate feedback, XP reward, explanation of why the answer is correct.</p>
+      <div class="sec-divider"></div>
+    </div>
+
+    <div class="sec-layout">
+      <div class="col">
+        <div class="flow-arrow mb8">
+          <span class="flow-step">Investigate</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step active">Challenge</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step">Case Closed</span>
+        </div>
+
+        <div class="wf-canvas">
+          <div class="wf-chrome">
+            <div class="chrome-dots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div>
+            <div class="chrome-url">tagdetective.app/case/001/challenge</div>
+          </div>
+          <div class="wf-body p20">
+            <div class="wf-nav mb16">
+              <div class="wf-logo-block">
+                <div class="wf-logo-sq">🔍</div>
+                <span class="wf-logo-text">Tag Detective</span>
+              </div>
+              <div class="wf-block outline" style="padding: 5px 12px; font-size: 0.65rem; font-family: var(--mono);">← Investigation</div>
+            </div>
+
+            <!-- Challenge container (max-width centered) -->
+            <div style="max-width: 560px; margin: 0 auto;">
+              <div class="label mb4">CASE #001 — Challenge</div>
+              <div class="fw7 fs14 mb16">🧩 Solve the Mystery</div>
+
+              <div class="wf-card mb16">
+                <!-- Question -->
+                <div class="fw7 fs13 mb8">Why are purchases missing from GA4?</div>
+                <!-- Context box -->
+                <div class="callout-ink mb14">
+                  <div class="callout-label">Case Context</div>
+                  Console shows: "ReferenceError: dataLayer is not defined" on /order-confirmation. The GTM container fires, but the purchase event never appears in GA4.
+                </div>
+
+                <!-- Options -->
+                <div class="col gap8">
+                  <!-- Option A — wrong -->
+                  <div style="border: 1.5px solid var(--paper3); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 26px; height: 26px; background: var(--paper2); border-radius: 6px; border: 1px solid var(--paper3); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: var(--mono); flex-shrink: 0;">A</div>
+                    <span class="fs11">The purchase event trigger in GTM has a typo in the event name</span>
+                  </div>
+                  <!-- Option B — correct (shown after selection) -->
+                  <div style="border: 1.5px solid #3a9a5c; border-radius: 8px; padding: 12px 14px; background: rgba(58,154,92,0.08); display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 26px; height: 26px; background: #3a9a5c; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: var(--mono); flex-shrink: 0; color: white;">B</div>
+                    <span class="fs11 fw6">The dataLayer was not initialized before the GTM snippet on the confirmation page</span>
+                  </div>
+                  <!-- Option C -->
+                  <div style="border: 1.5px solid var(--paper3); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; opacity: 0.55;">
+                    <div style="width: 26px; height: 26px; background: var(--paper2); border-radius: 6px; border: 1px solid var(--paper3); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: var(--mono); flex-shrink: 0;">C</div>
+                    <span class="fs11">GA4 property ID was changed in the configuration tag</span>
+                  </div>
+                  <!-- Option D -->
+                  <div style="border: 1.5px solid var(--paper3); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; opacity: 0.55;">
+                    <div style="width: 26px; height: 26px; background: var(--paper2); border-radius: 6px; border: 1px solid var(--paper3); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: var(--mono); flex-shrink: 0;">D</div>
+                    <span class="fs11">The checkout page is blocked by an ad blocker on the test device</span>
+                  </div>
+                </div>
+
+                <!-- Correct feedback -->
+                <div style="margin-top: 14px; background: rgba(58,154,92,0.1); border: 1px solid #86efac; border-radius: 8px; padding: 12px;">
+                  <div class="label mb4" style="color: #166534;">✅ CORRECT ANSWER</div>
+                  <div class="fs11" style="color: #166534; line-height: 1.5;">The new checkout flow removed the <span class="mono">window.dataLayer = window.dataLayer || []</span> initialization. Both the push AND the GTM snippet need dataLayer to exist first.</div>
+                </div>
+              </div>
+
+              <!-- Hint -->
+              <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 12px;">
+                <div class="label mb4" style="color: #92400e;">💡 BYTE'S HINT</div>
+                <div class="wf-line mb4" style="background: #b45309; opacity: 0.3;"></div>
+                <div class="wf-line short" style="background: #b45309; opacity: 0.3;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout mt8">
+          <div class="callout-label">Feedback Design</div>
+          Correct answer highlighted in green immediately. Wrong answers dim (opacity 0.55) rather than showing a red "wrong" — this avoids shame. Explanation always follows the answer to close the learning loop regardless of outcome.
+        </div>
+      </div>
+
+      <div class="annotations">
+        <div class="sticky yellow">
+          <div class="sticky-label">Challenge Mechanics</div>
+          <div class="sticky-text">One correct answer per challenge. Selection locks all options. Feedback appears 300ms after selection for perceived deliberation. Then auto-advances to Case Closed after 1.8s.</div>
+        </div>
+        <div class="sticky blue">
+          <div class="sticky-label">Partial Credit</div>
+          <div class="sticky-text">Wrong answers still award 25 XP ("partial credit"). This prevents frustration loops and keeps users from abandoning after a mistake. Learning = progress.</div>
+        </div>
+        <div class="sticky green">
+          <div class="sticky-label">Context Box</div>
+          <div class="sticky-text">The context box repeats the key evidence from investigation. Users shouldn't need to go back — everything needed to answer is visible on this screen.</div>
+        </div>
+        <details>
+          <summary>Distractor Design</summary>
+          <div class="detail-body">Distractors (wrong answers) are plausible — they're real GA4/GTM issues a developer might confuse. This tests understanding, not just memory. Option A (typo) and C (property ID) are common real-world mistakes.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 5 — CASE CLOSED (HERO SCREEN)
+  ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s5">
+    <div class="sec-head">
+      <div class="sec-num">Screen 05 / 07 — Hero Screen</div>
+      <h2 class="sec-title">Case Closed</h2>
+      <p class="sec-sub">The reward moment. A satisfying celebration that teaches through the summary. The stamp animation is the emotional peak of the user journey.</p>
+      <div class="sec-divider"></div>
+    </div>
+
+    <div class="sec-layout">
+      <div class="col">
+        <div class="flow-arrow mb8">
+          <span class="flow-step">Challenge</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step active">Case Closed</span>
+          <span class="flow-connector">→</span>
+          <span class="flow-step">Next Case</span>
+        </div>
+
+        <div class="wf-canvas">
+          <div class="wf-chrome">
+            <div class="chrome-dots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div>
+            <div class="chrome-url">tagdetective.app/case/001/closed</div>
+          </div>
+          <div class="wf-body p32" style="text-align: center;">
+
+            <!-- Stamp animation zone -->
+            <div style="position: relative; display: inline-block; margin-bottom: 24px;">
+              <!-- Confetti dots (simplified sketch) -->
+              <div style="position: absolute; top: -20px; left: -30px; font-size: 8px; font-family: var(--mono); color: var(--ink4); line-height: 2;">
+                ● ◆ ○ ■<br>◆ ● ■ ○<br>○ ■ ● ◆
+              </div>
+              <div style="position: absolute; top: -20px; right: -30px; font-size: 8px; font-family: var(--mono); color: var(--ink4); line-height: 2;">
+                ■ ○ ◆ ●<br>○ ◆ ● ■<br>◆ ■ ○ ●
+              </div>
+
+              <!-- Stamp -->
+              <div style="width: 160px; height: 160px; border: 5px solid #3a9a5c; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(58,154,92,0.08); transform: rotate(-8deg); margin: 0 auto;">
+                <div class="fw7" style="font-size: 1.2rem; color: #3a9a5c; letter-spacing: 2px; line-height: 1.1;">CASE<br>CLOSED</div>
+                <div style="font-size: 0.55rem; letter-spacing: 4px; color: #166534; margin-top: 4px;">✓ SOLVED</div>
+              </div>
+
+              <!-- Stamp annotation -->
+              <div style="position: absolute; right: -120px; top: 50%; transform: translateY(-50%); text-align: left;">
+                <div class="label" style="font-size: 0.55rem;">ANIMATION:</div>
+                <div class="fs10 c-ink3">scale(3) rotate(-15deg)<br>→ scale(1) rotate(-8deg)<br>duration: 0.6s<br>cubic-bezier overshoot</div>
+              </div>
+            </div>
+
+            <div class="fw7 fs14 mb4">The Vanishing Purchases</div>
+            <div class="c-ink3 fs11 mb16">Mystery solved! Here's what you discovered.</div>
+
+            <!-- Rewards -->
+            <div class="grid3 mb20" style="max-width: 360px; margin: 0 auto 20px;">
+              <div class="wf-card" style="text-align:center;">
+                <div style="font-size: 22px; margin-bottom: 4px;">⭐</div>
+                <div class="fw7 c-accent fs14">100</div>
+                <div class="label">XP Earned</div>
+              </div>
+              <div class="wf-card" style="text-align:center;">
+                <div style="font-size: 22px; margin-bottom: 4px;">📁</div>
+                <div class="fw7 c-accent fs14">1</div>
+                <div class="label">Cases Solved</div>
+              </div>
+              <div class="wf-card" style="text-align:center;">
+                <div style="font-size: 22px; margin-bottom: 4px;">🏅</div>
+                <div class="fw7 c-accent fs14">Analyst</div>
+                <div class="label">New Rank</div>
+              </div>
+            </div>
+
+            <!-- Learning summary -->
+            <div style="background: var(--paper2); border: 1px solid var(--paper3); border-radius: 8px; padding: 16px; text-align: left; max-width: 480px; margin: 0 auto 20px;">
+              <div class="fw7 fs11 mb10">📖 What You Learned</div>
+              <div class="col gap8">
+                <div style="display: flex; gap: 8px; align-items: flex-start;">
+                  <div style="width: 6px; height: 6px; background: #3a9a5c; border-radius: 50%; flex-shrink: 0; margin-top: 6px;"></div>
+                  <div class="wf-line" style="flex: 1;"></div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: flex-start;">
+                  <div style="width: 6px; height: 6px; background: #3a9a5c; border-radius: 50%; flex-shrink: 0; margin-top: 6px;"></div>
+                  <div class="wf-line" style="flex: 1;"></div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: flex-start;">
+                  <div style="width: 6px; height: 6px; background: #3a9a5c; border-radius: 50%; flex-shrink: 0; margin-top: 6px;"></div>
+                  <div class="wf-line short" style="flex: 0 0 60%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CTAs -->
+            <div style="display: flex; gap: 12px; justify-content: center;">
+              <div class="wf-block accent" style="padding: 11px 22px; font-size: 0.72rem; font-family: var(--mono);">Next Case: The Missing Conversion →</div>
+              <div class="wf-block outline" style="padding: 11px 16px; font-size: 0.72rem; font-family: var(--mono);">Back to Cases</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout mt8">
+          <div class="callout-label">Emotional Design</div>
+          The stamp animation is the emotional climax of the entire user journey. It must feel satisfying — the overshoot cubic-bezier creates a physical "thwack" sensation. Confetti appears simultaneously via JS canvas particles. Then calm settles into the learning summary.
+        </div>
+      </div>
+
+      <div class="annotations">
+        <div class="sticky yellow">
+          <div class="sticky-label">Celebration Design</div>
+          <div class="sticky-text">Stamp animation uses scale + rotate overshoot. Confetti is CSS/JS only (canvas particles). Green = success (universally understood). The stamp rotates slightly to feel handstamped, not digital.</div>
+        </div>
+        <div class="sticky purple">
+          <div class="sticky-label">Rank Up Moment</div>
+          <div class="sticky-text">If completing this case triggers a rank change, a secondary animation ("Analyst → Inspector!") appears above the stamp. This is the biggest motivational moment in the app.</div>
+        </div>
+        <div class="sticky blue">
+          <div class="sticky-label">Learning Summary</div>
+          <div class="sticky-text">3–4 bullet points teach the core lesson. This is the "so what" — it closes the loop between puzzle-solving and real-world knowledge. Always present even for wrong-answer cases.</div>
+        </div>
+        <details>
+          <summary>XP Animation</summary>
+          <div class="detail-body">XP counter animates from 0 to earned amount (+100) over 800ms. A "+100 XP" popup toast also appears in the top-right corner. The nav stat counter also animates to reflect the new total. Three reinforcement signals.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 6 — ACADEMY
+  ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s6">
+    <div class="sec-head">
+      <div class="sec-num">Screen 06 / 07</div>
+      <h2 class="sec-title">Detective Academy</h2>
+      <p class="sec-sub">Structured learning paths for systematic GA4 and GTM knowledge. Accordion sections with lesson progress. Complements case-based learning with explicit concept coverage.</p>
+      <div class="sec-divider"></div>
+    </div>
+
+    <div class="sec-layout">
+      <div class="col">
+        <div class="wf-canvas">
+          <div class="wf-chrome">
+            <div class="chrome-dots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div>
+            <div class="chrome-url">tagdetective.app/academy</div>
+          </div>
+          <div class="wf-body p20">
+            <div class="wf-nav mb16">
+              <div class="wf-logo-block">
+                <div class="wf-logo-sq">🔍</div>
+                <span class="wf-logo-text">Tag Detective</span>
+              </div>
+              <div class="wf-nav-links">
+                <span class="wf-nav-link">Home</span>
+                <span class="wf-nav-link">Cases</span>
+                <span class="wf-nav-link active">Academy</span>
+                <span class="wf-nav-link">Badges</span>
+              </div>
+            </div>
+
+            <div class="fw7 fs14 mb4">📚 Detective Academy</div>
+            <div class="wf-line mb16" style="width: 55%;"></div>
+
+            <!-- Accordion sections -->
+            <div class="col gap10">
+              <!-- Section 1: Open -->
+              <div style="background: white; border: 1.5px solid var(--paper3); border-radius: 10px; overflow: hidden;">
+                <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed var(--paper3);">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 38px; height: 38px; border-radius: 9px; background: #eef2ff; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">📊</div>
+                    <div>
+                      <div class="fw7 fs12">GA4 Basics</div>
+                      <div class="label">2/4 lessons • 50% complete</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 70px;">
+                      <div class="wf-progress-wrap"><div class="wf-progress-fill" style="width: 50%;"></div></div>
+                    </div>
+                    <span class="c-ink3">▲</span>
+                  </div>
+                </div>
+                <!-- Lessons (expanded) -->
+                <div style="padding: 10px 16px;">
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--paper3);">
+                    <div style="width: 26px; height: 26px; border-radius: 50%; background: #3a9a5c; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0;">✓</div>
+                    <span class="fs11 flex1">What is GA4?</span>
+                    <span class="label">+20 XP</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--paper3);">
+                    <div style="width: 26px; height: 26px; border-radius: 50%; background: #3a9a5c; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0;">✓</div>
+                    <span class="fs11 flex1">Properties & Data Streams</span>
+                    <span class="label">+20 XP</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--paper3);">
+                    <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0;">▶</div>
+                    <span class="fs11 fw6 c-accent flex1">The GA4 Interface Tour</span>
+                    <span class="label c-accent">+25 XP</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; opacity: 0.45;">
+                    <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--paper3); display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0;">🔒</div>
+                    <span class="fs11 flex1">Sessions vs Events Model</span>
+                    <span class="label">+30 XP</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Closed -->
+              <div style="background: white; border: 1.5px solid var(--paper3); border-radius: 10px;">
+                <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 38px; height: 38px; border-radius: 9px; background: #f5f3ff; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">⚡</div>
+                    <div>
+                      <div class="fw7 fs12">Events & Parameters</div>
+                      <div class="label">0/4 lessons • 0% complete</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 70px;"><div class="wf-progress-wrap"><div class="wf-progress-fill" style="width: 0%;"></div></div></div>
+                    <span class="c-ink3">▼</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 3: Closed -->
+              <div style="background: white; border: 1.5px solid var(--paper3); border-radius: 10px;">
+                <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 38px; height: 38px; border-radius: 9px; background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">🏷️</div>
+                    <div>
+                      <div class="fw7 fs12">GTM Fundamentals</div>
+                      <div class="label">1/4 lessons • 25% complete</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 70px;"><div class="wf-progress-wrap"><div class="wf-progress-fill" style="width: 25%;"></div></div></div>
+                    <span class="c-ink3">▼</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 4: Locked -->
+              <div style="background: white; border: 1.5px solid var(--paper3); border-radius: 10px; opacity: 0.5;">
+                <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 38px; height: 38px; border-radius: 9px; background: var(--paper2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">🗄️</div>
+                    <div>
+                      <div class="fw7 fs12">Data Layer 🔒</div>
+                      <div class="label">Unlocks at Analyst rank</div>
+                    </div>
+                  </div>
+                  <span class="c-ink3">▼</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout mt8">
+          <div class="callout-label">Information Architecture</div>
+          Academy complements cases — both teach GA4/GTM but through different modalities. Cases = discovery learning. Academy = systematic coverage. Users can choose their path. Some content unlocks via rank to create aspiration.
+        </div>
+      </div>
+
+      <div class="annotations">
+        <div class="sticky yellow">
+          <div class="sticky-label">Accordion Pattern</div>
+          <div class="sticky-text">One section open by default (current). Others collapsed to reduce cognitive load. Progress visible in collapsed state — no need to expand just to check progress.</div>
+        </div>
+        <div class="sticky blue">
+          <div class="sticky-label">Lesson States</div>
+          <div class="sticky-text">4 states: Done (green ✓), Active (blue ▶), Locked (gray 🔒), Default. Locked content shown but dimmed — aspirational pull, not hidden. Users know what's coming.</div>
+        </div>
+        <div class="sticky green">
+          <div class="sticky-label">XP Visibility</div>
+          <div class="sticky-text">Every lesson shows XP reward. This creates micro-motivation per lesson. Higher XP lessons are harder/longer — users can self-select difficulty within the curriculum.</div>
+        </div>
+        <details>
+          <summary>Rank-Gated Content</summary>
+          <div class="detail-body">Advanced sections (Data Layer, Variables) unlock at specific ranks. This prevents overwhelm for beginners while giving experts clear progression milestones. The locked state shows the unlock requirement — never a mystery.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 7 — SYSTEM ARCHITECTURE
+  ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s7">
+    <div class="sec-head">
+      <div class="sec-num">Screen 07 / 07</div>
+      <h2 class="sec-title">System Architecture</h2>
+      <p class="sec-sub">The technical thinking behind Tag Detective Academy. How user actions flow through the system, what data moves where, and how the learning engine processes state.</p>
+      <div class="sec-divider"></div>
+    </div>
+
+    <div class="sec-layout full">
+      <!-- Flow label -->
+      <div class="flow-arrow mb24">
+        <span class="flow-step active">User</span>
+        <span class="flow-connector">↓</span>
+        <span class="flow-step">Frontend</span>
+        <span class="flow-connector">↓</span>
+        <span class="flow-step">Game Engine</span>
+        <span class="flow-connector">↓</span>
+        <span class="flow-step">State Layer</span>
+        <span class="flow-connector">↓</span>
+        <span class="flow-step">Output</span>
+        <span class="flow-connector">↓</span>
+        <span class="flow-step">Persistence</span>
+      </div>
+
+      <!-- Main architecture diagram -->
+      <div class="row gap24" style="align-items: flex-start;">
+        <!-- System flow column -->
+        <div class="flex2">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
+
+            <!-- Layer 1: User -->
+            <div class="sys-node" style="width: 100%; text-align: center; background: var(--ink); color: white; border-color: var(--ink);">
+              <div class="fw7 fs12 mb4" style="color: white;">👤 User</div>
+              <div class="fs10 mono" style="color: #94a3b8;">Detective in Training</div>
+              <div style="display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap;">
+                <div style="background: rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; font-size: 0.58rem; font-family: var(--mono); color: #94a3b8;">Clicks clues</div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; font-size: 0.58rem; font-family: var(--mono); color: #94a3b8;">Selects answers</div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; font-size: 0.58rem; font-family: var(--mono); color: #94a3b8;">Navigates screens</div>
+              </div>
+            </div>
+
+            <div class="sys-connector">
+              <div class="sys-arrow"></div>
+              <div class="sys-arrow-label">DOM events</div>
+              <div class="sys-arrow"></div>
+            </div>
+
+            <!-- Layer 2: Frontend -->
+            <div class="sys-node" style="width: 100%;">
+              <div class="fw7 fs12 mb8">🖥️ Frontend Experience (Single-Page App)</div>
+              <div class="grid3 gap8">
+                <div class="callout-ink">
+                  <div class="callout-label">Screen Router</div>
+                  <div class="fs10">showScreen() manages 8 screen states via CSS class toggling. No page reloads.</div>
+                </div>
+                <div class="callout-ink">
+                  <div class="callout-label">Render Engine</div>
+                  <div class="fs10">Dynamic HTML injection for cases, challenges, profiles from JS data objects.</div>
+                </div>
+                <div class="callout-ink">
+                  <div class="callout-label">Animation Layer</div>
+                  <div class="fs10">CSS keyframes + JS canvas confetti. Byte mascot float/blink. XP counter animation.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sys-connector">
+              <div class="sys-arrow"></div>
+              <div class="sys-arrow-label">state mutations</div>
+              <div class="sys-arrow"></div>
+            </div>
+
+            <!-- Layer 3: Game Engine -->
+            <div class="sys-node accent" style="width: 100%;">
+              <div class="fw7 fs12 mb8">⚡ Core Game Engine</div>
+              <div class="grid4 gap8">
+                <div style="background: white; border-radius: 6px; padding: 10px; text-align: center;">
+                  <div class="fs10 fw7 mb4">XP System</div>
+                  <div class="fs10 c-ink3">addXP()<br>getRank()<br>getNextRank()</div>
+                </div>
+                <div style="background: white; border-radius: 6px; padding: 10px; text-align: center;">
+                  <div class="fs10 fw7 mb4">Clue Engine</div>
+                  <div class="fs10 c-ink3">toggleClue()<br>selectedClues<br>count state</div>
+                </div>
+                <div style="background: white; border-radius: 6px; padding: 10px; text-align: center;">
+                  <div class="fs10 fw7 mb4">Challenge</div>
+                  <div class="fs10 c-ink3">selectOption()<br>correct/wrong<br>feedback</div>
+                </div>
+                <div style="background: white; border-radius: 6px; padding: 10px; text-align: center;">
+                  <div class="fs10 fw7 mb4">Achievements</div>
+                  <div class="fs10 c-ink3">checkAchievements()<br>unlock()<br>12 badges</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sys-connector">
+              <div class="sys-arrow"></div>
+              <div class="sys-arrow-label">state object</div>
+              <div class="sys-arrow"></div>
+            </div>
+
+            <!-- Layer 4: State -->
+            <div class="sys-node" style="width: 100%;">
+              <div class="fw7 fs12 mb8">🗃️ In-Memory State Object</div>
+              <div style="background: #1a1a1a; border-radius: 6px; padding: 12px; font-family: var(--mono); font-size: 0.6rem; color: #94a3b8; line-height: 1.8;">
+                <span style="color: #7dd3fc;">const</span> <span style="color: #fbbf24;">state</span> = {<br>
+                &nbsp;&nbsp;<span style="color: #86efac;">xp</span>: <span style="color: #f9a8d4;">0</span>,<br>
+                &nbsp;&nbsp;<span style="color: #86efac;">rank</span>: <span style="color: #fde047;">'Rookie'</span>,<br>
+                &nbsp;&nbsp;<span style="color: #86efac;">casesCompleted</span>: [],<br>
+                &nbsp;&nbsp;<span style="color: #86efac;">selectedClues</span>: [],<br>
+                &nbsp;&nbsp;<span style="color: #86efac;">unlockedAchievements</span>: [],<br>
+                &nbsp;&nbsp;<span style="color: #86efac;">streak</span>: <span style="color: #f9a8d4;">3</span><br>
+                }
+              </div>
+            </div>
+
+            <div class="sys-connector">
+              <div class="sys-arrow"></div>
+              <div class="sys-arrow-label">triggers render</div>
+              <div class="sys-arrow"></div>
+            </div>
+
+            <!-- Layer 5: Output -->
+            <div class="sys-node" style="width: 100%;">
+              <div class="fw7 fs12 mb8">🎯 Output Generation</div>
+              <div class="row gap8">
+                <div class="callout-ink flex1">
+                  <div class="callout-label">UI Updates</div>
+                  <div class="fs10">Nav XP counter, rank badge, progress bars animate to new values</div>
+                </div>
+                <div class="callout-ink flex1">
+                  <div class="callout-label">Feedback</div>
+                  <div class="fs10">XP popup toast, confetti, Byte speech bubble, achievement notification</div>
+                </div>
+                <div class="callout-ink flex1">
+                  <div class="callout-label">Screen Transition</div>
+                  <div class="fs10">fadeInScreen animation, scroll to top, Byte hint for new context</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sys-connector">
+              <div class="sys-arrow"></div>
+              <div class="sys-arrow-label">session memory only</div>
+              <div class="sys-arrow"></div>
+            </div>
+
+            <!-- Layer 6: Persistence -->
+            <div class="sys-node" style="width: 100%; border: var(--dash); background: var(--paper2);">
+              <div class="fw7 fs12 mb4">💾 Session Storage (Current) → Future: Persistence Layer</div>
+              <div class="row gap12">
+                <div style="flex: 1; opacity: 0.4;">
+                  <div class="label mb4">Phase 1 (Now)</div>
+                  <div class="fs10 c-ink3">JavaScript memory only. State resets on page close. No backend required. Fully offline.</div>
+                </div>
+                <div style="width: 1px; background: var(--paper3);"></div>
+                <div style="flex: 1;">
+                  <div class="label mb4 c-accent">Phase 2 (Future)</div>
+                  <div class="fs10 c-ink2">localStorage for persistence. Optional user accounts. Leaderboards. New case unlocks via API.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Side annotations column -->
+        <div style="width: 280px; flex-shrink: 0;" class="col gap12">
+          <div class="sticky yellow">
+            <div class="sticky-label">Architecture Philosophy</div>
+            <div class="sticky-text">Zero dependencies. Pure HTML/CSS/JS. Works offline. State lives in memory for session. This enables instant deployment — no server, no build, no auth required.</div>
+          </div>
+          <div class="sticky blue">
+            <div class="sticky-label">Data Layer Pattern</div>
+            <div class="sticky-text">A single `state` object is the source of truth. All UI derives from state. No two-way binding — mutations trigger re-renders explicitly via helper functions.</div>
+          </div>
+          <div class="sticky green">
+            <div class="sticky-label">Performance Budget</div>
+            <div class="sticky-text">Target: &lt;100KB total. No external requests. CSS animations use transform/opacity only (GPU composited). Confetti uses requestAnimationFrame with auto-cleanup.</div>
+          </div>
+          <div class="sticky purple">
+            <div class="sticky-label">Future Extensibility</div>
+            <div class="sticky-text">Data structures (CASES[], ACADEMY_SECTIONS[]) are plain JSON — easy to move to a CMS or API. The render functions are decoupled from data shape.</div>
+          </div>
+          <div class="callout">
+            <div class="callout-label">Key Design Principle</div>
+            The app is intentionally stateless between page loads in Phase 1. This is a feature for the prototype — it means users can share the file, open it anywhere, and start fresh without setup friction.
+          </div>
+          <div class="callout-ink">
+            <div class="callout-label">Ranks Progression</div>
+            <div class="col gap4 mt4">
+              <div class="row" style="align-items: center; gap: 8px;">
+                <div class="wf-progress-fill" style="width: 20px; height: 3px; flex-shrink: 0;"></div>
+                <span class="fs10">Rookie (0 XP)</span>
+              </div>
+              <div class="row" style="align-items: center; gap: 8px;">
+                <div class="wf-progress-fill" style="width: 40px; height: 3px; flex-shrink: 0;"></div>
+                <span class="fs10">Analyst (150 XP)</span>
+              </div>
+              <div class="row" style="align-items: center; gap: 8px;">
+                <div class="wf-progress-fill" style="width: 60px; height: 3px; flex-shrink: 0;"></div>
+                <span class="fs10">Inspector (400 XP)</span>
+              </div>
+              <div class="row" style="align-items: center; gap: 8px;">
+                <div class="wf-progress-fill" style="width: 80px; height: 3px; flex-shrink: 0;"></div>
+                <span class="fs10">Detective (750 XP)</span>
+              </div>
+              <div class="row" style="align-items: center; gap: 8px;">
+                <div class="wf-progress-fill" style="width: 100px; height: 3px; flex-shrink: 0;"></div>
+                <span class="fs10">Chief Inspector (2000 XP)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer summary -->
+      <div class="row gap16 mt32">
+        <div class="wf-card flex1" style="border-top: 3px solid var(--accent);">
+          <div class="fw7 fs11 mb6">📦 Technology Stack</div>
+          <div class="fs10 c-ink3 mono">HTML5 · CSS3 · Vanilla JS ES6+<br>Canvas API (confetti) · CSS Animations<br>Zero dependencies · Zero build step</div>
+        </div>
+        <div class="wf-card flex1" style="border-top: 3px solid #3a9a5c;">
+          <div class="fw7 fs11 mb6">🎯 Core User Journey</div>
+          <div class="fs10 c-ink3">Welcome → Pick Case → Gather Evidence → Answer Challenge → Case Closed → Repeat with next case</div>
+        </div>
+        <div class="wf-card flex1" style="border-top: 3px solid #c08020;">
+          <div class="fw7 fs11 mb6">💡 Learning Philosophy</div>
+          <div class="fs10 c-ink3">Contextual learning beats abstract study. Users internalize GA4/GTM concepts by debugging real scenarios — not by reading documentation.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+// ── Navigation ──
+function navTo(targetId, btn) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const el = document.getElementById(targetId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// ── Scrollspy ──
+const sections = ['cover','s1','s2','s3','s4','s5','s6','s7'];
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      document.querySelectorAll('.sidebar-link').forEach(l => {
+        l.classList.toggle('active', l.getAttribute('data-target') === id);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+
+sections.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) observer.observe(el);
+});
+</script>
+</body>
+</html>
