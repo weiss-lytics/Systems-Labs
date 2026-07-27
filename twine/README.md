@@ -1,10 +1,10 @@
-# ✨ Twine
+# 📆 Twine
 
 **Finding time, together.**
 
 Plan meetings across timezones without DST headaches.
 
-A cozy timezone meeting planner built with HTML, CSS, and Vanilla JavaScript.
+A lightweight timezone meeting planner built with HTML, CSS, and Vanilla JavaScript.
 
 ---
 
@@ -60,6 +60,16 @@ Building Twine taught me that timezone handling is a lot more complex than UTC m
 
 Full verification notes, including the exact test inputs and outputs for each case above, are in [`TESTING.md`](./docs/TESTING.md).
 
+## 🎯 Key Design Decisions
+
+Twine intentionally prioritizes simplicity over feature count.
+
+- **Browser-native timezone handling** — Uses the browser's IANA timezone database instead of maintaining timezone rules manually.
+- **Meeting recommendations over giant grids** — Surface a few good options instead of overwhelming users with every possible hour.
+- **Single-file architecture** — Keep the app lightweight, portable, and runnable without installation.
+- **Offline-first** — No APIs or internet connection required once opened.
+- **Human-first design** — Reduce cognitive load through visual timelines and approachable language instead of exposing timezone complexity.
+
 ## Why I Built This
 
 Twine started from a real workflow problem in my day-to-day work. I frequently coordinate with people across countries and wanted something reliable, without reaching for a bloated scheduling tool to solve a problem that's really just "what time is it for both of us, comfortably."
@@ -68,13 +78,22 @@ After a few rounds of iteration — structure, then branding, then visual polish
 
 If I have to survive corporate life, I might as well build beautiful little tools that make it easier. 🌸
 
+## 💡 Lessons Learned
+
+Building Twine reinforced several engineering principles that extend beyond timezone software:
+
+- **Leverage standards instead of reinventing them.** The browser's IANA timezone database is more reliable than maintaining custom UTC offset logic.
+- **Edge cases deserve first-class attention.** Daylight Saving Time, non-hour offsets, and international naming conventions all surfaced real-world issues that required thoughtful testing.
+- **Simple interfaces often hide complex systems.** Reducing cognitive load for users meant handling technical complexity behind the scenes.
+- **Validation is part of development.** Testing real-world scenarios was just as important as implementing the features themselves.
+
 ## 🤖 AI-Assisted Development
 
 This project was built using an AI-assisted workflow.
 
 I defined the product goals, user experience, visual direction, and technical requirements based on my own experience coordinating meetings across timezones. I used **Claude** as a development partner to accelerate HTML, CSS, and Vanilla JavaScript implementation, troubleshoot issues, and iterate on the product more efficiently.
 
-Every feature, edge case, and timezone calculation was independently tested and validated by me to ensure accuracy and reliability. I view AI as a development tool that reduces repetitive work, allowing me to focus on product thinking, edge-case engineering, user experience, and building a reliable application.
+Every feature, edge case, and timezone calculation was independently tested and validated by me against real-world scenarios to ensure accuracy and reliability.
 
 ## Philosophy
 
