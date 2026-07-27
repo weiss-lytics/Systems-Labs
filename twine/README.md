@@ -68,6 +68,14 @@ After a few rounds of iteration — structure, then branding, then visual polish
 
 If I have to survive corporate life, I might as well build beautiful little tools that make it easier. 🌸
 
+## 🤖 AI-Assisted Development
+
+This project was built using an AI-assisted workflow.
+
+I defined the product goals, user experience, visual direction, and technical requirements based on my own experience coordinating meetings across timezones. I used **Claude** as a development partner to accelerate HTML, CSS, and Vanilla JavaScript implementation, troubleshoot issues, and iterate on the product more efficiently.
+
+Every feature, edge case, and timezone calculation was independently tested and validated by me to ensure accuracy and reliability. I view AI as a development tool that reduces repetitive work, allowing me to focus on product thinking, edge-case engineering, user experience, and building a reliable application.
+
 ## Philosophy
 
 Twine exists to answer one simple question:
