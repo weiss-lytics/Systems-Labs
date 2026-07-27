@@ -156,5 +156,3 @@ open kiri-prototype.html    # interactive prototype
 I wanted a tool that matched how my brain actually works — fast, nonlinear, allergic to long documentation — and I wanted to prove out the idea by using it myself before asking anyone else to. This repo is that proof of work: from raw concept, through wireframes, to a working interactive prototype.
 
 ---
-
-Designed & built by Weiss 💟
