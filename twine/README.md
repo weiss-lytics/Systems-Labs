@@ -94,5 +94,3 @@ The goal isn't to overwhelm anyone with timezone technicalities — it's to make
 - Recurring meeting support
 
 ---
-
-Designed & crafted with 💜 by Weiss
