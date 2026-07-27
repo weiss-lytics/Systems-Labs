@@ -156,3 +156,15 @@ open kiri-prototype.html    # interactive prototype
 I wanted a tool that matched how my brain actually works — fast, nonlinear, allergic to long documentation — and I wanted to prove out the idea by using it myself before asking anyone else to. This repo is that proof of work: from raw concept, through wireframes, to a working interactive prototype.
 
 ---
+
+## 🤖 AI-Assisted Development
+
+This project was built using an AI-assisted workflow.
+
+I conceived the product, defined its core philosophy ("dump → structure → blueprint"), designed the information architecture, user experience, visual identity, and feature set, and made every product and scope decision. I also chose to prototype the concept in HTML, CSS, and Vanilla JavaScript before committing to a production framework.
+
+I used **Claude** as a development partner to accelerate implementation, translate design decisions into working code, troubleshoot prototype interactions, and iterate more efficiently.
+
+Every iteration, design decision, and feature refinement was directed and reviewed by me. I view AI as a development tool that reduces repetitive work, allowing me to focus on product strategy, systems thinking, user experience, and turning ideas into thoughtful, usable software.
+
+---
