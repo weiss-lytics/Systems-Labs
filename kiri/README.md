@@ -104,6 +104,17 @@ Kiri's visual identity is intentionally not another cold developer tool:
 
 ---
 
+## 🎯 Key Design Decisions
+
+These choices intentionally shaped the prototype before investing in a production build.
+
+- **Prototype before framework** — Validate the workflow and user experience before committing to a production stack.
+- **Single-file HTML prototype** — Keep the project portable, easy to review, and quick to iterate without build tools or dependencies.
+- **Visual blueprints over long documents** — Reduce cognitive load by making ideas easier to scan, revisit, and expand.
+- **Mobile-first interaction** — Design for capturing ideas wherever inspiration strikes, not just at a desk.
+- **Build for myself first** — If the product doesn't become part of my own workflow, it's not ready for anyone else.
+---
+
 ## Tech Stack
 
 This prototype is a **single self-contained HTML file** — vanilla HTML, CSS, and JavaScript, no frameworks, no build step, no dependencies. It runs by opening the file directly in a browser.
@@ -161,10 +172,8 @@ I wanted a tool that matched how my brain actually works — fast, nonlinear, al
 
 This project was built using an AI-assisted workflow.
 
-I conceived the product, defined its core philosophy ("dump → structure → blueprint"), designed the information architecture, user experience, visual identity, and feature set, and made every product and scope decision. I also chose to prototype the concept in HTML, CSS, and Vanilla JavaScript before committing to a production framework.
+I owned the product concept, workflow ("dump → structure → blueprint"), information architecture, user experience, visual design, feature decisions, and roadmap. I used Claude as a development partner to accelerate HTML, CSS, and Vanilla JavaScript implementation, troubleshoot prototype interactions, and iterate more efficiently.
 
-I used **Claude** as a development partner to accelerate implementation, translate design decisions into working code, troubleshoot prototype interactions, and iterate more efficiently.
-
-Every iteration, design decision, and feature refinement was directed and reviewed by me. I view AI as a development tool that reduces repetitive work, allowing me to focus on product strategy, systems thinking, user experience, and turning ideas into thoughtful, usable software.
+Every implementation and refinement was reviewed and validated by me. I use AI as a development tool to reduce repetitive work while focusing on product thinking, systems design, and user experience.
 
 ---
