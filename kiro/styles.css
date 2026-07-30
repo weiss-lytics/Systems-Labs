@@ -1,0 +1,1128 @@
+/* =============================================================================
+   KIRO — DESIGN SYSTEM
+   Calm. Minimal. Premium. Friendly. Privacy-first.
+
+   This stylesheet is the foundation for all future Kiro versions. It is
+   organized as a small design system (tokens → base → components → screens)
+   rather than a flat extraction of Step 2's embedded styles, so it can be
+   extended cleanly in V2 and beyond without duplicating rules.
+   ============================================================================= */
+
+/* ==========================================
+   RESET
+========================================== */
+*,
+*::before,
+*::after{
+  box-sizing: border-box;
+}
+
+html, body{
+  margin: 0;
+  padding: 0;
+}
+
+button, input, textarea{
+  font-family: inherit;
+}
+
+h1, h2, p, ul{
+  margin: 0;
+}
+
+button{
+  cursor: pointer;
+}
+
+img{
+  max-width: 100%;
+  display: block;
+}
+
+/* ==========================================
+   DESIGN TOKENS
+========================================== */
+:root{
+
+  /* --- Color: surfaces & text --------------------------------------- */
+  --color-bg:            #f7f5f0; /* soft warm off-white, the app's backdrop */
+  --color-surface:       #ffffff; /* cards, the app frame, screen backgrounds */
+  --color-surface-alt:   #f7f5f0; /* recessed surfaces (fields, chips) — same as bg by design */
+  --color-border:        rgba(28, 28, 26, 0.08);
+
+  --color-text:          #1c1c1a; /* primary ink */
+  --color-text-muted:    #8a8a83; /* warm gray, secondary text */
+
+  /* --- Color: accent -------------------------------------------------- */
+  --color-accent:        #8AA68C; /* soft sage green */
+  --color-accent-deep:   #5f7d64; /* sage, deepened for text/icons on tint */
+  --color-accent-light:  rgba(138, 166, 140, 0.12); /* sage tint, for fills */
+  --color-accent-light-strong: rgba(138, 166, 140, 0.22); /* sage tint, hover state */
+
+  /* --- Color: status ---------------------------------------------------- */
+  --color-success:       #5f7d64; /* muted green, reuses the sage accent */
+  --color-success-light: rgba(138, 166, 140, 0.12);
+  --color-warning:       #c99a3a; /* soft amber */
+  --color-warning-light: rgba(201, 154, 58, 0.14);
+  --color-danger:        #b85c4f; /* muted red — reserved for future error states */
+  --color-danger-light:  rgba(184, 92, 79, 0.12);
+
+  /* --- Color: fixed (do not tint with theme) ------------------------- */
+  --color-ink-solid:     #1c1c1a; /* used for primary buttons, camera chrome */
+  --color-white:         #ffffff;
+  --color-camera-bg:     #111111;
+
+  /* --- Spacing scale ---------------------------------------------------- */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+
+  /* --- Radius scale ----------------------------------------------------- */
+  --radius-sm:   8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  32px;
+  --radius-full: 999px;
+
+  /* --- Typography --------------------------------------------------------- */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                       "Helvetica Neue", Arial, sans-serif;
+
+  --font-size-xs:   11px;
+  --font-size-sm:   12.5px;
+  --font-size-md:   14px;
+  --font-size-lg:   16px;
+  --font-size-xl:   19px;
+  --font-size-2xl:  24px;
+  --font-size-3xl:  27px;
+
+  --font-weight-regular:  400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+  --font-weight-black:    800;
+
+  --line-height-tight:   1.2;
+  --line-height-normal:  1.5;
+  --line-height-relaxed: 1.6;
+
+  /* --- Shadows — kept intentionally subtle, no heavy drop shadows ----- */
+  --shadow-sm: 0 1px 2px rgba(28, 28, 26, 0.04), 0 1px 1px rgba(28, 28, 26, 0.03);
+  --shadow-md: 0 8px 24px rgba(28, 28, 26, 0.06), 0 2px 6px rgba(28, 28, 26, 0.04);
+
+  /* --- Transitions ------------------------------------------------------- */
+  --transition-fast:   0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1); /* shorthand used inside transition/animation shorthands */
+}
+
+/* ==========================================
+   TYPOGRAPHY
+========================================== */
+body{
+  font-family: var(--font-family-base);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  line-height: var(--line-height-normal);
+}
+
+/* Page title used at the top of most screens */
+h1.h{
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-xs);
+  letter-spacing: -0.3px;
+  line-height: var(--line-height-tight);
+}
+
+/* Supporting description beneath a page title */
+p.sub{
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-md);
+  line-height: var(--line-height-normal);
+}
+
+/* Small, reassuring helper copy used throughout (notes, hints, disclaimers) */
+.text-note{
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ==========================================
+   LAYOUT
+========================================== */
+
+/* Centers the app on desktop/tablet; goes full-bleed on small phones */
+.stage{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.app-frame{
+  width: 100%;
+  max-width: 460px;
+  min-height: 740px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 760px){
+  .app-frame{
+    border: 1px solid var(--color-border);
+  }
+}
+
+@media (max-width: 480px){
+  .stage{
+    padding: 0;
+  }
+  .app-frame{
+    max-width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+/* Each screen is an absolutely positioned "view"; only .active is shown.
+   Sliding + fading between views is the app's one signature transition. */
+.view{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 28px var(--space-lg) var(--space-lg);
+  opacity: 0;
+  transform: translateY(10px) scale(0.99);
+  pointer-events: none;
+  transition: opacity var(--transition-slow), transform var(--transition-slow);
+  background: var(--color-surface);
+  overflow-y: auto;
+}
+.view.active{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.view.leaving{
+  opacity: 0;
+  transform: translateY(-8px) scale(0.99);
+}
+
+/* Top bar shared by every screen except Welcome and Success */
+.top-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  min-height: 28px;
+  flex-shrink: 0;
+}
+
+/* ==========================================
+   BUTTONS
+========================================== */
+.back-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--color-accent-light);
+  color: var(--color-accent-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: var(--font-size-lg);
+  transition: background var(--transition-normal), transform var(--transition-fast);
+}
+.back-btn:hover{ background: var(--color-accent-light-strong); }
+.back-btn:active{ transform: scale(0.94); }
+
+.btn{
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 15px 18px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  width: 100%;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-normal),
+    background var(--transition-normal),
+    opacity var(--transition-normal);
+}
+.btn:active{ transform: scale(0.98); }
+
+.btn-primary{
+  background: var(--color-ink-solid);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover{ box-shadow: var(--shadow-md); }
+
+.btn-secondary{
+  background: var(--color-accent-light);
+  color: var(--color-accent-deep);
+}
+.btn-secondary:hover{ background: var(--color-accent-light-strong); }
+
+.btn-ghost{
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1.5px solid var(--color-border);
+}
+.btn-ghost:hover{
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.btn:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-row{ display: flex; gap: var(--space-sm); }
+.btn-row .btn{ flex: 1; }
+
+/* ==========================================
+   CARDS
+========================================== */
+
+/* Generic recessed card used for the privacy summary, prototype notices,
+   export confirmation, etc. — the app's one reusable "quiet surface." */
+.card{
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  padding: 13px 15px;
+}
+
+/* Privacy card on Welcome — a card with a sage accent border */
+.privacy-card{
+  width: 100%;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-left: 2.5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  padding: 13px 15px;
+  text-align: left;
+  margin-bottom: var(--space-sm);
+}
+.privacy-card .pc-title{
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-sm);
+}
+.privacy-card ul{
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.privacy-card li{
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+}
+
+/* Collapsible "How Kiro Protects Your Privacy" explainer on Welcome */
+.privacy-explainer{
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.privacy-explainer summary{
+  list-style: none;
+  cursor: pointer;
+  padding: 11px 15px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+.privacy-explainer summary::-webkit-details-marker{ display: none; }
+.privacy-explainer summary .chev{
+  transition: transform var(--transition-normal);
+  font-size: var(--font-size-xs);
+}
+.privacy-explainer[open] summary .chev{ transform: rotate(180deg); }
+.privacy-explainer .pe-body{
+  padding: 0 15px 14px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  text-align: left;
+}
+.pe-flow{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-deep);
+  margin-bottom: var(--space-sm);
+}
+.pe-flow .arrow{ color: var(--color-text-muted); font-weight: var(--font-weight-regular); }
+
+/* Interactive "On-device" privacy popover — Scan / Upload / Preview / Export */
+.privacy-popover{
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition-normal), margin var(--transition-normal);
+  margin-top: 0;
+}
+.privacy-popover.open{
+  max-height: 170px;
+  margin-top: var(--space-sm);
+  margin-bottom: 6px;
+}
+.privacy-popover-inner{
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-left: 2.5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  text-align: left;
+}
+.privacy-popover-inner .pc-title{
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-sm);
+}
+.privacy-popover-inner ul{
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.privacy-popover-inner li{
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+}
+
+/* Prototype-mode disclaimer card on the Scan screen */
+.prototype-note{
+  margin-top: 12px;
+  padding: 9px 12px;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.prototype-note .pn-title{
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+}
+.prototype-note .pn-body{
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+/* Export screen's primary action card */
+.export-card{
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: 12px;
+  text-align: center;
+}
+.export-card .export-icon{
+  font-size: 26px;
+  margin-bottom: var(--space-sm);
+}
+.export-note{
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: var(--space-xs);
+}
+
+/* ==========================================
+   BADGES
+========================================== */
+
+/* Small status pill — "On-device", "Not yet exported" */
+.privacy-pill{
+  font-size: var(--font-size-xs);
+  color: var(--color-accent-deep);
+  background: var(--color-accent-light);
+  padding: 5px 11px;
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The "On-device" pill becomes an interactive toggle button on several screens */
+.privacy-pill-btn{
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background var(--transition-normal);
+}
+.privacy-pill-btn:hover{ background: var(--color-accent-light-strong); }
+.privacy-pill-btn .pp-chev{
+  font-size: 9px;
+  transition: transform var(--transition-normal);
+}
+.privacy-pill-btn[aria-expanded="true"] .pp-chev{ transform: rotate(180deg); }
+
+/* "Processed Locally" badge on the Review screen */
+.local-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-deep);
+  background: var(--color-accent-light);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+}
+
+/* Confidence status dots + legend, used on the Review screen */
+.confidence-legend{
+  display: flex;
+  gap: 14px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: 14px;
+}
+.confidence-legend span{
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.confidence-dot{
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  flex-shrink: 0;
+}
+.confidence-dot.high{ background: var(--color-success); }
+.confidence-dot.review{ background: var(--color-warning); }
+.field-head .confidence-dot{ margin-right: 5px; }
+
+/* ==========================================
+   TABS
+========================================== */
+/* Reserved for future use — Kiro V1 uses dedicated Scan and Upload screens
+   rather than an in-screen tab switcher, but the primitive is kept here
+   since later versions may reintroduce tabbed sub-navigation. */
+.tabs{
+  display: flex;
+  gap: 6px;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+.tab{
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 9px;
+  border-radius: 11px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--transition-normal), color var(--transition-normal);
+}
+.tab.active{
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================
+   CAMERA
+========================================== */
+.camera-viewport{
+  flex: 1;
+  border-radius: var(--radius-lg);
+  background: var(--color-camera-bg);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.camera-viewport .sim-camera-fill{
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(135deg, #1c1d1a 0 12px, #161714 12px 24px);
+}
+
+/* Dashed crop guide + corner brackets, framing where the receipt should sit */
+.crop-guide{
+  position: absolute;
+  inset: 26px;
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-md);
+  pointer-events: none;
+}
+.corner-guide{
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+}
+.corner-guide.tl{ top: 24px; left: 24px; border-right: none; border-bottom: none; border-radius: var(--radius-sm) 0 0 0; }
+.corner-guide.tr{ top: 24px; right: 24px; border-left: none; border-bottom: none; border-radius: 0 var(--radius-sm) 0 0; }
+.corner-guide.bl{ bottom: 24px; left: 24px; border-right: none; border-top: none; border-radius: 0 0 0 var(--radius-sm); }
+.corner-guide.br{ bottom: 24px; right: 24px; border-left: none; border-top: none; border-radius: 0 0 var(--radius-sm) 0; }
+
+.camera-hint{
+  position: absolute;
+  top: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* The "captured" state, shown after the shutter fires */
+.captured-frame{
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #1a1b18;
+}
+.captured-frame.show{ display: flex; }
+.captured-receipt-mock{
+  width: 64%;
+  height: 76%;
+  border-radius: var(--radius-sm);
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0 2px, transparent 2px 10px);
+}
+
+.capture-btn{
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  border: 4px solid var(--color-accent-light);
+  box-shadow: 0 0 0 2px var(--color-accent);
+  cursor: pointer;
+  margin: 0 auto;
+  display: block;
+  transition: transform var(--transition-fast);
+}
+.capture-btn:active{ transform: scale(0.9); }
+.capture-btn:disabled{ opacity: 0.5; cursor: default; }
+
+.capture-btn-label{
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  margin-top: 9px;
+}
+
+.scan-controls{ flex-shrink: 0; }
+.post-scan-row{ display: none; gap: var(--space-sm); margin-top: 12px; }
+.post-scan-row.show{ display: flex; }
+
+/* Shutter flash — the camera's one signature micro-animation */
+.camera-viewport.flash::after{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-white);
+  animation: flashPulse 0.35s var(--ease);
+}
+
+/* ==========================================
+   UPLOAD
+========================================== */
+.dropzone{
+  flex: 1;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 26px 18px;
+  background: var(--color-accent-light);
+  cursor: pointer;
+  min-height: 300px;
+  transition:
+    border-color var(--transition-normal),
+    background var(--transition-normal),
+    transform var(--transition-fast);
+}
+.dropzone.dragover{
+  border-color: var(--color-accent-deep);
+  background: var(--color-accent-light-strong);
+  transform: scale(1.01);
+}
+.dropzone .icon{ font-size: 30px; margin-bottom: 12px; }
+.dropzone .title{ font-weight: var(--font-weight-bold); font-size: 15px; margin-bottom: 2px; }
+.dropzone .desc{ font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-md); }
+
+input[type="file"]{ display: none; }
+
+.formats-note{
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: 14px;
+}
+
+/* ==========================================
+   PREVIEW
+========================================== */
+.preview-frame{
+  flex: 1;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: var(--space-md);
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.preview-frame img{ width: 100%; height: 100%; object-fit: contain; }
+.preview-frame .mock-receipt-visual{
+  width: 60%;
+  height: 80%;
+  background: repeating-linear-gradient(180deg, rgba(28, 28, 26, 0.06) 0 2px, transparent 2px 10px);
+  border-radius: var(--radius-sm);
+}
+
+/* A quiet confirmation banner shown once the captured image looks good */
+.preview-confirm{
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-deep);
+  background: var(--color-accent-light);
+  border-radius: var(--radius-sm);
+  padding: 9px 13px;
+  margin-bottom: 14px;
+}
+
+.preview-actions{ display: flex; flex-direction: column; gap: var(--space-sm); }
+.preview-actions .btn-row{ display: flex; gap: var(--space-sm); }
+
+/* Shared receipt visual placeholder (Preview + Review use the same mock art) */
+.mock-receipt-visual{
+  background: repeating-linear-gradient(180deg, rgba(28, 28, 26, 0.06) 0 2px, transparent 2px 10px);
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================
+   PROCESSING
+========================================== */
+#view-processing{ align-items: center; justify-content: center; text-align: center; }
+
+.step-list{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: var(--space-md);
+}
+.step-item{
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  opacity: 0.4;
+  transform: translateX(-4px);
+  transition: all 0.35s var(--ease);
+}
+.step-item.active{
+  opacity: 1;
+  transform: translateX(0);
+  background: var(--color-accent-light);
+}
+.step-item.done{
+  opacity: 1;
+  transform: translateX(0);
+}
+.step-mark{
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  flex-shrink: 0;
+  color: transparent;
+  transition: all var(--transition-normal);
+}
+.step-item.active .step-mark{
+  border-color: var(--color-accent-deep);
+  background: var(--color-white);
+}
+.step-item.active .step-mark::after{
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-deep);
+  animation: pulse 1s ease-in-out infinite;
+}
+.step-item.done .step-mark{
+  background: var(--color-accent-deep);
+  color: var(--color-white);
+  border-color: var(--color-accent-deep);
+}
+.step-label{ font-size: 13.5px; text-align: left; }
+
+.progress-track{
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  overflow: hidden;
+}
+.progress-fill{
+  height: 100%;
+  background: var(--color-accent-deep);
+  width: 0%;
+  transition: width var(--transition-normal);
+}
+
+.processing-note{
+  margin-top: 12px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: var(--line-height-normal);
+}
+
+/* ==========================================
+   REVIEW
+========================================== */
+.receipt-thumb{
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  min-height: 100px;
+  max-height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.receipt-thumb img{ width: 100%; max-height: 190px; object-fit: contain; }
+.receipt-thumb .mock-receipt-visual{ width: 50%; height: 150px; }
+
+.review-hint{
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: 14px;
+  line-height: var(--line-height-normal);
+}
+
+.review-section{ margin-bottom: 18px; }
+.section-label{
+  font-size: 10.5px;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+/* Editable form fields — the heart of the Review screen */
+.field{
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  padding: 10px 13px;
+  border: 1px solid transparent;
+  margin-bottom: 10px;
+  position: relative;
+  transition: border-color var(--transition-normal), background var(--transition-normal);
+}
+.field:focus-within{
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+}
+.field.low-confidence{ background: var(--color-warning-light); }
+
+.field-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+.field label{
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+  display: inline-flex;
+  align-items: center;
+}
+
+.field-actions{ display: flex; gap: var(--space-sm); }
+.field-actions button{
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.field-actions button:hover{ color: var(--color-text); }
+
+.field input,
+.field textarea{
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+  font-family: inherit;
+  padding: 0;
+  outline: none;
+  resize: none;
+}
+.field textarea{ height: 34px; }
+
+.field-row2{ display: flex; gap: var(--space-sm); }
+.field-row2 .field{ flex: 1; }
+
+/* ==========================================
+   EXPORT
+========================================== */
+/* .export-card, .export-note, and the disabled "Coming in Version 3" button
+   share the CARDS and BUTTONS sections above — nothing export-specific
+   remains beyond what's already defined there. */
+
+/* ==========================================
+   SUCCESS
+========================================== */
+#view-success{ align-items: center; justify-content: center; text-align: center; }
+
+.check-ring{
+  width: 78px;
+  height: 78px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.check-ring svg{ width: 34px; height: 34px; }
+.check-ring path{
+  stroke: var(--color-accent-deep);
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: draw 0.5s var(--ease) 0.1s forwards;
+}
+
+.success-title{
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 6px;
+}
+.success-sub{
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 26px;
+  line-height: var(--line-height-normal);
+}
+.success-actions{ width: 100%; display: flex; flex-direction: column; gap: var(--space-sm); }
+
+/* ==========================================
+   WELCOME (screen-specific — sits outside the reusable component set)
+========================================== */
+#view-welcome{ justify-content: center; align-items: center; text-align: center; }
+
+.logo-badge{
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, #eef2ee, var(--color-accent-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin-bottom: var(--space-md);
+  box-shadow: inset 0 0 0 1px rgba(138, 166, 140, 0.25);
+}
+.brand-name{
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
+  letter-spacing: -0.5px;
+  margin-bottom: var(--space-xs);
+}
+.brand-tag{
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+  margin-bottom: var(--space-sm);
+}
+.brand-desc{
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-lg);
+  max-width: 300px;
+}
+.welcome-actions{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-bottom: var(--space-md);
+}
+
+/* ==========================================
+   TOAST (transient status message)
+========================================== */
+.toast{
+  position: fixed;
+  bottom: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--color-ink-solid);
+  color: var(--color-white);
+  padding: 11px 18px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  opacity: 0;
+  pointer-events: none;
+  transition: all var(--transition-normal);
+  z-index: 50;
+  box-shadow: var(--shadow-md);
+  max-width: 80%;
+  text-align: center;
+}
+.toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================
+   ANIMATIONS
+========================================== */
+@keyframes flashPulse{
+  0%   { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+@keyframes pulse{
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+
+@keyframes draw{
+  to { stroke-dashoffset: 0; }
+}
+
+/* Generic fade/slide utilities, available for future screens that need the
+   same entrance motion as .view without opting into the full view system. */
+@keyframes fadeIn{
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideUp{
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in{ animation: fadeIn var(--transition-slow); }
+.slide-up{ animation: slideUp var(--transition-slow); }
+
+/* ==========================================
+   ACCESSIBILITY
+========================================== */
+
+/* Visible keyboard focus on every interactive element */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible{
+  outline: 2px solid var(--color-accent-deep);
+  outline-offset: 2px;
+}
+
+/* Respect reduced-motion preferences — all animation/transition is optional */
+@media (prefers-reduced-motion: reduce){
+  *{
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+/* Baseline: 320px–375px small phones. The app-frame and .view padding
+   already flex to fill the viewport at this size (see LAYOUT, above);
+   nothing additional is required, but breakpoints are named here for
+   clarity as the design system grows. */
+
+/* ~375px and up: comfortable phone width — default sizing already applies. */
+
+/* 768px and up: tablets — the app frame stays centered as a fixed-width
+   card rather than stretching full width, per APP SHELL. */
+@media (min-width: 768px){
+  .stage{ padding: var(--space-xl) var(--space-lg); }
+}
+
+/* 1024px–1440px and up: desktop — same centered card, slightly more
+   generous outer padding so the card doesn't feel stranded on a large
+   viewport. */
+@media (min-width: 1024px){
+  .stage{ padding: 48px var(--space-lg); }
+}

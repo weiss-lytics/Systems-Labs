@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kiro — Less typing. More recording.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Kiro is a privacy-first receipt scanner. Everything runs locally in your browser.">
+
+<style>
+/* =====================================================================
+   DESIGN TOKENS
+   These will move to css/styles.css in Step 3 — kept here for now so
+   this file stays fully self-contained per the Step 2 requirements.
+   ===================================================================== */
+:root{
+  --bg:#f7f5f0;
+  --card:#ffffff;
+  --ink:#1c1c1a;
+  --ink-soft:#8a8a83;
+  --sage:#8AA68C;
+  --sage-deep:#5f7d64;
+  --sage-tint: rgba(138,166,140,0.12);
+  --amber:#c99a3a;
+  --amber-tint: rgba(201,154,58,0.14);
+  --line: rgba(28,28,26,0.08);
+  --shadow-sm: 0 1px 2px rgba(28,28,26,0.04), 0 1px 1px rgba(28,28,26,0.03);
+  --shadow-md: 0 8px 24px rgba(28,28,26,0.06), 0 2px 6px rgba(28,28,26,0.04);
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+/* =====================================================================
+   RESET & BASE
+   ===================================================================== */
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+button{ font-family:inherit; }
+h1,h2,p,ul{ margin:0; }
+
+/* Visible focus states everywhere — accessibility requirement */
+a:focus-visible, button:focus-visible, input:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible{
+  outline:2px solid var(--sage-deep);
+  outline-offset:2px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+
+/* =====================================================================
+   APP SHELL — centered card on desktop, full-bleed on mobile
+   ===================================================================== */
+.stage{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 20px;
+}
+.app-frame{
+  width:100%;
+  max-width:460px;
+  min-height:740px;
+  background:var(--card);
+  border-radius:32px;
+  box-shadow:var(--shadow-md);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+@media (min-width:760px){
+  .app-frame{ border:1px solid var(--line); }
+}
+@media (max-width:480px){
+  .stage{ padding:0; }
+  .app-frame{ max-width:100%; min-height:100vh; border-radius:0; }
+}
+
+/* Each screen is an absolutely positioned view; only .active is shown */
+.view{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  padding:28px 24px 24px;
+  opacity:0;
+  transform:translateY(10px) scale(0.99);
+  pointer-events:none;
+  transition: opacity .34s var(--ease), transform .34s var(--ease);
+  background:var(--card);
+  overflow-y:auto;
+}
+.view.active{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
+}
+.view.leaving{
+  opacity:0;
+  transform:translateY(-8px) scale(0.99);
+}
+
+/* =====================================================================
+   SHARED UI PIECES — top bar, buttons, pills, toast
+   ===================================================================== */
+.top-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+  min-height:28px;
+  flex-shrink:0;
+}
+.back-btn{
+  width:34px; height:34px; border-radius:50%;
+  border:none; background:var(--sage-tint); color:var(--sage-deep);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:16px;
+  transition: background .2s var(--ease), transform .15s var(--ease);
+}
+.back-btn:hover{ background:rgba(138,166,140,0.22); }
+.back-btn:active{ transform:scale(0.94); }
+
+.privacy-pill{
+  font-size:11.5px;
+  color:var(--sage-deep);
+  background:var(--sage-tint);
+  padding:5px 11px;
+  border-radius:20px;
+  font-weight:600;
+}
+
+h1.h{ font-size:24px; font-weight:700; margin-bottom:4px; letter-spacing:-0.3px; }
+p.sub{ font-size:13.5px; color:var(--ink-soft); margin-bottom:18px; line-height:1.5; }
+
+.btn{
+  border:none;
+  border-radius:16px;
+  padding:15px 18px;
+  font-size:14.5px;
+  font-weight:600;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition: transform .15s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease), opacity .2s var(--ease);
+  width:100%;
+}
+.btn:active{ transform:scale(0.98); }
+.btn-primary{ background:var(--ink); color:#fff; box-shadow:var(--shadow-sm); }
+.btn-primary:hover{ box-shadow:var(--shadow-md); }
+.btn-secondary{ background:var(--sage-tint); color:var(--sage-deep); }
+.btn-secondary:hover{ background:rgba(138,166,140,0.2); }
+.btn-ghost{ background:transparent; color:var(--ink-soft); border:1.5px solid var(--line); }
+.btn-ghost:hover{ border-color:var(--ink-soft); color:var(--ink); }
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.btn-row{ display:flex; gap:10px; }
+.btn-row .btn{ flex:1; }
+
+.toast{
+  position:fixed;
+  bottom:24px; left:50%;
+  transform: translateX(-50%) translateY(20px);
+  background:var(--ink); color:#fff;
+  padding:11px 18px; border-radius:13px;
+  font-size:13px; font-weight:500;
+  opacity:0; pointer-events:none;
+  transition: all .3s var(--ease);
+  z-index:50;
+  box-shadow:var(--shadow-md);
+  max-width:80%;
+  text-align:center;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* =====================================================================
+   1. WELCOME / HOME
+   ===================================================================== */
+#view-welcome{ justify-content:center; align-items:center; text-align:center; }
+.logo-badge{
+  width:72px; height:72px; border-radius:20px;
+  background: linear-gradient(160deg, #eef2ee, var(--sage-tint));
+  display:flex; align-items:center; justify-content:center;
+  font-size:30px; margin-bottom:16px;
+  box-shadow: inset 0 0 0 1px rgba(138,166,140,0.25);
+}
+.brand-name{ font-size:27px; font-weight:800; letter-spacing:-0.5px; margin-bottom:4px; }
+.brand-tag{ font-size:14px; color:var(--ink-soft); line-height:1.5; margin-bottom:8px; }
+.brand-desc{ font-size:12.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:24px; max-width:300px; }
+.welcome-actions{ width:100%; display:flex; flex-direction:column; gap:11px; margin-bottom:16px; }
+
+.privacy-card{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-left:2.5px solid var(--sage);
+  border-radius:14px;
+  padding:13px 15px;
+  text-align:left;
+  margin-bottom:10px;
+}
+.privacy-card .pc-title{ font-size:12.5px; font-weight:700; margin-bottom:6px; }
+.privacy-card ul{ list-style:none; display:flex; flex-direction:column; gap:3px; }
+.privacy-card li{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; }
+
+/* Collapsible "How Kiro Protects Your Privacy" */
+.privacy-explainer{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+}
+.privacy-explainer summary{
+  list-style:none;
+  cursor:pointer;
+  padding:11px 15px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink-soft);
+  display:flex; align-items:center; justify-content:space-between;
+  user-select:none;
+}
+.privacy-explainer summary::-webkit-details-marker{ display:none; }
+.privacy-explainer summary .chev{ transition: transform .25s var(--ease); font-size:11px; }
+.privacy-explainer[open] summary .chev{ transform:rotate(180deg); }
+.privacy-explainer .pe-body{
+  padding:0 15px 14px;
+  font-size:12px;
+  color:var(--ink-soft);
+  line-height:1.6;
+  text-align:left;
+}
+.pe-flow{
+  display:flex; flex-wrap:wrap; align-items:center; gap:6px;
+  font-size:11.5px; font-weight:600; color:var(--sage-deep); margin-bottom:8px;
+}
+.pe-flow .arrow{ color:var(--ink-soft); font-weight:400; }
+
+/* =====================================================================
+   2a. SCAN — dedicated camera capture screen (simulated hardware)
+   ===================================================================== */
+#view-scan{ padding-top:22px; }
+.camera-viewport{
+  flex:1; border-radius:20px; background:#111; position:relative; overflow:hidden;
+  margin-bottom:14px; min-height:300px; display:flex; align-items:center; justify-content:center;
+}
+.camera-viewport .sim-camera-fill{
+  width:100%; height:100%;
+  background: repeating-linear-gradient(135deg, #1c1d1a 0 12px, #161714 12px 24px);
+}
+.crop-guide{ position:absolute; inset:26px; border:2px dashed rgba(255,255,255,0.5); border-radius:12px; pointer-events:none; }
+.camera-hint{ position:absolute; top:14px; left:0; right:0; text-align:center; color:rgba(255,255,255,0.75); font-size:12px; font-weight:500; }
+.captured-frame{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:#1a1b18; }
+.captured-frame.show{ display:flex; }
+.captured-receipt-mock{
+  width:64%; height:76%; border-radius:8px;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,0.16) 0 2px, transparent 2px 10px);
+}
+.capture-btn{
+  width:64px; height:64px; border-radius:50%; background:#fff; border:4px solid var(--sage-tint);
+  box-shadow:0 0 0 2px var(--sage); cursor:pointer; margin:0 auto; display:block;
+  transition: transform .15s var(--ease);
+}
+.capture-btn:active{ transform:scale(0.9); }
+.capture-btn:disabled{ opacity:.5; cursor:default; }
+.camera-viewport.flash::after{ content:''; position:absolute; inset:0; background:#fff; animation: flashPulse .35s var(--ease); }
+@keyframes flashPulse{ 0%{opacity:0.9;} 100%{opacity:0;} }
+
+.scan-controls{ flex-shrink:0; }
+.post-scan-row{ display:none; gap:10px; margin-top:12px; }
+.post-scan-row.show{ display:flex; }
+
+/* =====================================================================
+   2b. UPLOAD — dedicated drag-and-drop / browse screen
+   ===================================================================== */
+#view-upload{ padding-top:22px; }
+.dropzone{
+  flex:1; border:2px dashed var(--line); border-radius:20px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  padding:26px 18px; background:var(--sage-tint);
+  transition: border-color .2s var(--ease), background .2s var(--ease), transform .15s var(--ease);
+  cursor:pointer; min-height:300px;
+}
+.dropzone.dragover{ border-color:var(--sage-deep); background:rgba(138,166,140,0.22); transform:scale(1.01); }
+.dropzone .icon{ font-size:30px; margin-bottom:12px; }
+.dropzone .title{ font-weight:700; font-size:15px; margin-bottom:4px; }
+.dropzone .desc{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; }
+input[type="file"]{ display:none; }
+.formats-note{ text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:14px; }
+
+/* =====================================================================
+   3. PREVIEW — Retake / Replace / Continue
+   ===================================================================== */
+#view-preview{ padding-top:22px; }
+.preview-frame{
+  flex:1; border-radius:20px; background:var(--bg); border:1px solid var(--line);
+  overflow:hidden; margin-bottom:16px; min-height:280px;
+  display:flex; align-items:center; justify-content:center; position:relative;
+}
+.preview-frame img{ width:100%; height:100%; object-fit:contain; display:block; }
+.preview-frame .mock-receipt-visual{
+  width:60%; height:80%;
+  background: repeating-linear-gradient(180deg, rgba(28,28,26,0.06) 0 2px, transparent 2px 10px);
+  border-radius:8px;
+}
+.preview-actions{ display:flex; flex-direction:column; gap:10px; }
+.preview-actions .btn-row{ display:flex; gap:10px; }
+
+/* =====================================================================
+   4. PROCESSING (simulated OCR)
+   ===================================================================== */
+#view-processing{ align-items:center; justify-content:center; text-align:center; }
+.step-list{ width:100%; display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
+.step-item{
+  display:flex; align-items:center; gap:11px; padding:11px 13px; border-radius:13px;
+  background:var(--bg); opacity:.4; transform:translateX(-4px);
+  transition: all .35s var(--ease);
+}
+.step-item.active{ opacity:1; transform:translateX(0); background:var(--sage-tint); }
+.step-item.done{ opacity:1; transform:translateX(0); }
+.step-mark{
+  width:20px;height:20px;border-radius:50%; border:1.5px solid var(--line);
+  display:flex;align-items:center;justify-content:center; font-size:11px; flex-shrink:0; color:transparent;
+  transition: all .3s var(--ease);
+}
+.step-item.active .step-mark{ border-color:var(--sage-deep); background:#fff; }
+.step-item.active .step-mark::after{
+  content:''; width:8px;height:8px;border-radius:50%; background:var(--sage-deep);
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse{ 0%,100%{opacity:.4;} 50%{opacity:1;} }
+.step-item.done .step-mark{ background:var(--sage-deep); color:#fff; border-color:var(--sage-deep); }
+.step-label{ font-size:13.5px; text-align:left; }
+.progress-track{ width:100%; height:6px; border-radius:6px; background:var(--bg); overflow:hidden; }
+.progress-fill{ height:100%; background:var(--sage-deep); width:0%; transition: width .3s var(--ease); }
+
+/* =====================================================================
+   5. REVIEW
+   ===================================================================== */
+#view-review{ padding-top:22px; }
+.local-badge{
+  display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:600;
+  color:var(--sage-deep); background:var(--sage-tint); padding:4px 10px; border-radius:20px; margin-bottom:12px;
+}
+.receipt-thumb{
+  border-radius:14px; overflow:hidden; background:var(--bg); border:1px solid var(--line);
+  min-height:100px; max-height:190px; display:flex; align-items:center; justify-content:center; margin-bottom:14px;
+}
+.receipt-thumb img{ width:100%; max-height:190px; object-fit:contain; display:block; }
+.receipt-thumb .mock-receipt-visual{
+  width:50%; height:150px;
+  background: repeating-linear-gradient(180deg, rgba(28,28,26,0.06) 0 2px, transparent 2px 10px);
+  border-radius:8px;
+}
+
+.field{
+  background:var(--bg); border-radius:13px; padding:10px 13px; border:1px solid transparent;
+  transition: border-color .2s var(--ease), background .2s var(--ease); margin-bottom:10px;
+  position:relative;
+}
+.field:focus-within{ border-color:var(--sage); background:#fff; }
+.field.low-confidence{ background:var(--amber-tint); }
+.field-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; }
+.field label{ font-size:10px; text-transform:uppercase; letter-spacing:0.6px; color:var(--ink-soft); font-weight:600; display:inline-flex; align-items:center; }
+.field-actions{ display:flex; gap:8px; }
+.field-actions button{
+  border:none; background:transparent; font-size:10px; color:var(--ink-soft); cursor:pointer;
+  text-decoration:underline; padding:0;
+}
+.field-actions button:hover{ color:var(--ink); }
+.field input, .field textarea{
+  width:100%; border:none; background:transparent; font-size:14px; color:var(--ink);
+  font-family:inherit; padding:0; outline:none; resize:none;
+}
+.field textarea{ height:34px; }
+.field-row2{ display:flex; gap:10px; }
+.field-row2 .field{ flex:1; }
+
+/* =====================================================================
+   6. EXPORT (mocked)
+   ===================================================================== */
+#view-export{ padding-top:22px; }
+.export-card{ background:var(--bg); border-radius:14px; padding:16px; margin-bottom:12px; text-align:center; }
+.export-card .export-icon{ font-size:26px; margin-bottom:8px; }
+.export-note{ font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:4px; }
+
+/* =====================================================================
+   7. SUCCESS
+   ===================================================================== */
+#view-success{ align-items:center; justify-content:center; text-align:center; }
+.check-ring{
+  width:78px; height:78px; border-radius:50%; background:var(--sage-tint);
+  display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+}
+.check-ring svg{ width:34px; height:34px; }
+.check-ring path{
+  stroke:var(--sage-deep); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round;
+  stroke-dasharray:40; stroke-dashoffset:40; animation: draw .5s var(--ease) .1s forwards;
+}
+@keyframes draw{ to{ stroke-dashoffset:0; } }
+.success-title{ font-size:19px; font-weight:700; margin-bottom:6px; }
+.success-sub{ font-size:13px; color:var(--ink-soft); margin-bottom:26px; line-height:1.5; }
+.success-actions{ width:100%; display:flex; flex-direction:column; gap:10px; }
+
+/* =====================================================================
+   UX POLISH — added in the final refinement pass before CSS extraction
+   ===================================================================== */
+
+/* Scan screen: corner guides + capture label + shortened prototype note */
+.corner-guide{ position:absolute; width:22px; height:22px; border:2px solid rgba(255,255,255,0.75); }
+.corner-guide.tl{ top:24px; left:24px; border-right:none; border-bottom:none; border-radius:8px 0 0 0; }
+.corner-guide.tr{ top:24px; right:24px; border-left:none; border-bottom:none; border-radius:0 8px 0 0; }
+.corner-guide.bl{ bottom:24px; left:24px; border-right:none; border-top:none; border-radius:0 0 0 8px; }
+.corner-guide.br{ bottom:24px; right:24px; border-left:none; border-top:none; border-radius:0 0 8px 0; }
+.capture-btn-label{
+  text-align:center; font-size:12px; font-weight:600; color:var(--ink-soft);
+  margin-top:9px;
+}
+.prototype-note{
+  margin-top:12px; padding:9px 12px; background:var(--bg); border-radius:12px; text-align:center;
+}
+.prototype-note .pn-title{ font-size:11px; font-weight:700; color:var(--ink-soft); margin-bottom:2px; }
+.prototype-note .pn-body{ font-size:11px; color:var(--ink-soft); line-height:1.45; }
+
+/* Upload screen: two-line messaging, more prominent Browse button */
+.dropzone .title{ font-weight:700; font-size:15px; margin-bottom:2px; }
+.dropzone .desc{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; }
+
+/* Preview screen: confirmation line */
+.preview-confirm{
+  display:flex; align-items:center; gap:7px;
+  font-size:12.5px; font-weight:600; color:var(--sage-deep);
+  background:var(--sage-tint); border-radius:12px; padding:9px 13px; margin-bottom:14px;
+}
+
+/* Processing screen: reassurance line below progress bar */
+.processing-note{
+  margin-top:12px; font-size:11.5px; color:var(--ink-soft); text-align:center; line-height:1.5;
+}
+
+/* Review screen: grouped sections + explanatory line + confidence legend */
+.review-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.5; }
+.review-section{ margin-bottom:18px; }
+.section-label{
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px;
+  color:var(--ink-soft); margin-bottom:8px;
+}
+.confidence-legend{
+  display:flex; gap:14px; font-size:11px; color:var(--ink-soft); margin-bottom:14px;
+}
+.confidence-legend span{ display:inline-flex; align-items:center; gap:5px; }
+.confidence-dot{ width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
+.confidence-dot.high{ background:var(--sage); }
+.confidence-dot.review{ background:var(--amber); }
+.field-head .confidence-dot{ margin-right:5px; }
+
+/* Interactive "On-device" privacy badge */
+.privacy-pill-btn{
+  border:none; cursor:pointer;
+  display:inline-flex; align-items:center; gap:5px;
+  transition: background .2s var(--ease);
+}
+.privacy-pill-btn:hover{ background:rgba(138,166,140,0.22); }
+.privacy-pill-btn .pp-chev{ font-size:9px; transition: transform .25s var(--ease); }
+.privacy-pill-btn[aria-expanded="true"] .pp-chev{ transform:rotate(180deg); }
+
+.privacy-popover{
+  max-height:0; overflow:hidden;
+  transition: max-height .3s var(--ease), margin .3s var(--ease);
+  margin-top:0;
+}
+.privacy-popover.open{ max-height:170px; margin-top:10px; margin-bottom:6px; }
+.privacy-popover-inner{
+  background:var(--bg); border:1px solid var(--line); border-left:2.5px solid var(--sage);
+  border-radius:14px; padding:12px 14px; text-align:left;
+}
+.privacy-popover-inner .pc-title{ font-size:12px; font-weight:700; margin-bottom:6px; }
+.privacy-popover-inner ul{ list-style:none; display:flex; flex-direction:column; gap:3px; }
+.privacy-popover-inner li{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="app-frame" id="appFrame">
+
+    <!-- =================================================================
+         1. WELCOME
+         ================================================================= -->
+    <section class="view active" id="view-welcome" aria-label="Welcome">
+      <div class="logo-badge" aria-hidden="true">🧾</div>
+      <h1 class="brand-name">Kiro</h1>
+      <p class="brand-tag">Less typing. More recording.</p>
+      <p class="brand-desc">Turn receipts into structured records without giving up your privacy.</p>
+
+      <div class="welcome-actions">
+        <button class="btn btn-primary" id="scanBtn">📷 Scan Receipt</button>
+        <button class="btn btn-secondary" id="uploadBtn">🖼 Upload Receipt</button>
+      </div>
+
+      <div class="privacy-card">
+        <div class="pc-title">🔒 Privacy First</div>
+        <ul>
+          <li>✓ OCR runs locally</li>
+          <li>✓ No uploads</li>
+          <li>✓ No accounts</li>
+          <li>✓ No tracking</li>
+          <li>✓ Export only when you choose</li>
+        </ul>
+      </div>
+
+      <details class="privacy-explainer">
+        <summary>How Kiro protects your privacy <span class="chev">⌄</span></summary>
+        <div class="pe-body">
+          <div class="pe-flow">
+            <span>Receipt</span><span class="arrow">→</span>
+            <span>Your Browser</span><span class="arrow">→</span>
+            <span>OCR</span><span class="arrow">→</span>
+            <span>Review</span><span class="arrow">→</span>
+            <span>CSV</span>
+          </div>
+          No servers. Your receipt image and every extracted field stay on
+          this device the entire time — nothing is sent anywhere unless
+          you tap Download CSV yourself.
+        </div>
+      </details>
+    </section>
+
+    <!-- =================================================================
+         2a. SCAN — dedicated camera capture screen (simulated hardware)
+         ================================================================= -->
+    <section class="view" id="view-scan" aria-label="Scan receipt">
+      <div class="top-row">
+        <button class="back-btn" id="scanBackBtn" aria-label="Back to Home">‹</button>
+        <button class="privacy-pill privacy-pill-btn" type="button" aria-expanded="false" onclick="togglePrivacyPopover('scanPrivacyPopover', this)">On-device <span class="pp-chev">⌄</span></button>
+      </div>
+      <div class="privacy-popover" id="scanPrivacyPopover">
+        <div class="privacy-popover-inner">
+          <div class="pc-title">🔒 Privacy First</div>
+          <ul>
+            <li>✓ OCR runs locally</li>
+            <li>✓ No uploads</li>
+            <li>✓ No tracking</li>
+            <li>✓ No stored receipts</li>
+            <li>✓ Export only when you choose</li>
+          </ul>
+        </div>
+      </div>
+
+      <h1 class="h">Scan Receipt</h1>
+      <p class="sub">Position your receipt inside the guide.</p>
+
+      <div class="camera-viewport" id="cameraViewport">
+        <div class="sim-camera-fill" aria-hidden="true"></div>
+        <div class="camera-hint" id="cameraHint">Align the receipt within the frame.</div>
+        <div class="crop-guide" id="cropGuide">
+          <div class="corner-guide tl"></div>
+          <div class="corner-guide tr"></div>
+          <div class="corner-guide bl"></div>
+          <div class="corner-guide br"></div>
+        </div>
+        <div class="captured-frame" id="capturedFrame"><div class="captured-receipt-mock"></div></div>
+      </div>
+
+      <div class="scan-controls">
+        <button class="capture-btn" id="captureBtn" aria-label="Capture Receipt"></button>
+        <div class="capture-btn-label" id="captureBtnLabel">Capture Receipt</div>
+        <div class="btn-row post-scan-row" id="postScanRow">
+          <button class="btn btn-ghost" id="retakeScanBtn">Retake</button>
+          <button class="btn btn-primary" id="continueScanBtn">Continue</button>
+        </div>
+        <div class="prototype-note">
+          <div class="pn-title">Prototype Mode</div>
+          <div class="pn-body">Camera preview is simulated.<br>Real camera support connects in V1 implementation.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         2b. UPLOAD — dedicated drag-and-drop / browse screen
+         ================================================================= -->
+    <section class="view" id="view-upload" aria-label="Upload receipt">
+      <div class="top-row">
+        <button class="back-btn" id="uploadBackBtn" aria-label="Back to Home">‹</button>
+        <button class="privacy-pill privacy-pill-btn" type="button" aria-expanded="false" onclick="togglePrivacyPopover('uploadPrivacyPopover', this)">On-device <span class="pp-chev">⌄</span></button>
+      </div>
+      <div class="privacy-popover" id="uploadPrivacyPopover">
+        <div class="privacy-popover-inner">
+          <div class="pc-title">🔒 Privacy First</div>
+          <ul>
+            <li>✓ OCR runs locally</li>
+            <li>✓ No uploads</li>
+            <li>✓ No tracking</li>
+            <li>✓ No stored receipts</li>
+            <li>✓ Export only when you choose</li>
+          </ul>
+        </div>
+      </div>
+
+      <h1 class="h">Upload Receipt</h1>
+      <p class="sub">Drag and drop your receipt or browse your files.</p>
+
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload a receipt image">
+        <div id="dropzoneInner">
+          <div class="icon">⬆</div>
+          <div class="title">Drop your receipt here</div>
+          <div class="desc">or browse your device</div>
+          <button class="btn btn-secondary" type="button" id="browseBtn" style="width:auto; padding:11px 20px;">Browse Files</button>
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg">
+      <div class="formats-note">Supports PNG, JPG and JPEG</div>
+    </section>
+
+    <!-- =================================================================
+         3. PREVIEW — Retake / Replace Image / Continue
+         ================================================================= -->
+    <section class="view" id="view-preview" aria-label="Preview receipt">
+      <div class="top-row">
+        <button class="back-btn" id="previewBackBtn" aria-label="Back">‹</button>
+        <button class="privacy-pill privacy-pill-btn" type="button" aria-expanded="false" onclick="togglePrivacyPopover('previewPrivacyPopover', this)">On-device <span class="pp-chev">⌄</span></button>
+      </div>
+      <div class="privacy-popover" id="previewPrivacyPopover">
+        <div class="privacy-popover-inner">
+          <div class="pc-title">🔒 Privacy First</div>
+          <ul>
+            <li>✓ OCR runs locally</li>
+            <li>✓ No uploads</li>
+            <li>✓ No tracking</li>
+            <li>✓ No stored receipts</li>
+            <li>✓ Export only when you choose</li>
+          </ul>
+        </div>
+      </div>
+      <h1 class="h">Look good?</h1>
+      <p class="sub">Review the captured image before we process it locally.</p>
+
+      <div class="preview-frame" id="previewFrame">
+        <div class="mock-receipt-visual" aria-hidden="true"></div>
+      </div>
+
+      <div class="preview-confirm">✓ Receipt ready for processing.</div>
+
+      <div class="preview-actions">
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="retakeBtn">Retake</button>
+          <button class="btn btn-secondary" id="replaceBtn">Replace Image</button>
+        </div>
+        <button class="btn btn-primary" id="continueToOcrBtn">Continue to OCR</button>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         4. PROCESSING — simulated OCR progress
+         ================================================================= -->
+    <section class="view" id="view-processing" aria-label="Reading receipt" aria-live="polite">
+      <h1 class="h" style="font-size:19px;">Processing</h1>
+      <p class="sub">We're extracting information locally on your device.</p>
+
+      <div class="step-list" id="stepList">
+        <div class="step-item" data-step="0"><div class="step-mark"></div><div class="step-label">Reading receipt</div></div>
+        <div class="step-item" data-step="1"><div class="step-mark"></div><div class="step-label">Recognizing text</div></div>
+        <div class="step-item" data-step="2"><div class="step-mark"></div><div class="step-label">Finding important information</div></div>
+        <div class="step-item" data-step="3"><div class="step-mark"></div><div class="step-label">Preparing review</div></div>
+      </div>
+
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="processing-note">Everything is processed locally on your device.</div>
+    </section>
+
+    <!-- =================================================================
+         5. REVIEW — every field editable, mocked OCR output
+         ================================================================= -->
+    <section class="view" id="view-review" aria-label="Review extracted information">
+      <div class="top-row">
+        <button class="back-btn" id="reviewBackBtn" aria-label="Back">‹</button>
+        <span class="privacy-pill">Not yet exported</span>
+      </div>
+      <h1 class="h">Look right?</h1>
+      <p class="sub">Check the extracted information before exporting.</p>
+      <span class="local-badge">🔒 Processed Locally</span>
+
+      <div class="receipt-thumb" id="receiptThumb">
+        <div class="mock-receipt-visual" aria-hidden="true"></div>
+      </div>
+
+      <p class="review-hint">You can edit anything before exporting.</p>
+
+      <div class="confidence-legend">
+        <span><span class="confidence-dot high"></span> High confidence</span>
+        <span><span class="confidence-dot review"></span> Needs review</span>
+      </div>
+
+      <div class="review-section">
+        <div class="section-label">Receipt Details</div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="fMerchant"><span class="confidence-dot high"></span>Merchant</label>
+            <div class="field-actions">
+              <button type="button" data-reset-for="fMerchant">Reset</button>
+              <button type="button" data-clear-for="fMerchant">Clear</button>
+            </div>
+          </div>
+          <input id="fMerchant" value="Starbucks">
+        </div>
+
+        <div class="field-row2">
+          <div class="field">
+            <div class="field-head"><label for="fDate"><span class="confidence-dot high"></span>Date</label>
+              <div class="field-actions"><button type="button" data-reset-for="fDate">Reset</button></div>
+            </div>
+            <input id="fDate" value="2026-07-28">
+          </div>
+          <div class="field">
+            <div class="field-head"><label for="fReceiptNo"><span class="confidence-dot high"></span>Receipt #</label>
+              <div class="field-actions"><button type="button" data-reset-for="fReceiptNo">Reset</button></div>
+            </div>
+            <input id="fReceiptNo" value="4471">
+          </div>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <div class="section-label">Extracted Fields</div>
+
+        <div class="field-row2">
+          <div class="field">
+            <div class="field-head"><label for="fAmount"><span class="confidence-dot high"></span>Amount</label>
+              <div class="field-actions"><button type="button" data-reset-for="fAmount">Reset</button></div>
+            </div>
+            <input id="fAmount" value="8.35">
+          </div>
+          <div class="field low-confidence">
+            <div class="field-head"><label for="fTax"><span class="confidence-dot review"></span>Tax</label>
+              <div class="field-actions"><button type="button" data-reset-for="fTax">Reset</button></div>
+            </div>
+            <input id="fTax" value="0.60">
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><label for="fCurrency"><span class="confidence-dot high"></span>Currency</label>
+            <div class="field-actions"><button type="button" data-reset-for="fCurrency">Reset</button></div>
+          </div>
+          <input id="fCurrency" value="USD">
+        </div>
+
+        <div class="field">
+          <div class="field-head"><label for="fNotes">Notes</label>
+            <div class="field-actions"><button type="button" data-clear-for="fNotes">Clear</button></div>
+          </div>
+          <textarea id="fNotes" placeholder="Add a note (optional)"></textarea>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="continueToExportBtn" style="margin-top:6px;">Continue to Export</button>
+    </section>
+
+    <!-- =================================================================
+         6. EXPORT — CSV download mocked, Google Sheets disabled
+         ================================================================= -->
+    <section class="view" id="view-export" aria-label="Export receipt">
+      <div class="top-row">
+        <button class="back-btn" id="exportBackBtn" aria-label="Back">‹</button>
+        <button class="privacy-pill privacy-pill-btn" type="button" aria-expanded="false" onclick="togglePrivacyPopover('exportPrivacyPopover', this)">On-device <span class="pp-chev">⌄</span></button>
+      </div>
+      <div class="privacy-popover" id="exportPrivacyPopover">
+        <div class="privacy-popover-inner">
+          <div class="pc-title">🔒 Privacy First</div>
+          <ul>
+            <li>✓ OCR runs locally</li>
+            <li>✓ No uploads</li>
+            <li>✓ No tracking</li>
+            <li>✓ No stored receipts</li>
+            <li>✓ Export only when you choose</li>
+          </ul>
+        </div>
+      </div>
+      <h1 class="h">Export</h1>
+      <p class="sub">Download your structured data.</p>
+
+      <div class="export-card">
+        <div class="export-icon" aria-hidden="true">📄</div>
+        <button class="btn btn-primary" id="downloadCsvBtn">Download CSV</button>
+        <div class="export-note">Your receipt stays on your device. Only the CSV file you choose to download is created.</div>
+        <div class="export-note" style="margin-top:4px; opacity:.75;">(CSV export is mocked in this build — no file is written yet.)</div>
+      </div>
+
+      <button class="btn btn-ghost" disabled title="Coming in Version 3">Google Sheets — Coming in Version 3</button>
+    </section>
+
+    <!-- =================================================================
+         7. SUCCESS
+         ================================================================= -->
+    <section class="view" id="view-success" aria-label="Receipt recorded">
+      <div class="check-ring">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L9.5 18 L20 5"/></svg>
+      </div>
+      <div class="success-title">Safely Recorded</div>
+      <div class="success-sub">Your receipt was processed locally.<br>Kiro does not keep a copy.</div>
+      <div class="success-actions">
+        <button class="btn btn-primary" id="scanAnotherBtn">Scan Another Receipt</button>
+        <button class="btn btn-ghost" id="returnHomeBtn">Return Home</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================================
+   KIRO — Step 2: fully interactive navigation shell (OCR mocked)
+   This script will be split into js/app.js, ui.js, camera.js, upload.js,
+   ocr.js, parser.js, export.js, privacy.js, utils.js in later steps.
+   Sections below mirror that future module boundary.
+   ========================================================================= */
+
+// -------------------------------------------------------------------------
+// UI — view navigation & toast (→ will become ui.js)
+// -------------------------------------------------------------------------
+let currentView = 'welcome';
+
+function goTo(viewName){
+  const outgoing = document.getElementById('view-' + currentView);
+  const incoming = document.getElementById('view-' + viewName);
+  if(!incoming) return;
+
+  outgoing.classList.add('leaving');
+  outgoing.classList.remove('active');
+  setTimeout(()=> outgoing.classList.remove('leaving'), 340);
+
+  incoming.classList.add('active');
+  currentView = viewName;
+
+  // Screen-specific setup on entry
+  if(viewName === 'processing') runMockOcrSequence();
+  if(viewName === 'welcome') resetToWelcome();
+}
+
+let toastTimer = null;
+function showToast(message){
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> toast.classList.remove('show'), 2000);
+}
+
+// -------------------------------------------------------------------------
+// SCAN — dedicated camera capture screen (→ will become camera.js)
+// -------------------------------------------------------------------------
+document.getElementById('scanBtn').addEventListener('click', ()=>{
+  goTo('scan');
+  resetScanUI();
+});
+document.getElementById('scanBackBtn').addEventListener('click', ()=> goTo('welcome'));
+
+// --- Simulated camera capture ---
+// Real navigator.mediaDevices.getUserMedia() integration arrives in the
+// camera.js step (see the note shown on this screen). For now this
+// simulates the capture moment so the full navigation flow — including
+// the Capture / Retake / Continue decision point — can be validated.
+function resetScanUI(){
+  document.getElementById('capturedFrame').classList.remove('show');
+  document.getElementById('cropGuide').style.display = 'block';
+  document.getElementById('cameraHint').style.display = 'block';
+  document.getElementById('captureBtn').style.display = 'block';
+  document.getElementById('captureBtnLabel').style.display = 'block';
+  document.getElementById('postScanRow').classList.remove('show');
+}
+
+document.getElementById('captureBtn').addEventListener('click', ()=>{
+  const viewport = document.getElementById('cameraViewport');
+  const captureBtn = document.getElementById('captureBtn');
+  captureBtn.disabled = true;
+  viewport.classList.add('flash');
+  setTimeout(()=>{
+    viewport.classList.remove('flash');
+    document.getElementById('cropGuide').style.display = 'none';
+    document.getElementById('cameraHint').style.display = 'none';
+    document.getElementById('capturedFrame').classList.add('show');
+    captureBtn.style.display = 'none';
+    document.getElementById('captureBtnLabel').style.display = 'none';
+    captureBtn.disabled = false;
+    document.getElementById('postScanRow').classList.add('show');
+  }, 380);
+});
+document.getElementById('retakeScanBtn').addEventListener('click', resetScanUI);
+document.getElementById('continueScanBtn').addEventListener('click', ()=>{
+  previewOrigin = 'scan';
+  goTo('preview');
+});
+
+// -------------------------------------------------------------------------
+// UPLOAD — dedicated drag-and-drop / browse screen (→ will become upload.js)
+// -------------------------------------------------------------------------
+document.getElementById('uploadBtn').addEventListener('click', ()=> goTo('upload'));
+document.getElementById('uploadBackBtn').addEventListener('click', ()=> goTo('welcome'));
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+
+document.getElementById('browseBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  fileInput.click();
+});
+dropzone.addEventListener('click', ()=> fileInput.click());
+dropzone.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fileInput.click(); }
+});
+
+dropzone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', (e)=>{
+  e.preventDefault();
+  dropzone.classList.remove('dragover');
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  handleIncomingFile(file);
+});
+fileInput.addEventListener('change', ()=>{
+  const file = fileInput.files && fileInput.files[0];
+  handleIncomingFile(file);
+});
+
+function handleIncomingFile(file){
+  // Format validation is a stub here — real MIME/signature checks land in upload.js.
+  if(file && !/^image\/(png|jpe?g)$/.test(file.type)){
+    showToast('Please choose a PNG or JPG image.');
+    return;
+  }
+  previewOrigin = 'upload';
+  goTo('preview');
+}
+
+// -------------------------------------------------------------------------
+// PREVIEW — Retake / Replace / Continue (→ will become camera.js / upload.js)
+// -------------------------------------------------------------------------
+let previewOrigin = 'scan'; // tracks which screen led here, for the Back button
+
+document.getElementById('previewBackBtn').addEventListener('click', ()=> goTo(previewOrigin));
+document.getElementById('retakeBtn').addEventListener('click', ()=>{
+  goTo('scan');
+  resetScanUI();
+});
+document.getElementById('replaceBtn').addEventListener('click', ()=> goTo('upload'));
+document.getElementById('continueToOcrBtn').addEventListener('click', ()=> goTo('processing'));
+
+// -------------------------------------------------------------------------
+// PROCESSING — simulated OCR progress (→ will become ocr.js)
+// -------------------------------------------------------------------------
+function runMockOcrSequence(){
+  const steps = document.querySelectorAll('#stepList .step-item');
+  const progressFill = document.getElementById('progressFill');
+  steps.forEach(s => s.classList.remove('active','done'));
+  progressFill.style.width = '0%';
+
+  let i = 0;
+  function advance(){
+    if(i > 0){
+      steps[i-1].classList.remove('active');
+      steps[i-1].classList.add('done');
+    }
+    if(i < steps.length){
+      steps[i].classList.add('active');
+      progressFill.style.width = Math.round(((i + 1) / steps.length) * 100) + '%';
+      i++;
+      setTimeout(advance, 480);
+    } else {
+      setTimeout(()=> goTo('review'), 380);
+    }
+  }
+  advance();
+}
+
+// -------------------------------------------------------------------------
+// REVIEW — editable fields, Reset/Clear actions (→ will become parser.js glue)
+// -------------------------------------------------------------------------
+document.getElementById('reviewBackBtn').addEventListener('click', ()=> goTo('processing'));
+
+// Mock "OCR-suggested" defaults, used by the Reset action.
+const ocrDefaults = {
+  fMerchant: 'Starbucks',
+  fDate: '2026-07-28',
+  fReceiptNo: '4471',
+  fAmount: '8.35',
+  fTax: '0.60',
+  fCurrency: 'USD'
+};
+
+document.querySelectorAll('[data-reset-for]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.getAttribute('data-reset-for');
+    const input = document.getElementById(id);
+    if(input && ocrDefaults[id] !== undefined) input.value = ocrDefaults[id];
+  });
+});
+document.querySelectorAll('[data-clear-for]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.getAttribute('data-clear-for');
+    const input = document.getElementById(id);
+    if(input) input.value = '';
+  });
+});
+
+document.getElementById('continueToExportBtn').addEventListener('click', ()=> goTo('export'));
+
+// -------------------------------------------------------------------------
+// EXPORT — mocked CSV download, disabled Google Sheets button (→ export.js)
+// -------------------------------------------------------------------------
+document.getElementById('exportBackBtn').addEventListener('click', ()=> goTo('review'));
+document.getElementById('downloadCsvBtn').addEventListener('click', ()=>{
+  // Real Blob + anchor-click CSV generation (with formula-injection
+  // sanitization) arrives in the export.js step. For now this only
+  // simulates the outcome so the full flow can be clicked through.
+  showToast('Simulating CSV download…');
+  setTimeout(()=> goTo('success'), 500);
+});
+
+// -------------------------------------------------------------------------
+// SUCCESS
+// -------------------------------------------------------------------------
+document.getElementById('scanAnotherBtn').addEventListener('click', ()=>{
+  goTo('scan');
+  resetScanUI();
+});
+document.getElementById('returnHomeBtn').addEventListener('click', ()=> goTo('welcome'));
+
+// -------------------------------------------------------------------------
+// Reset state whenever the user returns to Welcome (→ utils.js later)
+// -------------------------------------------------------------------------
+function resetToWelcome(){
+  resetScanUI();
+  fileInput.value = '';
+  document.getElementById('fMerchant').value = ocrDefaults.fMerchant;
+  document.getElementById('fDate').value = ocrDefaults.fDate;
+  document.getElementById('fReceiptNo').value = ocrDefaults.fReceiptNo;
+  document.getElementById('fAmount').value = ocrDefaults.fAmount;
+  document.getElementById('fTax').value = ocrDefaults.fTax;
+  document.getElementById('fCurrency').value = ocrDefaults.fCurrency;
+  document.getElementById('fNotes').value = '';
+  closeAllPrivacyPopovers();
+}
+
+// -------------------------------------------------------------------------
+// PRIVACY — interactive "On-device" badge, expands a small privacy card
+// (→ will become privacy.js)
+// -------------------------------------------------------------------------
+function togglePrivacyPopover(id, btn){
+  const el = document.getElementById(id);
+  const isOpen = el.classList.toggle('open');
+  btn.setAttribute('aria-expanded', String(isOpen));
+}
+
+function closeAllPrivacyPopovers(){
+  document.querySelectorAll('.privacy-popover.open').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.privacy-pill-btn[aria-expanded="true"]').forEach(btn => btn.setAttribute('aria-expanded', 'false'));
+}
+
+// -------------------------------------------------------------------------
+// Keyboard support
+// -------------------------------------------------------------------------
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && currentView !== 'welcome') goTo('welcome');
+});
+</script>
+</body>
+</html>
