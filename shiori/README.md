@@ -1,5 +1,9 @@
 # 栞 Shiori
 
+<p align="center">
+  <img src="./assets/shiori-hero.svg" alt="Shiori: a task card moves from Inbox to In Progress to Done, completing a checklist and filling a progress ring along the way." width="100%">
+</p>
+
 **One task at a time.**
 
 Shiori (栞) is the Japanese word for a bookmark — something small that quietly holds your place so you can pick up right where you left off, without pressure. That's the whole idea behind this app: a personal kanban board that doesn't shout at you.
