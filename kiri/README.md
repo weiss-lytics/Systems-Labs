@@ -14,6 +14,8 @@ Kiri is a personal ideation tool that turns messy, stream-of-consciousness notes
   Recommended: a short GIF showing Dump → Structure → Blueprint in one flow
   ![Kiri walkthrough](./assets/kiri-demo.gif)
 -->
+ 
+![Kiri banner](./assets/kiri-banner.svg)
 
 ---
 
