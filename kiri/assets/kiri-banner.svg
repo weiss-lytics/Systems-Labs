@@ -1,0 +1,109 @@
+<svg width="100%" viewBox="0 0 680 280" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Kiri — Clear the mist. Build the vision.</title>
+<desc>A minimal banner for the Kiri ideation app. Abstract shapes represent the flow from raw messy thought to clean structured blueprint.</desc>
+<style>
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #1a1622; }
+    .card { fill: #231e2e; stroke: #352d45; }
+    .card-accent { fill: #2a2238; stroke: #4a3d5c; }
+    .ink { fill: #e8e2f4; }
+    .ink-soft { fill: #9e95b8; }
+    .dot { fill: #352d45; }
+    .line { stroke: #352d45; }
+    .tag { fill: #2a2238; stroke: #4a3d5c; }
+    .tag-text { fill: #9e95b8; }
+  }
+  @media (prefers-color-scheme: light) {
+    .bg { fill: #faf8f4; }
+    .card { fill: #ffffff; stroke: #e4ddef; }
+    .card-accent { fill: #f4f0fa; stroke: #d4c9e8; }
+    .ink { fill: #2e2535; }
+    .ink-soft { fill: #8b7fa0; }
+    .dot { fill: #e4ddef; }
+    .line { stroke: #e8e2ef; }
+    .tag { fill: #f4f0fa; stroke: #d4c9e8; }
+    .tag-text { fill: #8b7fa0; }
+  }
+</style>
+
+<!-- Background -->
+<rect class="bg" width="680" height="280" rx="0"/>
+
+<!-- Dot grid — top left -->
+<rect class="dot" x="32" y="32" width="4" height="4" rx="1"/>
+<rect class="dot" x="64" y="32" width="4" height="4" rx="1"/>
+<rect class="dot" x="96" y="32" width="4" height="4" rx="1"/>
+<rect class="dot" x="32" y="64" width="4" height="4" rx="1"/>
+<rect class="dot" x="64" y="64" width="4" height="4" rx="1"/>
+<rect class="dot" x="96" y="64" width="4" height="4" rx="1"/>
+<rect class="dot" x="32" y="96" width="4" height="4" rx="1"/>
+<rect class="dot" x="64" y="96" width="4" height="4" rx="1"/>
+<rect class="dot" x="96" y="96" width="4" height="4" rx="1"/>
+
+<!-- Dot grid — bottom right -->
+<rect class="dot" x="584" y="184" width="4" height="4" rx="1"/>
+<rect class="dot" x="616" y="184" width="4" height="4" rx="1"/>
+<rect class="dot" x="648" y="184" width="4" height="4" rx="1"/>
+<rect class="dot" x="584" y="216" width="4" height="4" rx="1"/>
+<rect class="dot" x="616" y="216" width="4" height="4" rx="1"/>
+<rect class="dot" x="648" y="216" width="4" height="4" rx="1"/>
+<rect class="dot" x="584" y="248" width="4" height="4" rx="1"/>
+<rect class="dot" x="616" y="248" width="4" height="4" rx="1"/>
+<rect class="dot" x="648" y="248" width="4" height="4" rx="1"/>
+
+<!-- Right: Blueprint card (structured output) -->
+<rect class="card" x="370" y="52" width="268" height="176" rx="14" stroke-width="1"/>
+<rect class="card-accent" x="386" y="70" width="236" height="52" rx="8" stroke-width="1"/>
+<rect x="400" y="84" width="120" height="8" rx="4" fill="#c4b4dc"/>
+<rect x="400" y="100" width="84" height="7" rx="3.5" fill="#e2d9f0"/>
+<rect class="card-accent" x="386" y="133" width="112" height="40" rx="8" stroke-width="1"/>
+<rect x="400" y="145" width="64" height="7" rx="3.5" fill="#d4b8c8"/>
+<rect x="400" y="160" width="46" height="6" rx="3" fill="#e8d8e2"/>
+<rect class="card-accent" x="510" y="133" width="112" height="40" rx="8" stroke-width="1"/>
+<rect x="524" y="145" width="70" height="7" rx="3.5" fill="#b8d4c4"/>
+<rect x="524" y="160" width="50" height="6" rx="3" fill="#d4e8dc"/>
+<rect class="card" x="386" y="185" width="236" height="30" rx="8" stroke-width="1"/>
+<rect x="400" y="196" width="56" height="7" rx="3.5" fill="#c4b4dc"/>
+<rect x="464" y="196" width="40" height="7" rx="3.5" fill="#d4b8c8"/>
+<rect x="512" y="196" width="44" height="7" rx="3.5" fill="#b8d4c4"/>
+
+<!-- Left: Dump card (raw notes) -->
+<rect class="card" x="42" y="72" width="134" height="136" rx="12" stroke-width="1"/>
+<rect x="58" y="90" width="100" height="8" rx="4" fill="#c4b4dc" opacity="0.5"/>
+<rect x="58" y="108" width="86" height="6" rx="3" fill="#e2d9f0" opacity="0.5"/>
+<rect x="58" y="120" width="94" height="6" rx="3" fill="#e2d9f0" opacity="0.5"/>
+<rect x="58" y="132" width="72" height="6" rx="3" fill="#e2d9f0" opacity="0.5"/>
+<rect x="58" y="148" width="80" height="6" rx="3" fill="#e2d9f0" opacity="0.4"/>
+<rect x="58" y="160" width="66" height="6" rx="3" fill="#e2d9f0" opacity="0.4"/>
+<rect x="58" y="172" width="88" height="6" rx="3" fill="#e2d9f0" opacity="0.4"/>
+<rect x="58" y="184" width="60" height="6" rx="3" fill="#e2d9f0" opacity="0.3"/>
+
+<!-- Center: transformation node -->
+<circle cx="236" cy="140" r="28" fill="none" class="line" stroke-width="1" stroke-dasharray="4 4"/>
+<circle cx="236" cy="140" r="6" fill="#c4b4dc"/>
+
+<!-- Connectors -->
+<line x1="186" y1="140" x2="218" y2="140" class="line" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="256" y1="140" x2="360" y2="140" class="line" stroke-width="1" stroke-dasharray="4 4"/>
+<polygon points="355,136 366,140 355,144" fill="#c4b4dc"/>
+
+<!-- Title -->
+<text x="340" y="26" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="30" letter-spacing="-0.5" class="ink">Kiri</text>
+<text x="340" y="46" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" letter-spacing="0.12em" class="ink-soft">CLEAR THE MIST · BUILD THE VISION</text>
+
+<!-- Bottom tags -->
+<rect class="tag" x="42" y="218" width="42" height="18" rx="9" stroke-width="1"/>
+<text x="63" y="231" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" letter-spacing="0.04em" class="tag-text">dump</text>
+
+<rect class="tag" x="92" y="218" width="60" height="18" rx="9" stroke-width="1"/>
+<text x="122" y="231" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" letter-spacing="0.04em" class="tag-text">structure</text>
+
+<rect x="42" y="244" width="56" height="18" rx="9" fill="#c4b4dc" opacity="0.25" stroke="#c4b4dc" stroke-width="1"/>
+<text x="70" y="257" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" letter-spacing="0.04em" fill="#8b6fa8">blueprint</text>
+
+<rect class="tag" x="106" y="244" width="38" height="18" rx="9" stroke-width="1"/>
+<text x="125" y="257" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" letter-spacing="0.04em" class="tag-text">vault</text>
+
+<!-- Version note -->
+<text x="504" y="244" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="11" class="ink-soft">v1 · personal prototype</text>
+</svg>
