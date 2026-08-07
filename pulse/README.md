@@ -4,6 +4,10 @@ A focused deadline tracker that separates what needs your attention *now* from e
 
 Built as a single self-contained React component. No external dependencies beyond Google Fonts.
 
+<p align="center">
+  <img src="assets/pulse.svg" alt="Pulse Banner" width="100%">
+</p>
+
 ---
 
 ## Philosophy
