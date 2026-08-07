@@ -8,6 +8,10 @@ A lightweight timezone meeting planner built with HTML, CSS, and Vanilla JavaScr
 
 ---
 
+<p align="center">
+  <img src="assets/twine_github_hero_banner.svg" alt="Twine Banner" width="100%">
+</p>
+
 ## The Problem
 
 I built Twine because I regularly schedule meetings with people across timezones and found existing tools frustrating to use. Most felt overly complicated, cluttered, or relied on basic UTC offset math that quietly breaks during Daylight Saving Time transitions — the kind of bug you don't notice until you've already double-booked someone an hour off.
