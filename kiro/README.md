@@ -4,12 +4,11 @@
 > 
 > Kiro is a privacy-first receipt scanner designed to read receipts locally in the browser, let you review and correct what it finds, and export a clean CSV — without sending receipt data to a backend.
 
----
-
 <p align="center">
-  <img src="assets/kiro-hero.svg" alt="Kiro Banner" width="100%">
+  <img src="assets/kiro-banner.svg" alt="Kiro Banner" width="100%">
 </p>
 
+---
 
 > **Status: On hold.**  
 > The interactive UI (`index.html`) and the design system (`css/styles.css`) are complete and reviewed. Camera hardware, OCR, the field parser, and CSV export are not yet implemented — see *Known Limitations* below. This README reflects the project as it stands paused, and will be updated as work resumes.
