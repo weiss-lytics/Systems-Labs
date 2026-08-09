@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="100%" role="img" aria-label="Kiro — an abstract illustration of a document with soft floating elements around it, evoking calm, local, private processing">
+  <title>Kiro</title>
+
+  <defs>
+    <clipPath id="canvasClip">
+      <rect x="0" y="0" width="1200" height="420" rx="28" />
+    </clipPath>
+  </defs>
+
+  <style>
+    .hero-bg{ fill: #FBF6EF; }
+
+    /* ---- flat pastel blobs, tucked into opposite corners, slowly drifting ---- */
+    .blob{ opacity: 0.45; }
+    .blob-lavender{ fill: #C9C3E8; animation: driftA 15s ease-in-out infinite; }
+    .blob-sage{ fill: #A9C1AC; animation: driftB 17s ease-in-out infinite; }
+    @keyframes driftA{
+      0%, 100% { transform: translate(0px, 0px); }
+      50%      { transform: translate(12px, -8px); }
+    }
+    @keyframes driftB{
+      0%, 100% { transform: translate(0px, 0px); }
+      50%      { transform: translate(-10px, 10px); }
+    }
+
+    /* ---- the card: gentle breathing float ---- */
+    .card-group{
+      transform-origin: 590px 270px;
+      animation: breathe 7s ease-in-out infinite;
+    }
+    @keyframes breathe{
+      0%, 100% { transform: translateY(0px); }
+      50%      { transform: translateY(-6px); }
+    }
+
+    .card-face{ fill: #FFFFFF; stroke: #3B3A36; stroke-width: 2; }
+    .card-line{ stroke: #3B3A36; stroke-width: 3; stroke-linecap: round; opacity: 0.28; }
+    .card-line-accent{ stroke: #E3B6BE; stroke-width: 3; stroke-linecap: round; opacity: 0.9; }
+
+    /* ---- tiny confidence dot beside the accent line, slow pulse ---- */
+    .pulse-dot{
+      fill: #A9C1AC;
+      transform-origin: 632px 212px;
+      animation: pulse 3.2s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%, 100% { transform: scale(1);   opacity: 0.55; }
+      50%      { transform: scale(1.6); opacity: 1;    }
+    }
+
+    /* ---- blinking review cursor at the end of a short line ---- */
+    .cursor{
+      stroke: #3B3A36;
+      stroke-width: 3;
+      stroke-linecap: round;
+      animation: blink 1.4s steps(1, end) infinite;
+    }
+    @keyframes blink{
+      0%, 49%   { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    /* ---- bookmark ribbon, gentle sway from its attachment point ---- */
+    .ribbon{
+      fill: #E3B6BE;
+      transform-origin: 770px 96px;
+      animation: sway 6s ease-in-out infinite;
+    }
+    @keyframes sway{
+      0%, 100% { transform: rotate(-2.5deg); }
+      50%      { transform: rotate(2.5deg); }
+    }
+
+    /* ---- slow rotating ring, in open space, well clear of the blobs and card ----
+       A quiet spinner pattern: a faint full track plus a short arc that rotates
+       around it — a common, unambiguous "processing" motif, not a face. */
+    .ring-track{
+      stroke: #3B3A36;
+      stroke-width: 2;
+      fill: none;
+      opacity: 0.12;
+    }
+    .ring{
+      stroke: #3B3A36;
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-dasharray: 58 232;
+      opacity: 0.4;
+      transform-origin: 190px 230px;
+      animation: rotateRing 22s linear infinite;
+    }
+    @keyframes rotateRing{
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ---- soft floating particles, staggered drift + fade, placed on open ivory ---- */
+    .particle{ opacity: 0; }
+    .particle-1{ fill: #C9C3E8; animation: floatFade 9s ease-in-out infinite; animation-delay: 0s; }
+    .particle-2{ fill: #A9C1AC; animation: floatFade 10s ease-in-out infinite; animation-delay: 1.8s; }
+    .particle-3{ fill: #E3B6BE; animation: floatFade 8.5s ease-in-out infinite; animation-delay: 3.4s; }
+    .particle-4{ fill: #C9C3E8; animation: floatFade 11s ease-in-out infinite; animation-delay: 5s; }
+    .particle-5{ fill: #A9C1AC; animation: floatFade 9.5s ease-in-out infinite; animation-delay: 2.6s; }
+    @keyframes floatFade{
+      0%   { opacity: 0;   transform: translateY(0px); }
+      15%  { opacity: 0.75; }
+      50%  { opacity: 0.85; transform: translateY(-16px); }
+      85%  { opacity: 0.2; }
+      100% { opacity: 0;   transform: translateY(-30px); }
+    }
+
+    /* Respect reduced-motion preferences: everything holds still, nothing is lost */
+    @media (prefers-reduced-motion: reduce){
+      .blob-lavender, .blob-sage, .card-group, .pulse-dot,
+      .cursor, .ribbon, .ring, .particle-1, .particle-2,
+      .particle-3, .particle-4, .particle-5{
+        animation: none !important;
+      }
+      .particle{ opacity: 0.45; }
+      .cursor{ opacity: 1; }
+    }
+  </style>
+
+  <g clip-path="url(#canvasClip)">
+    <rect class="hero-bg" x="0" y="0" width="1200" height="420" />
+
+    <!-- flat pastel blobs, corner-anchored so the center stays open and spacious -->
+    <circle class="blob blob-lavender" cx="90" cy="60" r="130" />
+    <circle class="blob blob-sage" cx="1120" cy="380" r="150" />
+
+    <!-- slow rotating ring, alone in open space, well clear of the blob and the card -->
+    <circle class="ring-track" cx="190" cy="230" r="46" />
+    <circle class="ring" cx="190" cy="230" r="46" />
+
+    <!-- floating particles, each on open ivory for clean contrast -->
+    <circle class="particle particle-1" cx="330" cy="110" r="4.5" />
+    <circle class="particle particle-2" cx="960" cy="90" r="4" />
+    <circle class="particle particle-3" cx="1010" cy="240" r="5" />
+    <circle class="particle particle-4" cx="300" cy="345" r="4" />
+    <circle class="particle particle-5" cx="880" cy="330" r="3.5" />
+
+    <!-- the card: an abstract receipt / document -->
+    <g class="card-group">
+      <!-- bookmark ribbon, tucked slightly behind the card's top-right corner -->
+      <path class="ribbon" d="M 750 60 L 810 60 L 810 130 L 780 112 L 750 130 Z" />
+
+      <rect class="card-face" x="460" y="96" width="260" height="330" rx="18" />
+
+      <line class="card-line" x1="492" y1="150" x2="652" y2="150" />
+      <line class="card-line" x1="492" y1="180" x2="620" y2="180" />
+
+      <!-- accent line: the field currently "in review", with its confidence dot -->
+      <line class="card-line-accent" x1="492" y1="212" x2="600" y2="212" />
+      <circle class="pulse-dot" cx="632" cy="212" r="5" />
+
+      <line class="card-line" x1="492" y1="244" x2="640" y2="244" />
+      <line class="card-line" x1="492" y1="276" x2="588" y2="276" />
+
+      <!-- a short line with a blinking cursor at its end, suggesting quiet editing -->
+      <line class="card-line" x1="492" y1="308" x2="560" y2="308" />
+      <line class="cursor" x1="570" y1="300" x2="570" y2="316" />
+
+      <line class="card-line" x1="492" y1="368" x2="540" y2="368" />
+      <line class="card-line" x1="564" y1="368" x2="652" y2="368" />
+    </g>
+  </g>
+</svg>
