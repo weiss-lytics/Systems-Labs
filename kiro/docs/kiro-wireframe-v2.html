@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kiro — Product Wireframe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --ink:#3a3d3a;
+    --ink-soft:#6b6f6b;
+    --paper:#f6f6f3;
+    --paper-line: rgba(58,61,58,0.08);
+    --sage:#8AA68C;
+    --sage-deep:#5f7d64;
+    --sage-pale: rgba(138,166,140,0.14);
+    --sticky:#fbf3d0;
+    --sticky-edge:#e8dca0;
+    --dash: rgba(58,61,58,0.35);
+    --white:#fffefb;
+    --shadow: 0 1px 0 rgba(58,61,58,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: "Avenir Next", "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    color:var(--ink);
+    background:
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      var(--paper);
+    min-height:100vh;
+  }
+  .hand{
+    font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+    color: var(--sage-deep);
+  }
+
+  /* ---------- App Shell ---------- */
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+  nav.sidebar{
+    width:216px;
+    flex-shrink:0;
+    padding:26px 14px;
+    border-right:1px dashed var(--dash);
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .brand{
+    font-size:20px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    margin-bottom:2px;
+  }
+  .brand-tag{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:22px;
+  }
+  .nav-item{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    padding:9px 10px;
+    border-radius:8px;
+    font-size:13px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    border:1px dashed transparent;
+    transition: all .15s ease;
+    margin-bottom:2px;
+  }
+  .nav-item .n{
+    font-size:10.5px;
+    color:var(--ink-soft);
+    opacity:.6;
+    width:16px;
+  }
+  .nav-item:hover{ background:var(--sage-pale); color:var(--ink); }
+  .nav-item.active{
+    background:var(--white);
+    border:1px dashed var(--sage);
+    color:var(--ink);
+    font-weight:600;
+    box-shadow:var(--shadow);
+  }
+  .sidebar-footer{
+    margin-top:20px;
+    padding-top:16px;
+    border-top:1px dashed var(--dash);
+    font-size:11px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .anno-toggle{
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:11.5px;
+    padding:8px 10px;
+    border:1px dashed var(--dash);
+    border-radius:8px;
+    cursor:pointer;
+    background:var(--white);
+  }
+  .switch{
+    width:30px;height:16px;border-radius:20px;background:var(--dash);
+    position:relative; transition:.2s;
+  }
+  .switch::after{
+    content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;
+    background:var(--white); transition:.2s;
+  }
+  .switch.on{ background:var(--sage); }
+  .switch.on::after{ left:16px; }
+
+  main.canvas{
+    flex:1;
+    padding:44px 56px 90px;
+    max-width:1180px;
+    scroll-behavior:smooth;
+  }
+  .screen{
+    display:none;
+    animation: fadeIn .35s ease;
+  }
+  .screen.active{ display:block; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .eyebrow{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.6px;
+    color:var(--sage-deep);
+    margin-bottom:6px;
+  }
+  h1.screen-title{
+    font-size:30px;
+    margin:0 0 6px;
+    font-weight:600;
+  }
+  .screen-purpose{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin-bottom:30px;
+    max-width:640px;
+  }
+
+  .frame{
+    border:1.5px dashed var(--dash);
+    border-radius:18px;
+    background: repeating-linear-gradient(0deg, transparent, transparent 27px, var(--paper-line) 28px),
+                repeating-linear-gradient(90deg, transparent, transparent 27px, var(--paper-line) 28px),
+                var(--white);
+    padding:36px;
+    position:relative;
+    min-height:420px;
+  }
+  .frame-label{
+    position:absolute;
+    top:-13px; left:24px;
+    background:var(--paper);
+    padding:0 8px;
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:.5px;
+  }
+
+  .note{
+    background:var(--sticky);
+    border:1px solid var(--sticky-edge);
+    border-radius:3px;
+    padding:12px 14px;
+    font-size:12.5px;
+    line-height:1.45;
+    box-shadow: 2px 3px 6px rgba(58,61,58,0.10);
+    max-width:220px;
+    cursor:pointer;
+  }
+  .note b{ display:block; margin-bottom:4px; font-size:12.5px;}
+  .note.tilt-l{ transform:rotate(-2.2deg); }
+  .note.tilt-r{ transform:rotate(2deg); }
+  .note.collapsed .note-body{ display:none; }
+  .note .expand-hint{ font-size:10px; color:var(--ink-soft); margin-top:6px; }
+
+  .annotation{
+    font-size:12px;
+    color:var(--sage-deep);
+    border-left:2px dashed var(--sage);
+    padding-left:10px;
+    margin:14px 0;
+    max-width:480px;
+  }
+  .anno-hidden .annotation, .anno-hidden .note{ display:none !important; }
+
+  .callout-strip{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-top:26px;
+  }
+
+  .dashed-btn{
+    border:1.5px dashed var(--ink);
+    border-radius:10px;
+    background:transparent;
+    padding:12px 18px;
+    font-size:13px;
+    cursor:pointer;
+    font-family:inherit;
+    color:var(--ink);
+  }
+  .dashed-btn:hover{ background:var(--sage-pale); border-color:var(--sage-deep); }
+  .dashed-btn.primary{ border-color:var(--sage-deep); background:var(--sage-pale); font-weight:600; }
+
+  .field-row{
+    border:1.5px dashed var(--dash);
+    border-radius:10px;
+    padding:11px 14px;
+    margin-bottom:12px;
+    background:var(--white);
+  }
+  .field-row label{
+    display:block;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .field-row .val{ font-size:14.5px; }
+
+  .arrow-flow{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    font-size:13px; color:var(--ink-soft);
+  }
+  .arrow-flow .node{
+    border:1.5px dashed var(--dash);
+    border-radius:10px;
+    padding:8px 14px;
+    background:var(--white);
+    color:var(--ink);
+  }
+  .arrow-flow .arrow{ color:var(--sage-deep); font-size:16px; }
+
+  .footer-nav{
+    position:fixed;
+    bottom:0; left:216px; right:0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 56px;
+    background:linear-gradient(0deg, var(--paper) 60%, rgba(246,246,243,0));
+  }
+  .progress-dots{ display:flex; gap:6px; }
+  .progress-dots span{
+    width:6px;height:6px;border-radius:50%;background:var(--dash);
+  }
+  .progress-dots span.active{ background:var(--sage-deep); width:16px; border-radius:3px; }
+
+  /* Cover */
+  .cover-illustration{
+    display:flex; align-items:center; gap:14px; margin:22px 0 8px; flex-wrap:wrap;
+  }
+  .principle-card{
+    border:1.5px dashed var(--dash);
+    border-radius:14px;
+    padding:18px;
+    flex:1;
+    min-width:170px;
+    background:var(--white);
+  }
+  .principle-card .hand{ font-size:13px; }
+  .principle-card h3{ margin:6px 0 6px; font-size:15px; }
+  .principle-card p{ margin:0; font-size:12.5px; color:var(--ink-soft); }
+
+  /* Home screen phone */
+  .phone{
+    width:280px;
+    border:1.5px dashed var(--dash);
+    border-radius:32px;
+    padding:22px 16px;
+    margin:0 auto;
+    background:var(--white);
+    position:relative;
+  }
+  .phone .notch{
+    width:70px;height:6px;border-radius:6px;background:var(--paper-line);
+    margin:0 auto 18px;
+  }
+  .logo-mark{
+    width:56px;height:56px;border-radius:16px;border:2px dashed var(--sage-deep);
+    display:flex;align-items:center;justify-content:center;
+    margin:6px auto 10px; font-size:22px;
+  }
+  .home-tagline{ text-align:center; font-size:13px; color:var(--ink-soft); margin-bottom:22px;}
+  .action-btn{
+    border:1.5px dashed var(--sage-deep);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:12px;
+    text-align:center;
+    background:var(--sage-pale);
+    font-size:14px;
+  }
+  .action-btn.secondary{ background:var(--white); border-style:dashed; border-color:var(--dash); }
+  .privacy-line{
+    text-align:center; font-size:11px; color:var(--sage-deep); margin-top:16px; line-height:1.4;
+  }
+
+  .two-col{ display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap; }
+  .col{ flex:1; min-width:260px; }
+
+  .receipt-mock{
+    border:1.5px dashed var(--dash);
+    border-radius:6px;
+    background:var(--white);
+    padding:20px;
+    font-size:12px;
+    position:relative;
+    line-height:1.7;
+  }
+  .receipt-mock .rline{ border-bottom:1px dashed var(--paper-line); padding:3px 0; }
+  .highlight-region{
+    outline:2px dashed var(--sage);
+    border-radius:4px;
+    padding:0 3px;
+  }
+
+  .checklist-item{ display:flex; gap:10px; align-items:center; font-size:14px; margin-bottom:10px; }
+  .checklist-item .mark{
+    width:20px;height:20px;border-radius:50%;
+    border:1.5px dashed var(--dash);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px; flex-shrink:0;
+  }
+  .checklist-item.done .mark{ background:var(--sage-pale); border-color:var(--sage-deep); color:var(--sage-deep); }
+
+  .roadmap-track{
+    display:flex; gap:0; align-items:stretch; flex-wrap:wrap;
+  }
+  .roadmap-stage{
+    flex:1; min-width:190px;
+    border:1.5px dashed var(--dash);
+    border-radius:14px;
+    padding:16px;
+    margin:6px;
+    background:var(--white);
+  }
+  .roadmap-stage .ver{
+    font-size:11px; letter-spacing:1px; color:var(--sage-deep); font-weight:700; margin-bottom:8px;
+  }
+  .roadmap-stage ul{ margin:0; padding-left:16px; font-size:12.5px; color:var(--ink-soft); }
+
+  .arch-row{ display:flex; align-items:center; gap:16px; margin-bottom:4px; flex-wrap:wrap; }
+  .arch-node{
+    border:1.5px dashed var(--dash);
+    border-radius:10px;
+    padding:10px 16px;
+    background:var(--white);
+    font-size:13px;
+    min-width:170px;
+    text-align:center;
+  }
+  .arch-explain{
+    font-size:11.5px; color:var(--ink-soft); max-width:340px;
+  }
+  .arch-secure{
+    color:var(--sage-deep); font-weight:600;
+  }
+
+  .upload-zone{
+    border:2px dashed var(--sage);
+    border-radius:18px;
+    padding:50px 20px;
+    text-align:center;
+    background:var(--sage-pale);
+    font-size:14px;
+  }
+
+  .success-mark{
+    width:80px;height:80px;border-radius:50%;
+    border:2px dashed var(--sage-deep);
+    display:flex;align-items:center;justify-content:center;
+    font-size:34px; color:var(--sage-deep);
+    margin:10px auto 18px;
+  }
+
+  @media (max-width: 760px){
+    .app{ flex-direction:column; }
+    nav.sidebar{ width:100%; height:auto; position:relative; border-right:none; border-bottom:1px dashed var(--dash); }
+    main.canvas{ padding:24px; }
+    .footer-nav{ left:0; padding:14px 24px; }
+  }
+
+  button:focus-visible, .nav-item:focus-visible, .note:focus-visible{
+    outline:2px solid var(--sage-deep); outline-offset:2px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <nav class="sidebar">
+    <div class="brand">Kiro</div>
+    <div class="brand-tag">Less typing. More recording.</div>
+    <div id="navList"></div>
+    <div class="anno-toggle" id="annoToggle">
+      <span>UX annotations</span>
+      <div class="switch on" id="annoSwitch"></div>
+    </div>
+    <div class="sidebar-footer">
+      Low-fidelity product wireframe.<br>Use ← → or the nav to move through the flow.
+    </div>
+  </nav>
+
+  <main class="canvas" id="canvas"></main>
+</div>
+
+<div class="footer-nav">
+  <button class="dashed-btn" id="prevBtn">← Previous</button>
+  <div class="progress-dots" id="dots"></div>
+  <button class="dashed-btn primary" id="nextBtn">Next →</button>
+</div>
+
+<script>
+const screens = [
+  { id:'cover', label:'Cover' },
+  { id:'home', label:'Home' },
+  { id:'capture', label:'Capture' },
+  { id:'ocr', label:'Local OCR' },
+  { id:'review', label:'Review' },
+  { id:'export', label:'Export' },
+  { id:'success', label:'Success' },
+  { id:'roadmap', label:'Roadmap' },
+  { id:'architecture', label:'System Architecture' },
+];
+
+const content = {
+
+cover: `
+  <div class="eyebrow">Cover</div>
+  <h1 class="screen-title">Kiro</h1>
+  <div class="screen-purpose">Less typing. More recording. A privacy-first receipt scanner that converts receipts into structured data entirely within the browser.</div>
+  <div class="frame">
+    <div class="frame-label">core philosophy</div>
+    <div class="callout-strip">
+      <div class="principle-card">
+        <div class="hand">01</div>
+        <h3>Local by Default</h3>
+        <p>OCR and parsing happen on-device. No server sees the receipt.</p>
+      </div>
+      <div class="principle-card">
+        <div class="hand">02</div>
+        <h3>Connected by Choice</h3>
+        <p>Cloud integrations are optional, future additions — never a requirement.</p>
+      </div>
+      <div class="principle-card">
+        <div class="hand">03</div>
+        <h3>Privacy by Design</h3>
+        <p>OCR assists, humans verify. Nothing exports automatically.</p>
+      </div>
+    </div>
+
+    <div class="cover-illustration">
+      <div class="arrow-flow">
+        <div class="node">Receipt</div><span class="arrow">→</span>
+        <div class="node">OCR</div><span class="arrow">→</span>
+        <div class="node">Review</div><span class="arrow">→</span>
+        <div class="node">CSV</div>
+      </div>
+    </div>
+
+    <div class="annotation">Every screen exists to reduce cognitive load. The safest data is data that is never collected.</div>
+
+    <div style="margin-top:22px;">
+      <div class="note tilt-l">
+        <b>Mission</b>
+        <div class="note-body">Kiro minimizes manual work without requiring users to trust another cloud service.</div>
+      </div>
+    </div>
+  </div>
+`,
+
+home: `
+  <div class="eyebrow">Home</div>
+  <h1 class="screen-title">Single focused entry point</h1>
+  <div class="screen-purpose">One screen, two choices, and a plain statement of how privacy is protected.</div>
+  <div class="two-col">
+    <div class="col" style="flex:1.1;">
+      <div class="frame" style="min-height:560px; display:flex; align-items:center; justify-content:center;">
+        <div class="frame-label">home — mobile</div>
+        <div class="phone" style="padding-bottom:26px;">
+          <div class="notch"></div>
+          <div class="logo-mark">🧾</div>
+          <div style="text-align:center; font-weight:600; margin-bottom:2px;">Kiro</div>
+          <div class="home-tagline">Less typing. More recording.</div>
+          <div class="action-btn">📷 Scan Receipt</div>
+          <div class="action-btn secondary">🖼 Upload Receipt</div>
+          <div style="border:1.5px dashed var(--sage); border-radius:12px; padding:12px 14px; margin-top:14px; background:var(--sage-pale); font-size:11.5px; line-height:1.9; color:var(--sage-deep);">
+            🔒 OCR runs locally<br>
+            🔒 No accounts<br>
+            🔒 No uploads<br>
+            🔒 No tracking<br>
+            🔒 Download when ready
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="annotation">Only two actions exist on this screen. No accounts, no onboarding, no settings — the homepage intentionally removes anything that isn't scanning or uploading.</div>
+      <div class="note tilt-r">
+        <b>Why a privacy card, not a settings page?</b>
+        <div class="note-body">Trust is established up front, in plain language, instead of buried behind a menu the user has to go looking for.</div>
+      </div>
+    </div>
+  </div>
+`,
+
+capture: `
+  <div class="eyebrow">Capture</div>
+  <h1 class="screen-title">One workflow, two devices</h1>
+  <div class="screen-purpose">Desktop drags a file in. Mobile points a camera. Both land in the same place.</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="frame" style="min-height:420px;">
+        <div class="frame-label">desktop — drag & drop</div>
+        <div class="upload-zone">
+          <div style="font-size:24px; margin-bottom:8px;">🖼</div>
+          <div style="font-weight:600; margin-bottom:4px;">Drag a receipt here</div>
+          <div style="font-size:12px; color:var(--ink-soft); margin-bottom:14px;">JPG, PNG</div>
+          <button class="dashed-btn">Browse Files</button>
+        </div>
+      </div>
+      <div class="note tilt-l" style="margin-top:16px;"><b>Fewest possible steps</b><div class="note-body">One drop, one click — nothing else stands between the file and OCR.</div></div>
+    </div>
+    <div class="col">
+      <div class="frame" style="min-height:420px; display:flex; align-items:center; justify-content:center;">
+        <div class="frame-label">mobile — camera</div>
+        <div class="phone">
+          <div class="notch"></div>
+          <div style="border:1.5px dashed var(--dash); border-radius:16px; height:220px; position:relative; background:repeating-linear-gradient(45deg, var(--paper-line), var(--paper-line) 1px, transparent 1px, transparent 14px);">
+            <div style="position:absolute; inset:22px; border:2px dashed var(--sage-deep); border-radius:8px;"></div>
+          </div>
+          <div style="display:flex; justify-content:center; gap:14px; margin-top:18px;">
+            <div style="width:56px;height:56px;border-radius:50%;border:2.5px dashed var(--sage-deep);"></div>
+          </div>
+          <div style="display:flex; justify-content:center; margin-top:12px;">
+            <div class="dashed-btn" style="padding:8px 14px; font-size:12px;">Retake</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="callout-strip" style="margin-top:24px;">
+    <div class="principle-card"><div class="hand">•</div><h3>Large touch targets</h3><p>Capture and retake controls sized for one-handed use.</p></div>
+    <div class="principle-card"><div class="hand">•</div><h3>Fewest possible steps</h3><p>Frame, tap, done — no intermediate menus.</p></div>
+    <div class="principle-card"><div class="hand">•</div><h3>Quick liquidation workflow</h3><p>Built for scanning several receipts back-to-back.</p></div>
+  </div>
+`,
+
+ocr: `
+  <div class="eyebrow">Local OCR</div>
+  <h1 class="screen-title">A checklist, not a spinner</h1>
+  <div class="screen-purpose">Transparency about what's happening — and where it's happening.</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="frame" style="max-width:420px;">
+        <div class="frame-label">processing</div>
+        <div class="checklist-item done"><div class="mark">✓</div> Reading receipt</div>
+        <div class="checklist-item done"><div class="mark">✓</div> Detecting merchant</div>
+        <div class="checklist-item done"><div class="mark">✓</div> Finding totals</div>
+        <div class="checklist-item done"><div class="mark">✓</div> Parsing date</div>
+        <div class="checklist-item"><div class="mark">○</div> Preparing review</div>
+        <div class="annotation" style="margin-top:14px;">OCR runs entirely on the user's device.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="frame" style="min-height:260px;">
+        <div class="frame-label">miniature architecture</div>
+        <div class="arrow-flow" style="flex-direction:column; align-items:flex-start; gap:12px;">
+          <div class="node">Receipt</div>
+          <span class="arrow">↓</span>
+          <div class="node">Browser</div>
+          <span class="arrow">↓</span>
+          <div class="node">OCR</div>
+        </div>
+        <div class="annotation" style="margin-top:16px;">No server. The receipt image is never transmitted anywhere during this step.</div>
+      </div>
+    </div>
+  </div>
+`,
+
+review: `
+  <div class="eyebrow">Review — Hero Screen</div>
+  <h1 class="screen-title">Every field stays editable</h1>
+  <div class="screen-purpose">The centerpiece of Kiro: users remain in control, and nothing is final until they export.</div>
+  <div class="frame" style="min-height:500px;">
+    <div class="frame-label">review</div>
+    <div class="two-col">
+      <div class="col">
+        <div class="receipt-mock">
+          <div class="rline"><span class="highlight-region">Green Leaf Cafe</span></div>
+          <div class="rline">123 Maple St.</div>
+          <div class="rline">Receipt #4471</div>
+          <div class="rline">07/28/2026</div>
+          <div class="rline">Latte ....... 145.00</div>
+          <div class="rline">Sandwich .... 210.00</div>
+          <div class="rline">Tax ......... <span class="highlight-region">28.44</span></div>
+          <div class="rline" style="font-weight:600;">Total ....... <span class="highlight-region">383.44</span></div>
+        </div>
+        <div class="annotation" style="margin-top:14px;">Dashed arrows connect receipt regions to extracted fields — a sketch-style confidence cue, not a hard score.</div>
+      </div>
+      <div class="col">
+        <div class="field-row"><label>Merchant</label><div class="val">Green Leaf Cafe</div></div>
+        <div class="field-row"><label>Date</label><div class="val">July 28, 2026</div></div>
+        <div class="field-row"><label>Amount</label><div class="val">₱355.00</div></div>
+        <div class="field-row"><label>Tax</label><div class="val">₱28.44</div></div>
+        <div class="field-row"><label>Currency</label><div class="val">PHP</div></div>
+        <div class="field-row"><label>Receipt Number</label><div class="val">4471</div></div>
+        <div class="field-row"><label>Notes</label><div class="val">— add a note —</div></div>
+      </div>
+    </div>
+    <div class="annotation" style="margin-top:20px;">Every OCR result can be corrected. Nothing is final until the user exports.</div>
+  </div>
+`,
+
+export: `
+  <div class="eyebrow">Export</div>
+  <h1 class="screen-title">A simple finish</h1>
+  <div class="screen-purpose">One clear action, plus a placeholder for what's next.</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="frame" style="min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
+        <div class="frame-label">export</div>
+        <button class="dashed-btn primary" style="width:100%; max-width:260px;">Download CSV</button>
+        <button class="dashed-btn" style="width:100%; max-width:260px;">Copy as Table (future idea)</button>
+      </div>
+      <div class="note tilt-l" style="margin-top:16px;"><b>Kiro stays local</b><div class="note-body">Users decide what happens next.</div></div>
+    </div>
+    <div class="col">
+      <div class="frame" style="min-height:260px;">
+        <div class="frame-label">where CSV goes</div>
+        <div class="arrow-flow" style="flex-direction:column; align-items:flex-start; gap:10px;">
+          <div class="node">CSV</div>
+          <span class="arrow">↓</span>
+          <div class="node">Google Sheets · Excel · Numbers · LibreOffice · Accounting Software</div>
+        </div>
+      </div>
+    </div>
+  </div>
+`,
+
+success: `
+  <div class="eyebrow">Success</div>
+  <h1 class="screen-title">Safely Recorded</h1>
+  <div class="screen-purpose">A short, calm confirmation — then straight back to work.</div>
+  <div class="frame" style="max-width:420px; text-align:center;">
+    <div class="frame-label">saved</div>
+    <div class="success-mark">✓</div>
+    <div style="font-weight:600; font-size:16px; margin-bottom:4px;">Safely Recorded</div>
+    <div style="font-size:12.5px; color:var(--ink-soft); margin-bottom:22px;">Kiro never kept a copy of your receipt.</div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button class="dashed-btn">Scan Another</button>
+      <button class="dashed-btn primary">Open Downloads Folder</button>
+    </div>
+  </div>
+`,
+
+roadmap: `
+  <div class="eyebrow">Roadmap</div>
+  <h1 class="screen-title">A planning board, built on a local-first foundation</h1>
+  <div class="screen-purpose">Each stage builds on the one before it — privacy first, optional connections later.</div>
+  <div class="roadmap-track">
+    <div class="roadmap-stage"><div class="ver">V1</div><ul><li>Camera</li><li>Upload</li><li>Local OCR</li><li>CSV Export</li></ul></div>
+    <div class="roadmap-stage"><div class="ver">V2</div><ul><li>Smarter parsing</li><li>Merchant cleanup</li><li>Confidence indicators</li><li>Better detection</li></ul></div>
+    <div class="roadmap-stage"><div class="ver">V3</div><ul><li>Optional Google Sheets</li><li>Optional cloud connections</li></ul></div>
+    <div class="roadmap-stage"><div class="ver">V4</div><ul><li>Automation (n8n)</li><li>Reports</li></ul></div>
+    <div class="roadmap-stage"><div class="ver">V5</div><ul><li>Optional AI assistance</li><li>Categorization</li><li>Duplicate detection</li><li>Smart suggestions</li></ul></div>
+  </div>
+  <div class="annotation" style="margin-top:10px;">Every version after V1 is additive and optional — the local-first foundation never has to be traded away for a new feature.</div>
+`,
+
+architecture: `
+  <div class="eyebrow">System Architecture</div>
+  <h1 class="screen-title">Who controls the data, and when it leaves the device</h1>
+  <div class="screen-purpose">A straight blueprint from camera to CSV — no backend in V1 or V2.</div>
+  <div class="frame">
+    <div class="frame-label">architecture — v1 / v2</div>
+
+    <div class="arch-row"><div class="arch-node">User</div><div class="arch-explain">Opens Kiro, chooses camera or upload. Fully in control.</div></div>
+    <div class="arch-row"><div class="arch-node">Camera / Upload</div><div class="arch-explain">Image captured or selected, held only in local app memory.</div></div>
+    <div class="arch-row"><div class="arch-node">Browser</div><div class="arch-explain">All processing happens inside the browser tab.</div></div>
+    <div class="arch-row"><div class="arch-node">Tesseract.js</div><div class="arch-explain arch-secure">On-device OCR engine. The receipt image never reaches a server.</div></div>
+    <div class="arch-row"><div class="arch-node">Receipt Parser</div><div class="arch-explain">Merchant, date, amount, tax, receipt number parsed from OCR text.</div></div>
+    <div class="arch-row"><div class="arch-node">Editable Review</div><div class="arch-explain">User confirms or corrects every field before anything leaves the device.</div></div>
+    <div class="arch-row"><div class="arch-node">CSV Download</div><div class="arch-explain">Only the confirmed, structured data is written to a file.</div></div>
+    <div class="arch-row"><div class="arch-node">User chooses destination</div><div class="arch-explain">Google Sheets · Excel · Accounting Software — entirely the user's decision.</div></div>
+
+    <div class="annotation" style="margin-top:20px;">No backend in V1 or V2. Privacy here is architectural, not a settings toggle.</div>
+  </div>
+`,
+};
+
+
+let current = 0;
+let annoOn = true;
+
+function renderNav(){
+  const navList = document.getElementById('navList');
+  navList.innerHTML = screens.map((s,i)=>
+    `<div class="nav-item${i===current?' active':''}" data-i="${i}" tabindex="0">
+      <span class="n">${String(i+1).padStart(2,'0')}</span><span>${s.label}</span>
+    </div>`
+  ).join('');
+  navList.querySelectorAll('.nav-item').forEach(el=>{
+    el.addEventListener('click', ()=>{ current = parseInt(el.dataset.i); render(); });
+  });
+}
+
+function renderDots(){
+  const dots = document.getElementById('dots');
+  dots.innerHTML = screens.map((s,i)=>`<span class="${i===current?'active':''}"></span>`).join('');
+}
+
+function render(){
+  const canvas = document.getElementById('canvas');
+  canvas.innerHTML = `<div class="screen active">${content[screens[current].id]}</div>`;
+  canvas.className = 'canvas' + (annoOn ? '' : ' anno-hidden');
+  renderNav();
+  renderDots();
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').textContent = current===screens.length-1 ? 'Restart ↺' : 'Next →';
+  window.scrollTo({top:0, behavior:'smooth'});
+
+  // expandable sticky notes
+  canvas.querySelectorAll('.note').forEach(n=>{
+    if(!n.querySelector('.expand-hint')){
+      const hint = document.createElement('div');
+      hint.className = 'expand-hint';
+      hint.textContent = 'tap to collapse';
+      n.appendChild(hint);
+    }
+    n.addEventListener('click', ()=>{
+      n.classList.toggle('collapsed');
+    });
+  });
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(current>0){ current--; render(); }
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  current = (current+1) % screens.length; render();
+});
+document.getElementById('annoToggle').addEventListener('click', ()=>{
+  annoOn = !annoOn;
+  document.getElementById('annoSwitch').classList.toggle('on', annoOn);
+  document.getElementById('canvas').classList.toggle('anno-hidden', !annoOn);
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight') document.getElementById('nextBtn').click();
+  if(e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
+});
+
+render();
+</script>
+</body>
+</html>
