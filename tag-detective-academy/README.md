@@ -2,6 +2,11 @@
 
 An interactive, gamified Learning Management System (LMS) and micro-app built around detective mystery cases. This tool replaces boring technical documentation with immersive, story-driven "Case Files" where users learn and test their **Google Analytics 4 (GA4)** and **Google Tag Manager (GTM)** skills by debugging real tracking implementations.
 
+<p align="center">
+  <img src="assets/tda-hero.svg" alt="Tag Detective Academy Banner" width="100%">
+</p>
+
+
 ## 🚀 Vision & Concept
 
 In analytics engineering, a broken tag or a corrupted `dataLayer` is a crime scene. Users take on the role of a Junior Detective, guided by **Byte** — a floating chibi detective mascot — to inspect event logs, locate missing variables, and catch the technical culprits sabotaging client data.
