@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiori — One task at a time.</title>
+<style>
+/* ============================================================
+   SHIORI — DESIGN TOKENS
+   Palette: warm paper (#F3EFE8), soft ink (#2B2925), charcoal
+   dark (#211F1C), sage accent (#7C8F76), plum accent (#8B6F8C),
+   amber highlight (#C99A5B). Japanese-inspired calm workspace.
+   Type: "Zen Display" (serif, restrained) for headings via
+   system serif stack; humanist sans for body/UI.
+   ============================================================ */
+:root{
+  --paper:#F3EFE8;
+  --paper-raised:#FBF8F3;
+  --ink:#2B2925;
+  --ink-soft:#5B564C;
+  --ink-faint:#94897A;
+  --line:#E3DCCE;
+  --line-soft:#EBE5D8;
+  --sage:#7C8F76;
+  --sage-soft:#E4EADF;
+  --plum:#8B6F8C;
+  --plum-soft:#EEE3EE;
+  --amber:#C99A5B;
+  --amber-soft:#F4E7D2;
+  --danger:#B0685B;
+  --danger-soft:#F5E1DC;
+  --shadow: 0 1px 2px rgba(43,41,37,.04), 0 4px 14px rgba(43,41,37,.06);
+  --shadow-lg: 0 8px 30px rgba(43,41,37,.12), 0 2px 8px rgba(43,41,37,.06);
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --font-display: "Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Helvetica Neue", Arial, sans-serif;
+  --transition: 180ms cubic-bezier(.4,0,.2,1);
+  --sidebar-w: 232px;
+}
+[data-theme="dark"]{
+  --paper:#211F1C;
+  --paper-raised:#2A2824;
+  --ink:#EDE8DE;
+  --ink-soft:#B8AF9F;
+  --ink-faint:#7C7365;
+  --line:#3A362F;
+  --line-soft:#332F29;
+  --sage:#8FA588;
+  --sage-soft:#2E362A;
+  --plum:#A98BAA;
+  --plum-soft:#332A34;
+  --amber:#D9AD72;
+  --amber-soft:#3A3126;
+  --danger:#C77E6E;
+  --danger-soft:#3A2A26;
+  --shadow: 0 1px 2px rgba(0,0,0,.2), 0 4px 14px rgba(0,0,0,.24);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  transition:background var(--transition), color var(--transition);
+}
+h1,h2,h3,.display{font-family:var(--font-display);}
+button{font-family:inherit;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-faint);}
+:focus-visible{outline:2px solid var(--sage);outline-offset:2px;border-radius:4px;}
+a{color:inherit;}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#app{display:flex;height:100vh;width:100vw;}
+
+/* ---------- SIDEBAR ---------- */
+#sidebar{
+  width:var(--sidebar-w);
+  flex-shrink:0;
+  background:var(--paper-raised);
+  border-right:1px solid var(--line-soft);
+  display:flex;
+  flex-direction:column;
+  padding:20px 14px;
+  transition:background var(--transition);
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  padding:6px 8px 22px 8px;
+}
+.brand-mark{
+  width:32px;height:32px;border-radius:9px;
+  background:linear-gradient(135deg,var(--sage),var(--plum));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+  box-shadow:var(--shadow);
+}
+.brand-text .name{font-size:16.5px;font-weight:600;letter-spacing:.2px;}
+.brand-text .tag{font-size:11px;color:var(--ink-faint);margin-top:1px;}
+
+.nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:var(--radius-sm);
+  cursor:pointer;color:var(--ink-soft);font-size:13.5px;font-weight:500;
+  border:none;background:none;text-align:left;width:100%;
+  transition:background var(--transition), color var(--transition);
+}
+.nav-item .ic{width:18px;text-align:center;font-size:15px;}
+.nav-item:hover{background:var(--line-soft);color:var(--ink);}
+.nav-item.active{background:var(--sage-soft);color:var(--ink);font-weight:600;}
+.nav-item .count{
+  margin-left:auto;font-size:11px;color:var(--ink-faint);
+  background:var(--line-soft);padding:1px 7px;border-radius:20px;
+}
+.nav-item.active .count{background:rgba(255,255,255,.5);}
+
+.sidebar-footer{padding-top:14px;border-top:1px solid var(--line-soft);}
+.calm-msg{
+  font-size:11.5px;color:var(--ink-faint);padding:10px 10px;
+  line-height:1.5;
+}
+
+/* ---------- MAIN ---------- */
+#main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;}
+
+/* ---------- TOPBAR ---------- */
+#topbar{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 26px;border-bottom:1px solid var(--line-soft);
+  background:var(--paper);flex-shrink:0;
+}
+.view-title{font-size:19px;font-weight:600;flex-shrink:0;}
+.search-wrap{
+  flex:1;max-width:420px;position:relative;
+}
+.search-wrap input{
+  width:100%;padding:9px 14px 9px 34px;border-radius:10px;
+  border:1px solid var(--line);background:var(--paper-raised);
+  color:var(--ink);font-size:13.5px;transition:border-color var(--transition);
+}
+.search-wrap input:focus{border-color:var(--sage);outline:none;}
+.search-wrap .sic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-faint);font-size:13px;pointer-events:none;}
+.search-wrap .skey{
+  position:absolute;right:9px;top:50%;transform:translateY(-50%);
+  font-size:10px;color:var(--ink-faint);background:var(--line-soft);
+  padding:2px 6px;border-radius:5px;pointer-events:none;
+}
+.topbar-spacer{flex:1;}
+.btn{
+  border:1px solid var(--line);background:var(--paper-raised);color:var(--ink);
+  padding:8px 14px;border-radius:10px;font-size:13px;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+  transition:background var(--transition), border-color var(--transition), transform var(--transition);
+}
+.btn:hover{background:var(--line-soft);}
+.btn:active{transform:scale(.97);}
+.btn-primary{
+  background:var(--ink);color:var(--paper);border-color:var(--ink);
+}
+.btn-primary:hover{opacity:.88;background:var(--ink);}
+[data-theme="dark"] .btn-primary{background:var(--sage);color:#1a1a1a;border-color:var(--sage);}
+.btn-icon{
+  width:36px;height:36px;padding:0;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  border:1px solid var(--line);background:var(--paper-raised);cursor:pointer;
+  transition:background var(--transition);
+}
+.btn-icon:hover{background:var(--line-soft);}
+
+/* ---------- VIEWS ---------- */
+.view{display:none;flex:1;min-height:0;flex-direction:column;}
+.view.active{display:flex;}
+
+/* ============================================================
+   KANBAN BOARD
+   ============================================================ */
+#board-wrap{flex:1;overflow-x:auto;overflow-y:hidden;padding:18px 18px 0 18px;}
+#board{display:flex;gap:14px;height:100%;min-width:max-content;}
+.column{
+  width:272px;flex-shrink:0;display:flex;flex-direction:column;
+  background:var(--paper-raised);border-radius:var(--radius);
+  border:1px solid var(--line-soft);max-height:100%;
+  transition:background var(--transition);
+}
+.column.collapsed{width:52px;}
+.column.collapsed .col-body,.column.collapsed .col-add{display:none;}
+.column.collapsed .col-head{writing-mode:vertical-rl;padding:14px 8px;height:100%;justify-content:flex-start;gap:10px;}
+.col-head{
+  display:flex;align-items:center;gap:8px;padding:14px 14px 10px 14px;
+  cursor:pointer;user-select:none;flex-shrink:0;
+}
+.col-emoji{font-size:15px;}
+.col-title{font-weight:600;font-size:13.5px;flex:1;}
+.col-count{
+  font-size:11px;color:var(--ink-faint);background:var(--line-soft);
+  padding:1px 7px;border-radius:20px;
+}
+.col-collapse{background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:12px;padding:4px;}
+.col-body{
+  flex:1;overflow-y:auto;padding:2px 10px 10px 10px;display:flex;flex-direction:column;gap:8px;
+  min-height:60px;
+}
+.col-body.drag-over{background:var(--sage-soft);border-radius:var(--radius-sm);}
+.col-add{
+  margin:0 10px 12px 10px;padding:8px;border:1px dashed var(--line);
+  border-radius:var(--radius-sm);background:none;color:var(--ink-faint);
+  font-size:12.5px;cursor:pointer;text-align:left;
+  transition:background var(--transition), color var(--transition);
+}
+.col-add:hover{background:var(--line-soft);color:var(--ink);}
+
+.empty-col{
+  padding:26px 10px;text-align:center;color:var(--ink-faint);font-size:12.5px;line-height:1.6;
+}
+
+/* ---------- TASK CARD ---------- */
+.card{
+  background:var(--paper);border:1px solid var(--line-soft);border-radius:var(--radius-sm);
+  padding:11px 12px;cursor:grab;position:relative;
+  transition:transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  border-left:3px solid transparent;
+}
+.card:hover{box-shadow:var(--shadow);transform:translateY(-1px);border-color:var(--line);}
+.card.dragging{opacity:.4;}
+.card.priority-high{border-left-color:var(--danger);}
+.card.priority-medium{border-left-color:var(--amber);}
+.card.priority-low{border-left-color:var(--sage);}
+.card-top{display:flex;align-items:flex-start;gap:6px;}
+.card-emoji{font-size:14px;line-height:1.3;}
+.card-title{font-size:13.5px;font-weight:600;flex:1;line-height:1.4;word-break:break-word;}
+.card-pin{color:var(--amber);font-size:12px;}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.tag-chip{
+  font-size:10.5px;padding:2px 8px;border-radius:20px;background:var(--sage-soft);color:var(--ink-soft);
+}
+.card-meta{display:flex;align-items:center;gap:10px;margin-top:9px;font-size:11px;color:var(--ink-faint);flex-wrap:wrap;}
+.card-meta .due.overdue{color:var(--danger);font-weight:600;}
+.card-progress{margin-top:8px;}
+.mini-bar{height:4px;border-radius:4px;background:var(--line-soft);overflow:hidden;}
+.mini-bar-fill{height:100%;background:var(--sage);border-radius:4px;transition:width var(--transition);}
+
+/* ============================================================
+   SLIDE-OVER PANEL
+   ============================================================ */
+#overlay{
+  position:fixed;inset:0;background:rgba(33,31,28,.28);backdrop-filter:blur(2px);
+  opacity:0;pointer-events:none;transition:opacity var(--transition);z-index:40;
+}
+#overlay.show{opacity:1;pointer-events:auto;}
+#panel{
+  position:fixed;top:0;right:0;height:100%;width:420px;max-width:92vw;
+  background:var(--paper-raised);border-left:1px solid var(--line-soft);
+  box-shadow:var(--shadow-lg);transform:translateX(100%);
+  transition:transform 260ms cubic-bezier(.4,0,.2,1);
+  z-index:41;display:flex;flex-direction:column;
+}
+#panel.show{transform:translateX(0);}
+.panel-head{
+  display:flex;align-items:center;gap:8px;padding:16px 18px;border-bottom:1px solid var(--line-soft);flex-shrink:0;
+}
+.panel-head select{
+  border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  border-radius:8px;padding:6px 10px;font-size:12px;
+}
+.panel-body{flex:1;overflow-y:auto;padding:18px;}
+.panel-close{margin-left:auto;}
+.field-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);font-weight:600;margin:18px 0 7px 0;}
+.field-label:first-child{margin-top:0;}
+.panel-title-input{
+  width:100%;border:none;background:none;font-family:var(--font-display);
+  font-size:22px;font-weight:600;color:var(--ink);resize:none;padding:0;
+}
+.panel-title-input:focus{outline:none;}
+textarea.panel-textarea{
+  width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  border-radius:10px;padding:10px 12px;font-size:13px;font-family:var(--font-body);
+  resize:vertical;min-height:70px;line-height:1.55;
+}
+textarea.panel-textarea:focus{outline:none;border-color:var(--sage);}
+.row-2{display:flex;gap:10px;}
+.row-2 > div{flex:1;}
+.pill-select{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{
+  padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:var(--paper);
+  font-size:12px;cursor:pointer;color:var(--ink-soft);transition:all var(--transition);
+}
+.pill.sel-high.active{background:var(--danger-soft);border-color:var(--danger);color:var(--danger);}
+.pill.sel-medium.active{background:var(--amber-soft);border-color:var(--amber);color:#8a6a34;}
+.pill.sel-low.active{background:var(--sage-soft);border-color:var(--sage);color:var(--sage);}
+.pill.status.active{background:var(--plum-soft);border-color:var(--plum);color:var(--plum);}
+input[type=text].panel-input, input[type=date].panel-input{
+  width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  border-radius:8px;padding:8px 11px;font-size:13px;
+}
+input[type=text].panel-input:focus,input[type=date].panel-input:focus{outline:none;border-color:var(--sage);}
+
+.checklist-progress{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11.5px;color:var(--ink-faint);}
+.checklist-progress .mini-bar{flex:1;}
+.checklist{display:flex;flex-direction:column;gap:4px;}
+.checklist-item{
+  display:flex;align-items:center;gap:8px;padding:6px 6px 6px 2px;border-radius:8px;
+  transition:background var(--transition);
+}
+.checklist-item:hover{background:var(--line-soft);}
+.checklist-item.dragging{opacity:.4;}
+.checklist-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--sage);flex-shrink:0;cursor:pointer;}
+.checklist-item .ci-text{
+  flex:1;border:none;background:none;color:var(--ink);font-size:13px;padding:2px 0;
+}
+.checklist-item .ci-text:focus{outline:none;}
+.checklist-item.done .ci-text{color:var(--ink-faint);text-decoration:line-through;}
+.ci-del{background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:13px;opacity:0;padding:4px;}
+.checklist-item:hover .ci-del{opacity:1;}
+.ci-drag{cursor:grab;color:var(--ink-faint);font-size:12px;opacity:.5;}
+.add-ci-row{display:flex;gap:6px;margin-top:6px;}
+.add-ci-row input{flex:1;}
+
+.tag-input-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.tag-editable{
+  font-size:11px;padding:3px 10px;border-radius:20px;background:var(--sage-soft);color:var(--ink-soft);
+  display:flex;align-items:center;gap:5px;
+}
+.tag-editable button{background:none;border:none;cursor:pointer;color:var(--ink-faint);font-size:11px;}
+.tag-input-row input{border:1px dashed var(--line);background:none;font-size:11.5px;padding:4px 9px;border-radius:20px;color:var(--ink);width:110px;}
+.tag-input-row input:focus{outline:none;border-color:var(--sage);}
+
+.links-list{display:flex;flex-direction:column;gap:6px;}
+.link-row{display:flex;gap:6px;align-items:center;}
+.link-row a{
+  flex:1;font-size:12.5px;color:var(--sage);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.link-row a:hover{text-decoration:underline;}
+
+.history-list{display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--ink-faint);}
+.history-item{display:flex;gap:8px;}
+.history-item .dot{width:5px;height:5px;border-radius:50%;background:var(--sage);margin-top:6px;flex-shrink:0;}
+
+.next-action-box{
+  background:var(--amber-soft);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink);
+  border:1px solid var(--amber);
+}
+.next-action-box input{width:100%;background:none;border:none;font-size:13px;color:var(--ink);}
+.next-action-box input:focus{outline:none;}
+
+.panel-footer{
+  padding:14px 18px;border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+}
+.edited-note{font-size:11px;color:var(--ink-faint);}
+.danger-link{background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;font-weight:500;}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+#view-dashboard .dash-wrap{flex:1;overflow-y:auto;padding:28px 34px 40px 34px;}
+.dash-hero{display:flex;align-items:center;gap:28px;margin-bottom:30px;flex-wrap:wrap;}
+.progress-ring{position:relative;width:110px;height:110px;flex-shrink:0;}
+.progress-ring svg{transform:rotate(-90deg);}
+.progress-ring-label{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.progress-ring-label .num{font-size:22px;font-weight:700;}
+.progress-ring-label .lbl{font-size:10px;color:var(--ink-faint);}
+.dash-greeting h1{font-size:24px;margin:0 0 6px 0;}
+.dash-greeting .sub{color:var(--ink-soft);font-size:14px;}
+.dash-motto{
+  margin-top:10px;font-size:13px;color:var(--sage);font-style:italic;font-family:var(--font-display);
+}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
+.dash-card{
+  background:var(--paper-raised);border:1px solid var(--line-soft);border-radius:var(--radius);padding:16px 18px;
+}
+.dash-card h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin:0 0 12px 0;font-weight:600;font-family:var(--font-body);}
+.dash-task-row{
+  display:flex;align-items:center;gap:8px;padding:7px 0;font-size:13px;border-bottom:1px solid var(--line-soft);cursor:pointer;
+}
+.dash-task-row:last-child{border-bottom:none;}
+.dash-task-row .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.dash-empty{color:var(--ink-faint);font-size:12.5px;padding:8px 0;}
+
+/* ============================================================
+   NOTES
+   ============================================================ */
+#view-notes{flex-direction:row;flex:1;min-height:0;}
+.notes-list{width:250px;border-right:1px solid var(--line-soft);overflow-y:auto;flex-shrink:0;padding:14px;}
+.note-item{
+  padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;
+  transition:background var(--transition);
+}
+.note-item:hover{background:var(--line-soft);}
+.note-item.active{background:var(--sage-soft);}
+.note-item .nt{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.note-item .np{font-size:11px;color:var(--ink-faint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.notes-editor{flex:1;padding:24px 34px;display:flex;flex-direction:column;}
+.notes-editor textarea{
+  flex:1;border:none;background:none;color:var(--ink);font-size:14.5px;line-height:1.7;resize:none;
+  font-family:var(--font-body);
+}
+.notes-editor textarea:focus{outline:none;}
+.notes-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:13px;}
+
+/* ============================================================
+   ARCHIVE / SETTINGS
+   ============================================================ */
+.simple-view-wrap{flex:1;overflow-y:auto;padding:26px 34px;}
+.archive-list{display:flex;flex-direction:column;gap:8px;max-width:640px;}
+.archive-row{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--paper-raised);
+  border:1px solid var(--line-soft);border-radius:var(--radius-sm);
+}
+.archive-row .t{flex:1;font-size:13.5px;}
+.archive-row .meta{font-size:11px;color:var(--ink-faint);}
+.settings-section{max-width:520px;margin-bottom:26px;}
+.settings-section h3{font-size:13px;text-transform:uppercase;color:var(--ink-faint);letter-spacing:.05em;margin-bottom:10px;}
+.settings-row{
+  display:flex;align-items:center;justify-content:space-between;padding:12px 16px;
+  background:var(--paper-raised);border:1px solid var(--line-soft);border-radius:var(--radius-sm);margin-bottom:8px;
+}
+.settings-row .desc{font-size:11.5px;color:var(--ink-faint);margin-top:2px;}
+.theme-switch{
+  display:flex;background:var(--line-soft);border-radius:20px;padding:3px;gap:2px;
+}
+.theme-switch button{
+  border:none;background:none;padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;color:var(--ink-soft);
+}
+.theme-switch button.active{background:var(--paper-raised);color:var(--ink);box-shadow:var(--shadow);}
+
+/* ============================================================
+   FILTER BAR
+   ============================================================ */
+#filterbar{display:flex;gap:8px;padding:0 26px 12px 26px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
+.filter-chip{
+  padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:var(--paper-raised);
+  font-size:12px;cursor:pointer;color:var(--ink-soft);transition:all var(--transition);
+}
+.filter-chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+[data-theme="dark"] .filter-chip.active{background:var(--sage);color:#1a1a1a;}
+.filter-chip select{background:none;border:none;color:inherit;font-size:12px;cursor:pointer;}
+
+/* ============================================================
+   TOAST / EMPTY / MISC
+   ============================================================ */
+#toast-wrap{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;}
+.toast{
+  background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:20px;font-size:12.5px;
+  box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;
+  animation:toastIn 220ms ease;
+}
+.toast button{background:none;border:none;color:var(--amber);cursor:pointer;font-weight:600;font-size:12px;}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.kbd-hint{
+  position:fixed;bottom:16px;right:20px;font-size:10.5px;color:var(--ink-faint);z-index:5;
+  display:flex;gap:10px;
+}
+.kbd-hint span{background:var(--paper-raised);border:1px solid var(--line-soft);padding:3px 8px;border-radius:6px;}
+
+.quick-add-overlay{
+  position:fixed;inset:0;background:rgba(33,31,28,.28);backdrop-filter:blur(2px);z-index:50;
+  display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;
+  opacity:0;pointer-events:none;transition:opacity var(--transition);
+}
+.quick-add-overlay.show{opacity:1;pointer-events:auto;}
+.quick-add-box{
+  width:520px;max-width:90vw;background:var(--paper-raised);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);padding:6px;
+}
+.quick-add-box input{
+  width:100%;border:none;background:none;font-size:16px;padding:14px 16px;color:var(--ink);
+}
+.quick-add-box input:focus{outline:none;}
+.quick-add-hint{padding:8px 16px 12px 16px;font-size:11px;color:var(--ink-faint);border-top:1px solid var(--line-soft);}
+
+.hidden{display:none !important;}
+
+@media (max-width:820px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:45;transform:translateX(-100%);transition:transform var(--transition);}
+  #sidebar.show{transform:translateX(0);}
+  .kbd-hint{display:none;}
+}
+</style>
+</head>
+<body data-theme="light">
+
+<div id="app">
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside id="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="brand-mark">📖</div>
+      <div class="brand-text">
+        <div class="name">Shiori</div>
+        <div class="tag">One task at a time.</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="dashboard"><span class="ic">🏠</span>Dashboard</button>
+      <button class="nav-item" data-view="kanban"><span class="ic">🗂️</span>Kanban<span class="count" id="nav-count-kanban">0</span></button>
+      <button class="nav-item" data-view="notes"><span class="ic">📝</span>Notes</button>
+      <button class="nav-item" data-view="archive"><span class="ic">🗃️</span>Archive<span class="count" id="nav-count-archive">0</span></button>
+      <button class="nav-item" data-view="settings"><span class="ic">⚙️</span>Settings</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="calm-msg" id="calm-msg">🍵 Take a short tea break.</div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN
+       ============================================================ -->
+  <main id="main">
+    <div id="topbar">
+      <div class="view-title" id="view-title">Dashboard</div>
+      <div class="search-wrap">
+        <span class="sic">🔍</span>
+        <input type="text" id="search-input" placeholder="Search tasks, notes, tags…" aria-label="Search">
+        <span class="skey">/</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button class="btn-icon" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
+      <button class="btn btn-primary" id="new-task-btn"><span>＋</span> New Task</button>
+    </div>
+
+    <!-- FILTER BAR (kanban only) -->
+    <div id="filterbar">
+      <button class="filter-chip" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="due-today">Due Today</button>
+      <button class="filter-chip" data-filter="this-week">This Week</button>
+      <button class="filter-chip" data-filter="completed">Completed</button>
+      <span class="filter-chip"><select id="priority-filter"><option value="">Priority: Any</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></span>
+      <span class="filter-chip"><select id="tag-filter"><option value="">Tag: Any</option></select></span>
+    </div>
+
+    <!-- ============================================================
+         DASHBOARD VIEW
+         ============================================================ -->
+    <section class="view active" id="view-dashboard">
+      <div class="dash-wrap">
+        <div class="dash-hero">
+          <div class="progress-ring">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="46" stroke="var(--line-soft)" stroke-width="10" fill="none"/>
+              <circle id="ring-fill" cx="55" cy="55" r="46" stroke="var(--sage)" stroke-width="10" fill="none"
+                stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"/>
+            </svg>
+            <div class="progress-ring-label"><span class="num" id="ring-num">0%</span><span class="lbl">today</span></div>
+          </div>
+          <div class="dash-greeting">
+            <h1 id="dash-greet">Welcome back</h1>
+            <div class="sub" id="dash-date"></div>
+            <div class="dash-motto" id="dash-motto">🌿 One task at a time.</div>
+          </div>
+        </div>
+        <div class="dash-grid">
+          <div class="dash-card"><h3>Today's Focus</h3><div id="dash-focus"></div></div>
+          <div class="dash-card"><h3>Due Today</h3><div id="dash-due"></div></div>
+          <div class="dash-card"><h3>Waiting</h3><div id="dash-waiting"></div></div>
+          <div class="dash-card"><h3>In Progress</h3><div id="dash-progress"></div></div>
+          <div class="dash-card"><h3>Completed Today</h3><div id="dash-completed"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         KANBAN VIEW
+         ============================================================ -->
+    <section class="view" id="view-kanban">
+      <div id="board-wrap"><div id="board"></div></div>
+    </section>
+
+    <!-- ============================================================
+         NOTES VIEW
+         ============================================================ -->
+    <section class="view" id="view-notes">
+      <div class="notes-list" id="notes-list"></div>
+      <div class="notes-editor" id="notes-editor">
+        <div class="notes-empty" id="notes-empty">🍃 Select a note, or create one.</div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ARCHIVE VIEW
+         ============================================================ -->
+    <section class="view" id="view-archive">
+      <div class="simple-view-wrap">
+        <div class="archive-list" id="archive-list"></div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SETTINGS VIEW
+         ============================================================ -->
+    <section class="view" id="view-settings">
+      <div class="simple-view-wrap">
+        <div class="settings-section">
+          <h3>Appearance</h3>
+          <div class="settings-row">
+            <div><div>Theme</div><div class="desc">Light and dark both use soft, low-strain tones.</div></div>
+            <div class="theme-switch" id="theme-switch">
+              <button data-theme="light">☀️ Light</button>
+              <button data-theme="dark">🌙 Dark</button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h3>Data</h3>
+          <div class="settings-row">
+            <div><div>Clear completed tasks</div><div class="desc">Moves all completed tasks to Archive.</div></div>
+            <button class="btn" id="clear-completed-btn">Clear</button>
+          </div>
+          <div class="settings-row">
+            <div><div>Export data</div><div class="desc">Download everything as a JSON file. (⌘/Ctrl+S)</div></div>
+            <button class="btn" id="export-btn">Export</button>
+          </div>
+          <div class="settings-row">
+            <div><div>Import data</div><div class="desc">Restore from a previously exported JSON file.</div></div>
+            <button class="btn" id="import-btn">Import</button>
+            <input type="file" id="import-file" accept="application/json" class="hidden">
+          </div>
+          <div class="settings-row">
+            <div><div>Reset app</div><div class="desc">Erase all tasks, notes, and settings.</div></div>
+            <button class="btn" id="reset-btn" style="color:var(--danger);border-color:var(--danger);">Reset</button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h3>Statistics</h3>
+          <div id="stats-box" style="font-size:13px;color:var(--ink-soft);line-height:2;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================================
+     TASK SLIDE-OVER PANEL
+     ============================================================ -->
+<div id="overlay"></div>
+<aside id="panel" aria-label="Task details">
+  <div class="panel-head">
+    <select id="panel-emoji-select" title="Icon" style="width:52px;">
+      <option value="">—</option>
+      <option value="🌱">🌱</option><option value="🔥">🔥</option><option value="💡">💡</option>
+      <option value="📌">📌</option><option value="🎯">🎯</option><option value="🧘">🧘</option>
+      <option value="✨">✨</option><option value="📚">📚</option><option value="🛠️">🛠️</option>
+    </select>
+    <select id="panel-status-select" aria-label="Status"></select>
+    <button class="btn-icon" id="panel-pin-btn" title="Pin task">📌</button>
+    <button class="btn-icon panel-close" id="panel-close-btn" aria-label="Close panel">✕</button>
+  </div>
+  <div class="panel-body">
+    <textarea id="panel-title" class="panel-title-input" rows="1" placeholder="Untitled task" aria-label="Task title"></textarea>
+
+    <div class="field-label">Description</div>
+    <textarea id="panel-desc" class="panel-textarea" placeholder="Add a description…"></textarea>
+
+    <div class="row-2">
+      <div>
+        <div class="field-label">Priority</div>
+        <div class="pill-select" id="priority-pills">
+          <button class="pill sel-low" data-p="low">Low</button>
+          <button class="pill sel-medium" data-p="medium">Medium</button>
+          <button class="pill sel-high" data-p="high">High</button>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">Due Date</div>
+        <input type="date" class="panel-input" id="panel-due">
+      </div>
+    </div>
+
+    <div class="field-label">Tags</div>
+    <div class="tag-input-row" id="panel-tags">
+      <input type="text" id="panel-tag-input" placeholder="+ tag">
+    </div>
+
+    <div class="field-label">Next Action</div>
+    <div class="next-action-box">
+      <input type="text" id="panel-next-action" placeholder="What's the very next step?">
+    </div>
+
+    <div class="field-label">Checklist</div>
+    <div class="checklist-progress"><span id="checklist-count">0 / 0</span><div class="mini-bar"><div class="mini-bar-fill" id="checklist-bar" style="width:0%"></div></div></div>
+    <div class="checklist" id="checklist"></div>
+    <div class="add-ci-row">
+      <input type="text" class="panel-input" id="add-ci-input" placeholder="Add checklist item…↵">
+    </div>
+
+    <div class="field-label">Notes</div>
+    <textarea id="panel-notes" class="panel-textarea" placeholder="Freeform notes…"></textarea>
+
+    <div class="field-label">Resources / Links</div>
+    <div class="links-list" id="links-list"></div>
+    <div class="add-ci-row">
+      <input type="text" class="panel-input" id="add-link-input" placeholder="Paste a URL and press Enter…">
+    </div>
+
+    <div class="field-label">History</div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+  <div class="panel-footer">
+    <span class="edited-note" id="panel-edited">—</span>
+    <button class="danger-link" id="delete-task-btn">Delete task</button>
+  </div>
+</aside>
+
+<!-- QUICK ADD -->
+<div class="quick-add-overlay" id="quick-add-overlay">
+  <div class="quick-add-box">
+    <input type="text" id="quick-add-input" placeholder="Quick add a task and press Enter…" aria-label="Quick add task">
+    <div class="quick-add-hint">Esc to cancel · Enter to add to Inbox</div>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<div class="kbd-hint">
+  <span>N new</span><span>/ search</span><span>Esc close</span><span>⌘S export</span>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   STATE & PERSISTENCE
+   ============================================================ */
+const STORAGE_KEY = "shiori_data_v1";
+const THEME_KEY = "shiori_theme";
+
+const COLUMNS = [
+  {id:"inbox",     emoji:"💡", title:"Inbox"},
+  {id:"backlog",   emoji:"📋", title:"Backlog"},
+  {id:"ready",     emoji:"🚀", title:"Ready Next"},
+  {id:"progress",  emoji:"🏃", title:"In Progress"},
+  {id:"waiting",   emoji:"⏳", title:"Waiting"},
+  {id:"hold",      emoji:"❄️", title:"On Hold"},
+  {id:"completed", emoji:"✅", title:"Completed"}
+];
+
+const EMPTY_MESSAGES = {
+  inbox:"🌱 Nothing here yet.",
+  backlog:"🌾 A quiet field, ready for seeds.",
+  ready:"🚀 Nothing queued up.",
+  progress:"🍃 Nothing moving right now.",
+  waiting:"🍃 You're not waiting on anyone.",
+  hold:"❄️ Nothing on ice.",
+  completed:"🌸 Finish something today."
+};
+
+const CALM_MESSAGES = [
+  "🍵 Take a short tea break.",
+  "🌿 One thing at a time.",
+  "🌙 You're making progress.",
+  "🪷 Breathe. It'll get done.",
+  "🍃 Small steps count too."
+];
+
+const MOTTOS = [
+  "🌿 One task at a time.",
+  "🍵 Slow and steady.",
+  "🌸 Progress, not perfection.",
+  "🪷 Clarity comes with calm."
+];
+
+function uid(){ return Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+function nowISO(){ return new Date().toISOString(); }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+function defaultData(){
+  return {
+    tasks: [],
+    notes: [],
+    settings: { theme: "light" }
+  };
+}
+
+let data = loadData();
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultData();
+    const parsed = JSON.parse(raw);
+    return Object.assign(defaultData(), parsed);
+  }catch(e){
+    console.error("Shiori: failed to load data", e);
+    return defaultData();
+  }
+}
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch(e){ console.error("Shiori: failed to save", e); toast("Couldn't save — storage may be full."); }
+  }, 120);
+}
+
+/* ============================================================
+   SAMPLE DATA (first run only)
+   ============================================================ */
+function seedIfEmpty(){
+  if(data.tasks.length > 0) return;
+  const samples = [
+    {title:"Sketch the Shiori icon set", status:"inbox", priority:"low", emoji:"✨", tags:["design"]},
+    {title:"Draft the weekly review template", status:"backlog", priority:"medium", emoji:"📚", tags:["writing"]},
+    {title:"Reply to collaborator email", status:"ready", priority:"medium", emoji:"💡", tags:["comms"]},
+    {title:"Build the checklist drag-reorder", status:"progress", priority:"high", emoji:"🛠️", tags:["build"], checklist:[
+      {id:uid(), text:"Wire up dragstart/dragover", done:true},
+      {id:uid(), text:"Persist new order", done:false},
+      {id:uid(), text:"Add subtle animation", done:false}
+    ]},
+    {title:"Waiting on design feedback", status:"waiting", priority:"low", emoji:"🧘", tags:["design"]},
+    {title:"Plan next quarter (on hold)", status:"hold", priority:"low", emoji:"📌", tags:["planning"]},
+    {title:"Set up the project repo", status:"completed", priority:"medium", emoji:"🎯", tags:["build"]}
+  ];
+  samples.forEach(s=>{
+    data.tasks.push(makeTask(s));
+  });
+  data.notes.push({id:uid(), title:"Welcome to Shiori", body:"# 一つずつ\n\nThis is your space for freeform, markdown-style notes.\n\nEverything you write here saves automatically — no buttons to press.", created:nowISO(), edited:nowISO()});
+  save();
+}
+
+function makeTask(overrides){
+  const base = {
+    id: uid(),
+    title:"Untitled task",
+    description:"",
+    status:"inbox",
+    priority:"medium",
+    emoji:"",
+    tags:[],
+    dueDate:"",
+    checklist:[],
+    notes:"",
+    links:[],
+    nextAction:"",
+    pinned:false,
+    favorite:false,
+    order: Date.now(),
+    history:[{ts:nowISO(), text:"Created"}],
+    created: nowISO(),
+    edited: nowISO()
+  };
+  return Object.assign(base, overrides);
+}
+
+/* ============================================================
+   UNDO SUPPORT (delete)
+   ============================================================ */
+let lastDeleted = null;
+let lastDeletedTimer = null;
+
+/* ============================================================
+   VIEW ROUTING
+   ============================================================ */
+let currentView = "dashboard";
+const viewTitles = {dashboard:"Dashboard", kanban:"Kanban", notes:"Notes", archive:"Archive", settings:"Settings"};
+
+function setView(v){
+  currentView = v;
+  document.querySelectorAll(".view").forEach(el=>el.classList.remove("active"));
+  document.getElementById("view-"+v).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(el=>el.classList.toggle("active", el.dataset.view===v));
+  document.getElementById("view-title").textContent = viewTitles[v];
+  document.getElementById("filterbar").style.display = (v==="kanban") ? "flex" : "none";
+  if(v==="dashboard") renderDashboard();
+  if(v==="kanban") renderBoard();
+  if(v==="notes") renderNotes();
+  if(v==="archive") renderArchive();
+  if(v==="settings") renderSettings();
+}
+
+document.getElementById("nav").addEventListener("click", (e)=>{
+  const btn = e.target.closest(".nav-item");
+  if(btn) setView(btn.dataset.view);
+});
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function applyTheme(t){
+  document.body.setAttribute("data-theme", t);
+  document.getElementById("theme-toggle").textContent = t==="dark" ? "☀️" : "🌙";
+  document.querySelectorAll("#theme-switch button").forEach(b=>b.classList.toggle("active", b.dataset.theme===t));
+  localStorage.setItem(THEME_KEY, t);
+}
+document.getElementById("theme-toggle").addEventListener("click", ()=>{
+  const cur = document.body.getAttribute("data-theme");
+  applyTheme(cur==="dark" ? "light" : "dark");
+});
+document.getElementById("theme-switch").addEventListener("click", (e)=>{
+  const b = e.target.closest("button");
+  if(b) applyTheme(b.dataset.theme);
+});
+
+/* ============================================================
+   FILTER STATE
+   ============================================================ */
+let activeFilter = "all";
+let priorityFilter = "";
+let tagFilter = "";
+let searchQuery = "";
+
+document.getElementById("filterbar").addEventListener("click",(e)=>{
+  const chip = e.target.closest(".filter-chip[data-filter]");
+  if(chip){
+    activeFilter = chip.dataset.filter;
+    document.querySelectorAll(".filter-chip[data-filter]").forEach(c=>c.classList.toggle("active", c===chip));
+    renderBoard();
+  }
+});
+document.getElementById("priority-filter").addEventListener("change",(e)=>{ priorityFilter = e.target.value; renderBoard(); });
+document.getElementById("tag-filter").addEventListener("change",(e)=>{ tagFilter = e.target.value; renderBoard(); });
+
+function refreshTagFilterOptions(){
+  const sel = document.getElementById("tag-filter");
+  const allTags = new Set();
+  data.tasks.forEach(t=> (t.tags||[]).forEach(tag=>allTags.add(tag)));
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Tag: Any</option>' + Array.from(allTags).sort().map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+  sel.value = allTags.has(cur) ? cur : "";
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+const searchInput = document.getElementById("search-input");
+searchInput.addEventListener("input", (e)=>{
+  searchQuery = e.target.value.trim().toLowerCase();
+  if(searchQuery && currentView!=="kanban") setView("kanban");
+  renderBoard();
+});
+
+function taskMatchesSearch(t){
+  if(!searchQuery) return true;
+  const hay = [
+    t.title, t.description, t.notes, (t.tags||[]).join(" "),
+    (t.checklist||[]).map(c=>c.text).join(" ")
+  ].join(" ").toLowerCase();
+  return hay.includes(searchQuery);
+}
+
+/* ============================================================
+   FILTER LOGIC
+   ============================================================ */
+function taskMatchesFilters(t){
+  if(!taskMatchesSearch(t)) return false;
+  if(priorityFilter && t.priority !== priorityFilter) return false;
+  if(tagFilter && !(t.tags||[]).includes(tagFilter)) return false;
+  const today = todayStr();
+  if(activeFilter==="due-today" && t.dueDate !== today) return false;
+  if(activeFilter==="this-week"){
+    if(!t.dueDate) return false;
+    const d = new Date(t.dueDate); const now = new Date();
+    const in7 = new Date(); in7.setDate(now.getDate()+7);
+    if(d < new Date(now.toDateString()) || d > in7) return false;
+  }
+  if(activeFilter==="completed" && t.status!=="completed") return false;
+  return true;
+}
+
+/* ============================================================
+   BOARD RENDERING
+   ============================================================ */
+const boardEl = document.getElementById("board");
+let collapsedCols = JSON.parse(localStorage.getItem("shiori_collapsed")||"[]");
+
+function renderBoard(){
+  refreshTagFilterOptions();
+  boardEl.innerHTML = "";
+  COLUMNS.forEach(col=>{
+    const colTasks = data.tasks
+      .filter(t=>t.status===col.id)
+      .filter(taskMatchesFilters)
+      .sort((a,b)=> (b.pinned?1:0)-(a.pinned?1:0) || a.order-b.order );
+
+    const colEl = document.createElement("div");
+    colEl.className = "column" + (collapsedCols.includes(col.id) ? " collapsed":"");
+    colEl.dataset.status = col.id;
+
+    const head = document.createElement("div");
+    head.className = "col-head";
+    head.innerHTML = `<span class="col-emoji">${col.emoji}</span><span class="col-title">${col.title}</span><span class="col-count">${colTasks.length}</span><button class="col-collapse" aria-label="Collapse column">${collapsedCols.includes(col.id)?"›":"‹"}</button>`;
+    head.querySelector(".col-collapse").addEventListener("click",(e)=>{
+      e.stopPropagation();
+      toggleCollapse(col.id);
+    });
+    colEl.appendChild(head);
+
+    const body = document.createElement("div");
+    body.className = "col-body";
+    body.addEventListener("dragover", (e)=>{ e.preventDefault(); body.classList.add("drag-over"); });
+    body.addEventListener("dragleave", ()=> body.classList.remove("drag-over"));
+    body.addEventListener("drop", (e)=>{
+      e.preventDefault(); body.classList.remove("drag-over");
+      const taskId = e.dataTransfer.getData("text/task-id");
+      if(taskId) moveTaskToStatus(taskId, col.id);
+    });
+
+    if(colTasks.length===0){
+      const emp = document.createElement("div");
+      emp.className = "empty-col";
+      emp.textContent = EMPTY_MESSAGES[col.id] || "Nothing here.";
+      body.appendChild(emp);
+    }else{
+      colTasks.forEach(t=> body.appendChild(renderCard(t)));
+    }
+    colEl.appendChild(body);
+
+    const addBtn = document.createElement("button");
+    addBtn.className = "col-add";
+    addBtn.textContent = "＋ Add task";
+    addBtn.addEventListener("click", ()=> openNewTaskPanel(col.id));
+    colEl.appendChild(addBtn);
+
+    boardEl.appendChild(colEl);
+  });
+  updateNavCounts();
+}
+
+function toggleCollapse(id){
+  const idx = collapsedCols.indexOf(id);
+  if(idx>-1) collapsedCols.splice(idx,1); else collapsedCols.push(id);
+  localStorage.setItem("shiori_collapsed", JSON.stringify(collapsedCols));
+  renderBoard();
+}
+
+function renderCard(t){
+  const card = document.createElement("div");
+  card.className = "card priority-"+t.priority;
+  card.draggable = true;
+  card.tabIndex = 0;
+  card.setAttribute("role","button");
+  card.setAttribute("aria-label", "Open task "+t.title);
+  card.dataset.id = t.id;
+
+  card.addEventListener("dragstart",(e)=>{
+    card.classList.add("dragging");
+    e.dataTransfer.setData("text/task-id", t.id);
+    e.dataTransfer.effectAllowed = "move";
+  });
+  card.addEventListener("dragend", ()=> card.classList.remove("dragging"));
+  card.addEventListener("click", ()=> openTaskPanel(t.id));
+  card.addEventListener("dblclick", (e)=>{ e.stopPropagation(); openTaskPanel(t.id, true); });
+  card.addEventListener("keydown",(e)=>{ if(e.key==="Enter") openTaskPanel(t.id); });
+
+  const doneCount = (t.checklist||[]).filter(c=>c.done).length;
+  const totalCount = (t.checklist||[]).length;
+  const progressPct = totalCount ? Math.round(doneCount/totalCount*100) : 0;
+
+  const overdue = t.dueDate && t.dueDate < todayStr() && t.status!=="completed";
+
+  card.innerHTML = `
+    <div class="card-top">
+      ${t.emoji ? `<span class="card-emoji">${t.emoji}</span>` : ""}
+      <span class="card-title">${escapeHtml(t.title||"Untitled task")}</span>
+      ${t.pinned ? '<span class="card-pin">📌</span>' : ""}
+    </div>
+    ${t.tags && t.tags.length ? `<div class="card-tags">${t.tags.map(tag=>`<span class="tag-chip">${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
+    <div class="card-meta">
+      ${t.dueDate ? `<span class="due ${overdue?'overdue':''}">📅 ${formatDate(t.dueDate)}</span>` : ""}
+      ${totalCount ? `<span>☑ ${doneCount}/${totalCount}</span>` : ""}
+    </div>
+    ${totalCount ? `<div class="card-progress"><div class="mini-bar"><div class="mini-bar-fill" style="width:${progressPct}%"></div></div></div>` : ""}
+  `;
+  return card;
+}
+
+function moveTaskToStatus(taskId, status){
+  const t = data.tasks.find(x=>x.id===taskId);
+  if(!t || t.status===status) return;
+  t.status = status;
+  t.order = Date.now();
+  t.edited = nowISO();
+  t.history.push({ts:nowISO(), text:`Moved to ${labelForStatus(status)}`});
+  save();
+  renderBoard();
+  if(currentView==="dashboard") renderDashboard();
+}
+
+function labelForStatus(id){ const c = COLUMNS.find(c=>c.id===id); return c ? c.title : id; }
+
+function updateNavCounts(){
+  document.getElementById("nav-count-kanban").textContent = data.tasks.filter(t=>t.status!=="completed").length;
+  document.getElementById("nav-count-archive").textContent = (data.archived||[]).length || archivedTasks().length;
+}
+function archivedTasks(){ return data.tasks.filter(t=>t.archived); }
+
+function openNewTaskPanel(status){
+  const t = makeTask({status: status || "inbox", order: Date.now()});
+  data.tasks.push(t);
+  save();
+  renderBoard();
+  openTaskPanel(t.id, true);
+}
+document.getElementById("new-task-btn").addEventListener("click", ()=>{
+  if(currentView!=="kanban") setView("kanban");
+  openNewTaskPanel("inbox");
+});
+
+/* ============================================================
+   TASK PANEL
+   ============================================================ */
+let activeTaskId = null;
+const panel = document.getElementById("panel");
+const overlay = document.getElementById("overlay");
+
+const statusSelect = document.getElementById("panel-status-select");
+statusSelect.innerHTML = COLUMNS.map(c=>`<option value="${c.id}">${c.emoji} ${c.title}</option>`).join("");
+
+function openTaskPanel(id, focusTitle){
+  activeTaskId = id;
+  const t = data.tasks.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById("panel-title").value = t.title;
+  document.getElementById("panel-desc").value = t.description||"";
+  document.getElementById("panel-emoji-select").value = t.emoji||"";
+  statusSelect.value = t.status;
+  document.getElementById("panel-due").value = t.dueDate||"";
+  document.getElementById("panel-notes").value = t.notes||"";
+  document.getElementById("panel-next-action").value = t.nextAction||"";
+  document.getElementById("panel-pin-btn").style.color = t.pinned ? "var(--amber)" : "";
+  setPriorityPills(t.priority);
+  renderTags(t);
+  renderChecklist(t);
+  renderLinks(t);
+  renderHistory(t);
+  document.getElementById("panel-edited").textContent = "Edited " + timeAgo(t.edited);
+
+  overlay.classList.add("show");
+  panel.classList.add("show");
+  autoResize(document.getElementById("panel-title"));
+  if(focusTitle) setTimeout(()=>document.getElementById("panel-title").focus(), 260);
+}
+
+function closeTaskPanel(){
+  panel.classList.remove("show");
+  overlay.classList.remove("show");
+  activeTaskId = null;
+  renderBoard();
+  if(currentView==="dashboard") renderDashboard();
+  if(currentView==="archive") renderArchive();
+}
+document.getElementById("panel-close-btn").addEventListener("click", closeTaskPanel);
+overlay.addEventListener("click", closeTaskPanel);
+
+function getActiveTask(){ return data.tasks.find(t=>t.id===activeTaskId); }
+
+function touchTask(t, note){
+  t.edited = nowISO();
+  if(note) t.history.push({ts:nowISO(), text:note});
+  document.getElementById("panel-edited").textContent = "Edited " + timeAgo(t.edited);
+  save();
+}
+
+document.getElementById("panel-title").addEventListener("input", (e)=>{
+  const t = getActiveTask(); if(!t) return;
+  t.title = e.target.value;
+  autoResize(e.target);
+  touchTask(t);
+  updateCardInPlace(t);
+});
+function autoResize(el){ el.style.height="auto"; el.style.height = el.scrollHeight+"px"; }
+
+document.getElementById("panel-desc").addEventListener("input", (e)=>{
+  const t=getActiveTask(); if(!t) return; t.description = e.target.value; touchTask(t);
+});
+document.getElementById("panel-notes").addEventListener("input", (e)=>{
+  const t=getActiveTask(); if(!t) return; t.notes = e.target.value; touchTask(t);
+});
+document.getElementById("panel-next-action").addEventListener("input", (e)=>{
+  const t=getActiveTask(); if(!t) return; t.nextAction = e.target.value; touchTask(t);
+});
+document.getElementById("panel-due").addEventListener("change", (e)=>{
+  const t=getActiveTask(); if(!t) return; t.dueDate = e.target.value; touchTask(t,"Due date set"); updateCardInPlace(t);
+});
+document.getElementById("panel-emoji-select").addEventListener("change",(e)=>{
+  const t=getActiveTask(); if(!t) return; t.emoji = e.target.value; touchTask(t); updateCardInPlace(t);
+});
+statusSelect.addEventListener("change",(e)=>{
+  const t=getActiveTask(); if(!t) return;
+  t.status = e.target.value; t.order = Date.now();
+  touchTask(t, "Status changed to "+labelForStatus(t.status));
+  renderBoard();
+});
+document.getElementById("panel-pin-btn").addEventListener("click",(e)=>{
+  const t=getActiveTask(); if(!t) return;
+  t.pinned = !t.pinned;
+  e.currentTarget.style.color = t.pinned ? "var(--amber)" : "";
+  touchTask(t, t.pinned?"Pinned":"Unpinned");
+  updateCardInPlace(t);
+});
+
+function updateCardInPlace(t){
+  // cheap re-render of board only if visible, to reflect title/due/emoji changes live
+  if(currentView==="kanban"){
+    const existing = boardEl.querySelector(`.card[data-id="${t.id}"]`);
+    if(existing) existing.replaceWith(renderCard(t));
+  }
+}
+
+/* priority pills */
+function setPriorityPills(p){
+  document.querySelectorAll("#priority-pills .pill").forEach(pill=>{
+    pill.classList.toggle("active", pill.dataset.p===p);
+  });
+}
+document.getElementById("priority-pills").addEventListener("click",(e)=>{
+  const pill = e.target.closest(".pill"); if(!pill) return;
+  const t = getActiveTask(); if(!t) return;
+  t.priority = pill.dataset.p;
+  setPriorityPills(t.priority);
+  touchTask(t, "Priority set to "+t.priority);
+  updateCardInPlace(t);
+});
+
+/* tags */
+function renderTags(t){
+  const wrap = document.getElementById("panel-tags");
+  const input = document.getElementById("panel-tag-input");
+  wrap.querySelectorAll(".tag-editable").forEach(el=>el.remove());
+  (t.tags||[]).forEach(tag=>{
+    const chip = document.createElement("span");
+    chip.className = "tag-editable";
+    chip.innerHTML = `${escapeHtml(tag)} <button aria-label="Remove tag">✕</button>`;
+    chip.querySelector("button").addEventListener("click",()=>{
+      t.tags = t.tags.filter(x=>x!==tag);
+      touchTask(t,"Tag removed"); renderTags(t); updateCardInPlace(t);
+    });
+    wrap.insertBefore(chip, input);
+  });
+}
+document.getElementById("panel-tag-input").addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){
+    const t = getActiveTask(); if(!t) return;
+    const val = e.target.value.trim();
+    if(val){
+      t.tags = t.tags || [];
+      if(!t.tags.includes(val)) t.tags.push(val);
+      touchTask(t,"Tag added: "+val);
+      e.target.value = "";
+      renderTags(t);
+      updateCardInPlace(t);
+    }
+  }
+});
+
+/* checklist */
+let draggedCiId = null;
+function renderChecklist(t){
+  const wrap = document.getElementById("checklist");
+  wrap.innerHTML = "";
+  (t.checklist||[]).forEach(ci=>{
+    const row = document.createElement("div");
+    row.className = "checklist-item" + (ci.done ? " done":"");
+    row.draggable = true;
+    row.dataset.id = ci.id;
+    row.innerHTML = `
+      <span class="ci-drag">⋮⋮</span>
+      <input type="checkbox" ${ci.done?"checked":""} aria-label="Toggle checklist item">
+      <input type="text" class="ci-text" value="${escapeAttr(ci.text)}">
+      <button class="ci-del" aria-label="Delete checklist item">✕</button>
+    `;
+    row.querySelector('input[type=checkbox]').addEventListener("change",(e)=>{
+      ci.done = e.target.checked;
+      row.classList.toggle("done", ci.done);
+      touchTask(t,"Checklist item "+(ci.done?"completed":"reopened"));
+      updateChecklistProgress(t);
+      updateCardInPlace(t);
+    });
+    row.querySelector(".ci-text").addEventListener("input",(e)=>{
+      ci.text = e.target.value; touchTask(t);
+    });
+    row.querySelector(".ci-text").addEventListener("keydown",(e)=>{
+      if(e.key===" " && e.target === document.activeElement && e.shiftKey){ /* allow spaces normally */ }
+    });
+    row.querySelector(".ci-del").addEventListener("click",()=>{
+      t.checklist = t.checklist.filter(x=>x.id!==ci.id);
+      touchTask(t,"Checklist item removed");
+      renderChecklist(t); updateChecklistProgress(t); updateCardInPlace(t);
+    });
+    row.addEventListener("dragstart",()=>{ draggedCiId = ci.id; row.classList.add("dragging"); });
+    row.addEventListener("dragend",()=> row.classList.remove("dragging"));
+    row.addEventListener("dragover",(e)=> e.preventDefault());
+    row.addEventListener("drop",(e)=>{
+      e.preventDefault();
+      if(!draggedCiId || draggedCiId===ci.id) return;
+      const list = t.checklist;
+      const fromIdx = list.findIndex(x=>x.id===draggedCiId);
+      const toIdx = list.findIndex(x=>x.id===ci.id);
+      const [moved] = list.splice(fromIdx,1);
+      list.splice(toIdx,0,moved);
+      touchTask(t,"Checklist reordered");
+      renderChecklist(t);
+    });
+    wrap.appendChild(row);
+  });
+  updateChecklistProgress(t);
+}
+function updateChecklistProgress(t){
+  const total = (t.checklist||[]).length;
+  const done = (t.checklist||[]).filter(c=>c.done).length;
+  document.getElementById("checklist-count").textContent = `${done} / ${total}`;
+  document.getElementById("checklist-bar").style.width = total ? (done/total*100)+"%" : "0%";
+}
+document.getElementById("add-ci-input").addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){
+    const t = getActiveTask(); if(!t) return;
+    const val = e.target.value.trim();
+    if(val){
+      t.checklist = t.checklist||[];
+      t.checklist.push({id:uid(), text:val, done:false});
+      touchTask(t,"Checklist item added");
+      e.target.value = "";
+      renderChecklist(t);
+      updateCardInPlace(t);
+    }
+  }
+});
+
+/* links */
+function renderLinks(t){
+  const wrap = document.getElementById("links-list");
+  wrap.innerHTML = "";
+  (t.links||[]).forEach((link,idx)=>{
+    const row = document.createElement("div");
+    row.className = "link-row";
+    row.innerHTML = `<span>🔗</span><a href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link)}</a><button class="ci-del" style="opacity:1" aria-label="Remove link">✕</button>`;
+    row.querySelector("button").addEventListener("click",()=>{
+      t.links.splice(idx,1);
+      touchTask(t,"Link removed");
+      renderLinks(t);
+    });
+    wrap.appendChild(row);
+  });
+}
+document.getElementById("add-link-input").addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){
+    const t = getActiveTask(); if(!t) return;
+    let val = e.target.value.trim();
+    if(val){
+      if(!/^https?:\/\//i.test(val)) val = "https://"+val;
+      t.links = t.links||[];
+      t.links.push(val);
+      touchTask(t,"Link added");
+      e.target.value="";
+      renderLinks(t);
+    }
+  }
+});
+
+/* history */
+function renderHistory(t){
+  const wrap = document.getElementById("history-list");
+  const items = (t.history||[]).slice().reverse().slice(0,12);
+  wrap.innerHTML = items.map(h=>`<div class="history-item"><span class="dot"></span><span>${escapeHtml(h.text)} · ${timeAgo(h.ts)}</span></div>`).join("") || `<div class="history-item"><span>No history yet.</span></div>`;
+}
+
+/* delete */
+document.getElementById("delete-task-btn").addEventListener("click", ()=>{
+  const t = getActiveTask(); if(!t) return;
+  lastDeleted = {task: JSON.parse(JSON.stringify(t)), index: data.tasks.indexOf(t)};
+  data.tasks = data.tasks.filter(x=>x.id!==t.id);
+  save();
+  closeTaskPanel();
+  toastWithUndo("Task deleted.", ()=>{
+    if(lastDeleted){
+      data.tasks.splice(Math.min(lastDeleted.index, data.tasks.length), 0, lastDeleted.task);
+      save(); renderBoard(); renderDashboard();
+      toast("Task restored.");
+      lastDeleted = null;
+    }
+  });
+});
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+function toast(msg){
+  const wrap = document.getElementById("toast-wrap");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `<span>${escapeHtml(msg)}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(), 3200);
+}
+function toastWithUndo(msg, onUndo){
+  const wrap = document.getElementById("toast-wrap");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `<span>${escapeHtml(msg)}</span><button>Undo</button>`;
+  el.querySelector("button").addEventListener("click", ()=>{ onUndo(); el.remove(); });
+  wrap.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, 5000);
+}
+
+/* ============================================================
+   QUICK ADD
+   ============================================================ */
+const quickAddOverlay = document.getElementById("quick-add-overlay");
+const quickAddInput = document.getElementById("quick-add-input");
+function openQuickAdd(){
+  quickAddOverlay.classList.add("show");
+  quickAddInput.value = "";
+  setTimeout(()=>quickAddInput.focus(), 60);
+}
+function closeQuickAdd(){ quickAddOverlay.classList.remove("show"); }
+quickAddOverlay.addEventListener("click",(e)=>{ if(e.target===quickAddOverlay) closeQuickAdd(); });
+quickAddInput.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){
+    const val = e.target.value.trim();
+    if(val){
+      const t = makeTask({title:val, status:"inbox", order:Date.now()});
+      data.tasks.push(t); save();
+      renderBoard(); if(currentView==="dashboard") renderDashboard();
+      toast("Added to Inbox.");
+    }
+    closeQuickAdd();
+  } else if(e.key==="Escape"){ closeQuickAdd(); }
+});
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function renderDashboard(){
+  const today = todayStr();
+  const active = data.tasks.filter(t=>!t.archived);
+  const dueToday = active.filter(t=>t.dueDate===today && t.status!=="completed");
+  const waiting = active.filter(t=>t.status==="waiting");
+  const inProgress = active.filter(t=>t.status==="progress");
+  const completedToday = active.filter(t=>t.status==="completed" && t.edited && t.edited.slice(0,10)===today);
+  const focus = active.filter(t=>t.nextAction && t.status!=="completed").slice(0,6);
+
+  const totalRelevant = active.filter(t=>t.status!=="completed").length + completedToday.length;
+  const pct = totalRelevant ? Math.round(completedToday.length/Math.max(totalRelevant,1)*100) : 0;
+  const circumference = 289;
+  document.getElementById("ring-fill").setAttribute("stroke-dashoffset", circumference - (circumference*Math.min(pct,100)/100));
+  document.getElementById("ring-num").textContent = pct+"%";
+
+  const hour = new Date().getHours();
+  const greet = hour<12 ? "Good morning" : hour<18 ? "Good afternoon" : "Good evening";
+  document.getElementById("dash-greet").textContent = greet + ".";
+  document.getElementById("dash-date").textContent = new Date().toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"});
+  document.getElementById("dash-motto").textContent = MOTTOS[new Date().getDate() % MOTTOS.length];
+
+  fillDashList("dash-focus", focus, "🎯 Nothing to focus on — add a Next Action to a task.");
+  fillDashList("dash-due", dueToday, "🌤️ Nothing due today.");
+  fillDashList("dash-waiting", waiting, "🍃 You're not waiting on anyone.");
+  fillDashList("dash-progress", inProgress, "🏃 Nothing in motion.");
+  fillDashList("dash-completed", completedToday, "🌸 Finish something today.");
+}
+function fillDashList(elId, list, emptyMsg){
+  const el = document.getElementById(elId);
+  if(!list.length){ el.innerHTML = `<div class="dash-empty">${emptyMsg}</div>`; return; }
+  el.innerHTML = list.map(t=>{
+    const color = t.priority==="high" ? "var(--danger)" : t.priority==="medium" ? "var(--amber)" : "var(--sage)";
+    return `<div class="dash-task-row" data-id="${t.id}"><span class="dot" style="background:${color}"></span>${escapeHtml(t.title)}</div>`;
+  }).join("");
+  el.querySelectorAll(".dash-task-row").forEach(row=>{
+    row.addEventListener("click", ()=>{ setView("kanban"); setTimeout(()=>openTaskPanel(row.dataset.id),50); });
+  });
+}
+
+/* ============================================================
+   NOTES
+   ============================================================ */
+let activeNoteId = null;
+function renderNotes(){
+  const list = document.getElementById("notes-list");
+  list.innerHTML = "";
+  const addBtn = document.createElement("button");
+  addBtn.className = "btn";
+  addBtn.style.width = "100%";
+  addBtn.style.marginBottom = "10px";
+  addBtn.textContent = "＋ New note";
+  addBtn.addEventListener("click", ()=>{
+    const n = {id:uid(), title:"Untitled note", body:"", created:nowISO(), edited:nowISO()};
+    data.notes.unshift(n); save(); renderNotes(); openNote(n.id);
+  });
+  list.appendChild(addBtn);
+
+  data.notes.slice().sort((a,b)=> new Date(b.edited)-new Date(a.edited)).forEach(n=>{
+    const item = document.createElement("div");
+    item.className = "note-item" + (n.id===activeNoteId ? " active":"");
+    const preview = (n.body||"").replace(/\n/g," ").slice(0,60);
+    item.innerHTML = `<div class="nt">${escapeHtml(n.title||"Untitled note")}</div><div class="np">${escapeHtml(preview)||"No content yet"}</div>`;
+    item.addEventListener("click", ()=> openNote(n.id));
+    list.appendChild(item);
+  });
+
+  if(activeNoteId && data.notes.find(n=>n.id===activeNoteId)){
+    openNote(activeNoteId);
+  } else {
+    document.getElementById("notes-editor").innerHTML = '<div class="notes-empty" id="notes-empty">🍃 Select a note, or create one.</div>';
+  }
+}
+function openNote(id){
+  activeNoteId = id;
+  const n = data.notes.find(x=>x.id===id);
+  if(!n) return;
+  document.querySelectorAll(".note-item").forEach(el=>el.classList.remove("active"));
+  const editor = document.getElementById("notes-editor");
+  editor.innerHTML = `
+    <input type="text" id="note-title-input" class="panel-title-input" style="font-size:20px;margin-bottom:12px;" value="${escapeAttr(n.title)}" placeholder="Untitled note">
+    <textarea id="note-body-input" placeholder="Start writing… (markdown-style, auto-saves)">${escapeHtml(n.body||"")}</textarea>
+  `;
+  document.getElementById("note-title-input").addEventListener("input",(e)=>{
+    n.title = e.target.value; n.edited = nowISO(); save(); renderNotesListOnly();
+  });
+  document.getElementById("note-body-input").addEventListener("input",(e)=>{
+    n.body = e.target.value; n.edited = nowISO(); save(); renderNotesListOnly();
+  });
+  renderNotesListOnly();
+}
+function renderNotesListOnly(){
+  const list = document.getElementById("notes-list");
+  list.querySelectorAll(".note-item").forEach((item, idx)=>{});
+  // lightweight refresh of previews without losing focus: rebuild list items only
+  const sorted = data.notes.slice().sort((a,b)=> new Date(b.edited)-new Date(a.edited));
+  const items = list.querySelectorAll(".note-item");
+  sorted.forEach((n,i)=>{
+    const el = items[i];
+    if(!el) return;
+    el.classList.toggle("active", n.id===activeNoteId);
+    const preview = (n.body||"").replace(/\n/g," ").slice(0,60);
+    el.querySelector(".nt").textContent = n.title || "Untitled note";
+    el.querySelector(".np").textContent = preview || "No content yet";
+  });
+}
+
+/* ============================================================
+   ARCHIVE
+   ============================================================ */
+function renderArchive(){
+  const list = document.getElementById("archive-list");
+  const archived = data.tasks.filter(t=>t.status==="completed" || t.archived);
+  if(!archived.length){
+    list.innerHTML = `<div class="dash-empty">🗃️ Nothing archived yet. Completed tasks appear here.</div>`;
+    return;
+  }
+  list.innerHTML = archived.map(t=>`
+    <div class="archive-row" data-id="${t.id}">
+      <span>${t.emoji||"✅"}</span>
+      <span class="t">${escapeHtml(t.title)}</span>
+      <span class="meta">${timeAgo(t.edited)}</span>
+    </div>
+  `).join("");
+  list.querySelectorAll(".archive-row").forEach(row=>{
+    row.addEventListener("click", ()=> openTaskPanelFromArchive(row.dataset.id));
+  });
+}
+function openTaskPanelFromArchive(id){
+  setView("kanban");
+  setTimeout(()=>openTaskPanel(id), 50);
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+function renderSettings(){
+  const total = data.tasks.length;
+  const completed = data.tasks.filter(t=>t.status==="completed").length;
+  const active = total - completed;
+  const notesCount = data.notes.length;
+  document.getElementById("stats-box").innerHTML = `
+    <div>📋 ${total} total tasks</div>
+    <div>🏃 ${active} active</div>
+    <div>✅ ${completed} completed</div>
+    <div>📝 ${notesCount} notes</div>
+  `;
+}
+document.getElementById("clear-completed-btn").addEventListener("click", ()=>{
+  const n = data.tasks.filter(t=>t.status==="completed").length;
+  if(n===0){ toast("No completed tasks to clear."); return; }
+  data.tasks.forEach(t=>{ if(t.status==="completed") t.archived = true; });
+  save(); renderBoard(); renderSettings();
+  toast(`Moved ${n} task(s) to Archive.`);
+});
+document.getElementById("export-btn").addEventListener("click", exportData);
+function exportData(){
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `shiori-export-${todayStr()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast("Exported.");
+}
+document.getElementById("import-btn").addEventListener("click", ()=> document.getElementById("import-file").click());
+document.getElementById("import-file").addEventListener("change", (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const parsed = JSON.parse(ev.target.result);
+      if(!parsed.tasks) throw new Error("Invalid file");
+      data = Object.assign(defaultData(), parsed);
+      save();
+      renderBoard(); renderDashboard(); renderSettings();
+      toast("Imported successfully.");
+    }catch(err){
+      toast("Import failed — invalid file.");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+document.getElementById("reset-btn").addEventListener("click", ()=>{
+  if(confirm("This will erase all Shiori data on this device. Continue?")){
+    localStorage.removeItem(STORAGE_KEY);
+    data = defaultData();
+    seedIfEmpty();
+    renderBoard(); renderDashboard(); renderSettings();
+    toast("App reset.");
+  }
+});
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+   ============================================================ */
+document.addEventListener("keydown", (e)=>{
+  const tag = (e.target.tagName||"").toLowerCase();
+  const typing = tag==="input" || tag==="textarea" || tag==="select";
+
+  if(e.key==="Escape"){
+    if(quickAddOverlay.classList.contains("show")) closeQuickAdd();
+    else if(panel.classList.contains("show")) closeTaskPanel();
+    return;
+  }
+  if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="s"){
+    e.preventDefault(); exportData(); return;
+  }
+  if(typing) return;
+
+  if(e.key.toLowerCase()==="n"){ e.preventDefault(); openQuickAdd(); }
+  else if(e.key==="/"){ e.preventDefault(); searchInput.focus(); }
+});
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function escapeHtml(str){
+  return String(str==null?"":str).replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+function formatDate(iso){
+  if(!iso) return "";
+  const d = new Date(iso+"T00:00:00");
+  return d.toLocaleDateString(undefined,{month:"short", day:"numeric"});
+}
+function timeAgo(iso){
+  if(!iso) return "";
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff/60000);
+  if(mins < 1) return "just now";
+  if(mins < 60) return mins+"m ago";
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+"h ago";
+  const days = Math.floor(hrs/24);
+  if(days < 7) return days+"d ago";
+  return new Date(iso).toLocaleDateString(undefined,{month:"short", day:"numeric"});
+}
+
+/* ============================================================
+   PERSONALITY — calm rotating message
+   ============================================================ */
+function rotateCalmMessage(){
+  document.getElementById("calm-msg").textContent = CALM_MESSAGES[Math.floor(Math.random()*CALM_MESSAGES.length)];
+}
+setInterval(rotateCalmMessage, 45000);
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init(){
+  const savedTheme = localStorage.getItem(THEME_KEY) || "light";
+  applyTheme(savedTheme);
+  seedIfEmpty();
+  renderDashboard();
+  renderBoard();
+  rotateCalmMessage();
+}
+init();
+
+})();
+</script>
+</body>
+</html>
