@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiori — Product Wireframe Document</title>
+<style>
+/* ============================================================
+   SHIORI WIREFRAME DOCUMENT
+   Low-fidelity design artifact. Grayscale + one accent (periwinkle),
+   dashed borders, sticky-note annotations, blueprint grid, hand-drawn
+   flow arrows. Built for portfolio / case-study presentation.
+   ============================================================ */
+:root{
+  --paper:#FAF9F6;
+  --grid:#E7E4DC;
+  --ink:#2E2C28;
+  --ink-soft:#6B6860;
+  --ink-faint:#9A968C;
+  --line:#B9B5A9;
+  --line-dash:#A8A398;
+  --accent:#8B8FD9;
+  --accent-soft:#EAE9F9;
+  --sticky:#FFF6D8;
+  --sticky-border:#E8D98A;
+  --sticky2:#FFE6EC;
+  --sticky2-border:#F0B9C6;
+  --card:#FFFFFF;
+  --shadow: 0 2px 10px rgba(46,44,40,.06);
+  --font-hand: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Marker Felt", cursive;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "Consolas", "Courier New", monospace;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  color:var(--ink);
+  font-family:var(--font-body);
+  min-height:100vh;
+}
+::selection{ background:var(--accent-soft); }
+
+/* ============================================================
+   TOP BAR / DOCUMENT HEADER
+   ============================================================ */
+#doc-header{
+  position:sticky; top:0; z-index:50;
+  background:rgba(250,249,246,.92);
+  backdrop-filter: blur(6px);
+  border-bottom:1.5px dashed var(--line-dash);
+  padding:18px 32px;
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+}
+.doc-mark{
+  width:34px;height:34px;border-radius:8px;flex-shrink:0;
+  background:var(--card); border:2px dashed var(--accent);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.doc-title{font-weight:700;font-size:15px;letter-spacing:.02em;}
+.doc-sub{font-family:var(--font-hand);color:var(--ink-soft);font-size:14px;margin-top:1px;}
+.doc-header-spacer{flex:1;}
+.doc-stamp{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-faint); border:1.5px dashed var(--line); border-radius:20px; padding:5px 12px;
+  transform:rotate(-1.5deg);
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+#tabs{
+  display:flex; gap:6px; padding:14px 32px 0 32px; flex-wrap:wrap;
+  border-bottom:1.5px dashed var(--line-dash);
+}
+.tab-btn{
+  font-family:var(--font-body); font-size:12.5px; font-weight:600; color:var(--ink-soft);
+  background:none; border:1.5px dashed transparent; border-bottom:none;
+  padding:9px 16px; border-radius:10px 10px 0 0; cursor:pointer;
+  display:flex; align-items:center; gap:7px;
+  transition:background .15s ease, color .15s ease;
+}
+.tab-btn .tnum{
+  font-family:var(--font-mono); font-size:9.5px; color:var(--ink-faint);
+  border:1px solid var(--line); border-radius:50%; width:16px;height:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.tab-btn:hover{ background:var(--accent-soft); color:var(--ink); }
+.tab-btn.active{
+  background:var(--paper); color:var(--ink); border-color:var(--line-dash);
+  border-bottom:1.5px solid var(--paper); margin-bottom:-1.5px;
+}
+.tab-btn.active .tnum{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* ============================================================
+   PAGES
+   ============================================================ */
+.page{ display:none; padding:40px 32px 90px 32px; max-width:1180px; margin:0 auto; animation: fadeIn .25s ease; }
+.page.active{ display:block; }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+.page-eyebrow{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:8px;
+}
+.page-title{ font-size:26px; font-weight:700; margin:0 0 6px 0; }
+.page-purpose{
+  font-family:var(--font-hand); font-size:16px; color:var(--ink-soft); max-width:640px; margin:0 0 30px 0;
+  line-height:1.5;
+}
+
+/* ============================================================
+   WIREFRAME PRIMITIVES
+   ============================================================ */
+.frame{
+  background:var(--card); border:1.5px dashed var(--line-dash); border-radius:16px;
+  padding:26px; position:relative; box-shadow:var(--shadow);
+}
+.wf-box{
+  border:1.5px dashed var(--line); border-radius:10px; background:#FCFBF9;
+  display:flex; align-items:center; justify-content:center; color:var(--ink-faint);
+  font-size:11px; text-align:center; padding:10px;
+}
+.wf-line{ height:9px; border-radius:5px; background:repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 10px); opacity:.55; }
+.wf-pill{
+  border:1.5px dashed var(--line); border-radius:20px; padding:6px 14px; font-size:11px; color:var(--ink-soft);
+  background:#FCFBF9; display:inline-flex; align-items:center; gap:6px;
+}
+.wf-btn{
+  border:1.5px dashed var(--accent); color:var(--accent); background:var(--accent-soft);
+  border-radius:10px; padding:9px 16px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;
+}
+.dot{ width:7px;height:7px;border-radius:50%; }
+
+/* Sticky note annotation */
+.sticky{
+  position:relative;
+  background:var(--sticky); border:1px solid var(--sticky-border);
+  border-radius:3px; padding:12px 14px; font-family:var(--font-hand); font-size:13.5px;
+  line-height:1.4; color:#4d4530; box-shadow:0 3px 8px rgba(0,0,0,.08);
+  transform:rotate(-1.6deg);
+}
+.sticky.pink{ background:var(--sticky2); border-color:var(--sticky2-border); color:#5a2f3a; transform:rotate(1.4deg); }
+.sticky::before{
+  content:""; position:absolute; top:-7px; left:50%; transform:translateX(-50%) rotate(3deg);
+  width:26px; height:12px; background:rgba(255,255,255,.55); border:1px solid rgba(0,0,0,.05);
+}
+
+/* Collapsible rationale callout */
+.rationale{
+  border:1.5px dashed var(--line-dash); border-radius:12px; margin-top:14px; overflow:hidden;
+  background:#FCFBF7;
+}
+.rationale-head{
+  display:flex; align-items:center; gap:8px; padding:11px 15px; cursor:pointer; user-select:none;
+  font-size:11.5px; font-weight:700; color:var(--ink-soft);
+}
+.rationale-head .chev{ margin-left:auto; font-size:10px; transition:transform .2s ease; color:var(--ink-faint); }
+.rationale.open .chev{ transform:rotate(90deg); }
+.rationale-body{
+  max-height:0; overflow:hidden; transition:max-height .25s ease;
+  font-size:12.5px; color:var(--ink-soft); line-height:1.6;
+}
+.rationale.open .rationale-body{ max-height:240px; }
+.rationale-body-inner{ padding:0 15px 14px 15px; }
+.rationale-head .tag{
+  font-family:var(--font-mono); font-size:9px; text-transform:uppercase; letter-spacing:.06em;
+  border:1px solid var(--accent); color:var(--accent); border-radius:20px; padding:2px 8px;
+}
+
+/* Flow arrows */
+.flow-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:34px; }
+.flow-step{
+  font-family:var(--font-hand); font-size:14px; border:1.5px dashed var(--line); border-radius:20px;
+  padding:8px 16px; background:var(--card); white-space:nowrap;
+}
+.flow-step.here{ border-color:var(--accent); color:var(--accent); background:var(--accent-soft); font-weight:700; }
+.flow-arrow{ color:var(--ink-faint); font-size:15px; }
+
+/* Grid helpers */
+.grid-2{ display:grid; grid-template-columns:1.3fr .9fr; gap:20px; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+@media (max-width:820px){ .grid-2{ grid-template-columns:1fr; } .grid-3{ grid-template-columns:1fr; } }
+
+.section-label{
+  font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--ink-faint); margin-bottom:8px;
+}
+
+/* Hand-drawn-ish freeform arrow (SVG) */
+.hand-arrow{ stroke:var(--ink-faint); stroke-width:1.6; fill:none; stroke-dasharray:5 4; }
+
+/* Node diagram (hero) */
+.node{
+  border:1.5px dashed var(--line-dash); border-radius:12px; background:var(--card);
+  padding:12px 14px; box-shadow:var(--shadow); font-size:12px;
+}
+.node .nt{ font-weight:700; margin-bottom:2px; }
+.node .ns{ color:var(--ink-faint); font-size:10.5px; font-family:var(--font-mono); }
+.node.accent{ border-color:var(--accent); background:var(--accent-soft); }
+
+/* Architecture stack */
+.stack-row{
+  display:flex; align-items:center; gap:14px; padding:16px 0; border-bottom:1px dashed var(--line);
+}
+.stack-row:last-child{ border-bottom:none; }
+.stack-num{
+  width:30px;height:30px;border-radius:50%; border:1.5px dashed var(--accent); color:var(--accent);
+  display:flex;align-items:center;justify-content:center; font-family:var(--font-mono); font-size:12px; flex-shrink:0;
+}
+.stack-body .st-title{ font-weight:700; font-size:13.5px; }
+.stack-body .st-desc{ font-size:12px; color:var(--ink-soft); margin-top:2px; max-width:520px; }
+
+footer.doc-footer{
+  text-align:center; font-family:var(--font-hand); color:var(--ink-faint); font-size:13px;
+  padding:30px 20px 50px 20px;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     DOCUMENT HEADER
+     ============================================================ -->
+<header id="doc-header">
+  <div class="doc-mark">📖</div>
+  <div>
+    <div class="doc-title">Shiori — Product Wireframe Document</div>
+    <div class="doc-sub">a calm kanban, sketched out loud</div>
+  </div>
+  <div class="doc-header-spacer"></div>
+  <div class="doc-stamp">Low-fidelity · v1 · Working draft</div>
+</header>
+
+<!-- ============================================================
+     TAB NAVIGATION
+     ============================================================ -->
+<nav id="tabs">
+  <button class="tab-btn active" data-page="p0"><span class="tnum">0</span>Overview</button>
+  <button class="tab-btn" data-page="p1"><span class="tnum">1</span>Home</button>
+  <button class="tab-btn" data-page="p2"><span class="tnum">2</span>Capture</button>
+  <button class="tab-btn" data-page="p3"><span class="tnum">3</span>Organize</button>
+  <button class="tab-btn" data-page="p4"><span class="tnum">4</span>Output</button>
+  <button class="tab-btn" data-page="p5"><span class="tnum">5</span>Hero Artifact</button>
+  <button class="tab-btn" data-page="p6"><span class="tnum">6</span>Architecture</button>
+</nav>
+
+<!-- ============================================================
+     PAGE 0 — OVERVIEW
+     ============================================================ -->
+<section class="page active" id="p0">
+  <div class="page-eyebrow">Project Brief</div>
+  <h1 class="page-title">Shiori — One task at a time.</h1>
+  <p class="page-purpose">A private, single-file kanban board for people who feel worn down by loud productivity apps — dense grids, streak guilt, notification badges. Shiori asks one question, quietly: what should you work on next?</p>
+
+  <div class="grid-2" style="margin-bottom:30px;">
+    <div class="frame">
+      <div class="section-label">Core Philosophy</div>
+      <p style="font-family:var(--font-hand); font-size:19px; color:var(--ink); margin:0 0 16px 0;">"Peaceful over powerful — the interface should never compete for attention with the work itself."</p>
+      <div class="section-label">Target Users</div>
+      <p style="font-size:13px; color:var(--ink-soft); line-height:1.6; margin:0;">Solo, focused individuals who want a calm personal task tool — no accounts, no sync, no one else looking at their board. People who've bounced off Notion-style complexity and just want to know what's next.</p>
+    </div>
+    <div class="frame" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="section-label">What makes it different</div>
+      <div class="wf-pill"><span class="dot" style="background:var(--accent);"></span> Fully local — no login, no server</div>
+      <div class="wf-pill"><span class="dot" style="background:#D9A3C0;"></span> One file, opens by double-click</div>
+      <div class="wf-pill"><span class="dot" style="background:#A9BFA0;"></span> A "next action" field per task</div>
+      <div class="wf-pill"><span class="dot" style="background:var(--accent);"></span> Motion used only where it means something</div>
+    </div>
+  </div>
+
+  <div class="section-label">The primary user journey</div>
+  <div class="flow-row">
+    <div class="flow-step here">Capture</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Organize</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Focus</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Complete</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Reflect</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Archive</div>
+  </div>
+
+  <div class="sticky" style="max-width:420px;">This document is a working wireframe, not a finished UI — every box is a placeholder for intent, not pixels. Six screens follow, each with the reasoning behind it.</div>
+</section>
+
+<!-- ============================================================
+     PAGE 1 — HOME (Dashboard)
+     ============================================================ -->
+<section class="page" id="p1">
+  <div class="page-eyebrow">Screen 01 · Home</div>
+  <h1 class="page-title">Dashboard</h1>
+  <p class="page-purpose">The first thing you see. Purpose: answer "what should I do right now?" in one glance — no scanning required, no dense grid to parse.</p>
+
+  <div class="flow-row">
+    <div class="flow-step">Capture</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Organize</div><span class="flow-arrow">→</span>
+    <div class="flow-step here">Focus</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Complete</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Reflect</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Archive</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="frame">
+      <div class="section-label">Layout</div>
+      <div style="display:flex; gap:20px; align-items:center; margin-bottom:18px;">
+        <div class="wf-box" style="width:90px;height:90px;border-radius:50%;">progress<br>ring</div>
+        <div style="flex:1;">
+          <div class="wf-line" style="width:60%; margin-bottom:8px;"></div>
+          <div class="wf-line" style="width:40%; margin-bottom:8px; opacity:.35;"></div>
+          <div class="wf-pill" style="margin-top:6px;">🌿 quiet motto, rotates daily</div>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="wf-box" style="height:80px;">Today's<br>Focus</div>
+        <div class="wf-box" style="height:80px;">Due<br>Today</div>
+        <div class="wf-box" style="height:80px;">Overdue</div>
+        <div class="wf-box" style="height:80px;">Waiting</div>
+        <div class="wf-box" style="height:80px;">In Progress</div>
+        <div class="wf-box" style="height:80px;">Completed<br>Today</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="sticky">Greeting + progress ring, not a table of numbers. One glance should feel like "okay, here's my day" — not a report to read.</div>
+      <div class="sticky pink">Six small cards, same size, same weight. No card is allowed to dominate — that would turn calm into urgency.</div>
+    </div>
+  </div>
+
+  <div class="rationale" onclick="this.classList.toggle('open')">
+    <div class="rationale-head"><span class="tag">UX rationale</span> Why a ring instead of a percentage bar or checklist? <span class="chev">▸</span></div>
+    <div class="rationale-body"><div class="rationale-body-inner">A circular ring reads as "a day, in progress" rather than "a bar to fill and finish." It never implies you're behind — it just quietly shows where you are. Paired with a single rotating motto instead of tips or streaks, so there's no gamification pressure.</div></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 2 — CAPTURE / INPUT
+     ============================================================ -->
+<section class="page" id="p2">
+  <div class="page-eyebrow">Screen 02 · Capture</div>
+  <h1 class="page-title">Quick Add</h1>
+  <p class="page-purpose">Purpose: get a thought out of your head and onto the board in under two seconds — before the friction of "which column, what priority" talks you out of capturing it at all.</p>
+
+  <div class="flow-row">
+    <div class="flow-step here">Capture</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Organize</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Focus</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Complete</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Reflect</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Archive</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="frame">
+      <div class="section-label">Layout</div>
+      <div style="border:1.5px dashed var(--accent); border-radius:14px; padding:22px; background:var(--accent-soft); margin-bottom:16px;">
+        <div class="wf-line" style="width:70%; height:14px; background:none; border-bottom:1.5px dashed var(--accent);"></div>
+        <div style="font-family:var(--font-mono); font-size:10px; color:var(--accent); margin-top:8px;">↳ single text field, autofocus, Enter to submit</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <div class="wf-pill">Esc to cancel</div>
+        <div class="wf-pill">defaults to Inbox</div>
+        <div class="wf-pill">no required fields</div>
+      </div>
+      <div class="section-label" style="margin-top:22px;">Supporting entry points</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <div class="wf-btn">＋ New Task (topbar)</div>
+        <div class="wf-btn">＋ Add task (per column)</div>
+        <div class="wf-pill">keyboard: press "N" anywhere</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="sticky">One field. That's it. Title only — everything else (priority, tags, due date) can be added later, in the task panel, once the thought has a home.</div>
+      <div class="sticky pink">Three ways in (shortcut, topbar button, per-column button) because capture moments happen at different points in the flow — don't make the user hunt for the one true "add" button.</div>
+    </div>
+  </div>
+
+  <div class="rationale" onclick="this.classList.toggle('open')">
+    <div class="rationale-head"><span class="tag">UX rationale</span> Why minimize fields at capture time? <span class="chev">▸</span></div>
+    <div class="rationale-body"><div class="rationale-body-inner">Every required field at the moment of capture is a chance to lose the thought entirely. Shiori treats "getting it out of your head" and "organizing it" as two separate jobs, done at two separate times — quick add never asks for more than a title.</div></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 3 — ORGANIZE / STRUCTURE
+     ============================================================ -->
+<section class="page" id="p3">
+  <div class="page-eyebrow">Screen 03 · Organize</div>
+  <h1 class="page-title">The Board</h1>
+  <p class="page-purpose">Purpose: give every task a visible stage without overwhelming the eye — structure that's browsable at a glance, refined by dragging rather than editing forms.</p>
+
+  <div class="flow-row">
+    <div class="flow-step">Capture</div><span class="flow-arrow">→</span>
+    <div class="flow-step here">Organize</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Focus</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Complete</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Reflect</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Archive</div>
+  </div>
+
+  <div class="frame" style="margin-bottom:16px;">
+    <div class="section-label">Layout — seven lanes, one visible priority signal each</div>
+    <div style="display:flex; gap:12px; overflow-x:auto; padding-bottom:6px;">
+      <div class="wf-box" style="min-width:120px; height:190px; flex-direction:column; gap:8px;">💡 Inbox
+        <div class="wf-box" style="width:90%; height:44px;">card</div>
+      </div>
+      <div class="wf-box" style="min-width:120px; height:190px; flex-direction:column; gap:8px;">📋 Backlog</div>
+      <div class="wf-box" style="min-width:120px; height:190px; flex-direction:column; gap:8px;">🚀 Ready</div>
+      <div class="wf-box" style="min-width:120px; height:190px; flex-direction:column; gap:8px; border-color:var(--accent); color:var(--accent);">🏃 In Progress
+        <div class="wf-box" style="width:90%; height:44px; border-color:var(--accent);">card ⇢ drag</div>
+      </div>
+      <div class="wf-box" style="min-width:120px; height:190px; flex-direction:column; gap:8px;">⏳ Waiting</div>
+      <div class="wf-box" style="min-width:120px; height:190px; flex-direction:column; gap:8px;">❄️ Hold</div>
+      <div class="wf-box" style="min-width:120px; height:190px; flex-direction:column; gap:8px;">✅ Done</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="frame">
+      <div class="section-label">Per-card signal (not a badge wall)</div>
+      <div class="wf-box" style="height:70px; justify-content:flex-start; text-align:left; padding:12px; gap:0;">
+        <div style="border-left:3px dashed var(--accent); padding-left:10px; width:100%;">
+          <div class="wf-line" style="width:70%;"></div>
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <div class="wf-pill" style="padding:2px 8px; font-size:9px;">tag</div>
+            <div class="wf-pill" style="padding:2px 8px; font-size:9px;">2/4 ☑</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sticky" style="align-self:center;">Priority shown as a thin left-edge color, not a colored badge or icon cluster. It's readable at a glance but never louder than the title.</div>
+  </div>
+
+  <div class="rationale" onclick="this.classList.toggle('open')">
+    <div class="rationale-head"><span class="tag">UX rationale</span> Why seven columns instead of three? <span class="chev">▸</span></div>
+    <div class="rationale-body"><div class="rationale-body-inner">Real work isn't binary (to-do / done). Waiting and On Hold exist so tasks blocked by someone else, or intentionally paused, don't sit guiltily in "In Progress" — reducing the cognitive load of "why hasn't this moved."</div></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 4 — OUTPUT / SUMMARY
+     ============================================================ -->
+<section class="page" id="p4">
+  <div class="page-eyebrow">Screen 04 · Output</div>
+  <h1 class="page-title">Task Detail Panel</h1>
+  <p class="page-purpose">Purpose: everything about one task, condensed enough to scan in seconds when you return to it days later — what it is, what's left, and what happened.</p>
+
+  <div class="flow-row">
+    <div class="flow-step">Capture</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Organize</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Focus</div><span class="flow-arrow">→</span>
+    <div class="flow-step here">Complete</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Reflect</div><span class="flow-arrow">→</span>
+    <div class="flow-step">Archive</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="frame">
+      <div class="section-label">Layout — slide-over, not a modal</div>
+      <div class="wf-line" style="width:60%; height:16px; margin-bottom:14px;"></div>
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <div class="wf-pill">priority</div><div class="wf-pill">status</div><div class="wf-pill">due date</div>
+      </div>
+      <div class="section-label">Checklist — 2/4 done</div>
+      <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
+        <div class="wf-line" style="width:80%;"></div>
+        <div class="wf-line" style="width:65%;"></div>
+        <div class="wf-line" style="width:75%; opacity:.3;"></div>
+        <div class="wf-line" style="width:55%; opacity:.3;"></div>
+      </div>
+      <div class="section-label">History</div>
+      <div class="wf-pill" style="font-size:10px;">● Created → ● Moved to In Progress → ● Checklist item done</div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="sticky">Slides in from the side so the board stays visible behind it — you never lose your place in the bigger picture while editing one task.</div>
+      <div class="sticky pink">History is a quiet timeline, not an audit log. It exists so future-you can answer "wait, what did I already try here?" in one glance.</div>
+    </div>
+  </div>
+
+  <div class="rationale" onclick="this.classList.toggle('open')">
+    <div class="rationale-head"><span class="tag">UX rationale</span> Why "next action" as its own field? <span class="chev">▸</span></div>
+    <div class="rationale-body"><div class="rationale-body-inner">The hardest part of returning to a stalled task is rarely the whole task — it's remembering the very next step. A dedicated field means future-you never has to re-derive it.</div></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 5 — HERO ARTIFACT / CORE SCREEN
+     ============================================================ -->
+<section class="page" id="p5">
+  <div class="page-eyebrow">Screen 05 · Hero Artifact</div>
+  <h1 class="page-title">The Task Lifecycle Blueprint</h1>
+  <p class="page-purpose">The centerpiece of the product: how a single task moves through the system, and what state it carries with it at every stage.</p>
+
+  <div class="frame" style="overflow-x:auto;">
+    <svg viewBox="0 0 1080 300" width="100%" style="min-width:760px;">
+      <!-- connecting path -->
+      <path class="hand-arrow" d="M 130,150 C 220,90 260,90 340,150 S 460,210 540,150 S 660,90 740,150 S 860,210 940,150" marker-end="url(#arrow)"/>
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6" fill="none" stroke="#9A968C" stroke-width="1.4"/>
+        </marker>
+      </defs>
+    </svg>
+    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-top:-40px;">
+      <div class="node"><div class="nt">💡 Captured</div><div class="ns">title only</div></div>
+      <div class="node"><div class="nt">📋 Organized</div><div class="ns">+priority, tags</div></div>
+      <div class="node accent"><div class="nt">🏃 Active</div><div class="ns">+checklist, next action</div></div>
+      <div class="node"><div class="nt">⏳ Blocked?</div><div class="ns">waiting / on hold</div></div>
+      <div class="node"><div class="nt">✅ Done</div><div class="ns">+history entry, archived</div></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px;">
+    <div class="sticky">Every node the task passes through adds state — it never loses what came before. By the time it's "Done," its history tells the whole story without you writing a report.</div>
+    <div class="sticky pink">The dashed, branching path (not a straight line) is intentional: tasks don't always move forward in a line — "Blocked?" is a real, honest detour, not a failure state.</div>
+  </div>
+
+  <div class="rationale" onclick="this.classList.toggle('open')">
+    <div class="rationale-head"><span class="tag">UX rationale</span> Why show this as a blueprint, not a flowchart with rules? <span class="chev">▸</span></div>
+    <div class="rationale-body"><div class="rationale-body-inner">There are no enforced transitions in Shiori — any task can move to any column at any time. This diagram documents the *typical* path, not a locked state machine, because real task work resists being locked into rules.</div></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 6 — SYSTEM ARCHITECTURE
+     ============================================================ -->
+<section class="page" id="p6">
+  <div class="page-eyebrow">Screen 06 · System</div>
+  <h1 class="page-title">System Architecture</h1>
+  <p class="page-purpose">Purpose: show how little architecture this product actually needs — that's the point. No servers, no accounts, no sync layer to fail.</p>
+
+  <div class="frame">
+    <div class="stack-row">
+      <div class="stack-num">1</div>
+      <div class="stack-body"><div class="st-title">User</div><div class="st-desc">Opens shiori.html directly in a browser — no install, no account, no URL to remember.</div></div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-num">2</div>
+      <div class="stack-body"><div class="st-title">Frontend Experience</div><div class="st-desc">Dashboard, Board, Notes, Archive, Settings — all rendered client-side, vanilla HTML/CSS/JS, zero build step.</div></div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-num">3</div>
+      <div class="stack-body"><div class="st-title">Core Processing</div><div class="st-desc">In-memory task/note objects — filtering, search, drag-and-drop reordering, checklist progress, all computed instantly in the browser.</div></div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-num">4</div>
+      <div class="stack-body"><div class="st-title">Transformation Layer</div><div class="st-desc">Every change is serialized to a single JSON blob representing the whole app's state.</div></div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-num">5</div>
+      <div class="stack-body"><div class="st-title">Output Generation</div><div class="st-desc">Re-renders affected views (board, dashboard, notes) — cheap, targeted DOM updates, no framework diffing needed at this scale.</div></div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-num">6</div>
+      <div class="stack-body"><div class="st-title">Storage / Sharing</div><div class="st-desc">Persists to the browser's localStorage automatically. Manual JSON export/import is the only "sync" — by design, not limitation.</div></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px;">
+    <div class="sticky">No backend box on this diagram isn't an omission — it's the whole pitch. Nothing here can go down, get breached, or start charging a subscription.</div>
+    <div class="sticky pink">Export/Import stands in for "sync" and "backup" at once — one honest mechanism instead of two systems pretending to be automatic.</div>
+  </div>
+</section>
+
+<footer class="doc-footer">— end of wireframe document · Shiori · sketched, not shipped —</footer>
+
+<script>
+/* ============================================================
+   TAB NAVIGATION — vanilla JS only
+   ============================================================ */
+(function(){
+  const tabs = document.querySelectorAll('.tab-btn');
+  const pages = document.querySelectorAll('.page');
+  tabs.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const target = btn.dataset.page;
+      tabs.forEach(t=>t.classList.toggle('active', t===btn));
+      pages.forEach(p=>p.classList.toggle('active', p.id===target));
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+
+  // keyboard: left/right arrow to move between tabs
+  document.addEventListener('keydown',(e)=>{
+    if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const arr = Array.from(tabs);
+    const idx = arr.findIndex(t=>t.classList.contains('active'));
+    let next = e.key === 'ArrowRight' ? idx+1 : idx-1;
+    if(next < 0 || next >= arr.length) return;
+    arr[next].click();
+  });
+})();
+</script>
+</body>
+</html>
