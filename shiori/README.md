@@ -20,21 +20,32 @@ There's no login, no server, no account, no sync service quietly farming your da
 - **Yours, entirely.** No backend, no telemetry, no dependency on anyone else's servers staying up. Your tasks live in your browser's storage, on your device, full stop.
 - **Slow interface, fast thinking.** Muted colors, restrained motion, soft edges — the app should never compete for attention with the work itself.
 - **One next action.** Every task can hold a single "next action" — because the hardest part of a task is rarely the whole thing, it's knowing the very next step.
+- **Capture automatically. Move predictably. Suggest gently. Never surprise.** Shiori's automation (auto-start, auto-complete, reopening) only ever saves clicks — it never rewrites your data, never blocks a manual override, and never guesses at something you didn't already tell it.
 ---
  
 ## Features
  
 **Board**
-- Seven columns: Inbox → Backlog → Ready Next → In Progress → Waiting → On Hold → Completed
+- Six columns: Inbox → Backlog → Ready Next → In Progress → Paused → Completed
 - Drag and drop between columns, collapsible columns, pinned tasks
 - Priority shown as a soft color accent, never a loud badge
+- Subtle date labels on cards — "Due today," "Due tomorrow," "Overdue · 2d" — never a loud badge, never changes a task's status on its own
+**Smart lifecycle** — Shiori quietly handles task housekeeping so you don't have to
+- Checking a task's first checklist item moves it to In Progress automatically
+- Checking the last checklist item moves it to Completed automatically, with a `completedAt` timestamp
+- Reopening a Completed task restores it to wherever it actually was before — never dumped back to Inbox
+- A lightweight history log on every task records what changed and when (created, moved, completed, reopened, checklist/priority/due date changes)
+- All of this is undo-able and never blocks a manual move — automation only ever saves clicks, it doesn't take away control
 **Task panel**
 - Slides in from the side instead of popping up over your work
 - Title, description, priority, status, due date, tags, next action
-- Checklist with drag-to-reorder and a progress bar
+- Checklist with drag-to-reorder and an automatic progress bar
+- Tag autocomplete — suggests tags you've already used elsewhere, so "design" and "Design" don't quietly become two different tags
 - Freeform notes, linked resources, and a running history of what changed and when
+- A gentle, skippable "what's the next action?" prompt appears when a task moves from Backlog to Ready Next with no next action set yet — never blocks the move
 **Dashboard**
-- Today's focus, what's due, what's overdue, what's waiting, what's in progress, what you finished today
+- A single "Today" list — merging what's due, what's overdue, and what has a next action queued — so the dashboard answers "what should I work on next" in one glance instead of six
+- In Progress, Paused, and Completed Today, at a glance
 - A single circular progress indicator instead of a dozen charts
 - A rotating, quiet reminder that it's fine to take a tea break
 **Notes**
@@ -48,6 +59,7 @@ There's no login, no server, no account, no sync service quietly farming your da
 - Everything saves automatically to `localStorage`
 - Export the whole thing to JSON, import it back, or reset entirely
 - Undo on delete, on column moves, and on clearing completed tasks — nothing is ever permanently gone by accident
+- Old saved data is migrated safely and silently — nothing is ever lost when Shiori adds new fields under the hood
 **Keyboard shortcuts**
  
 | Key | Action |
@@ -64,7 +76,7 @@ There's no login, no server, no account, no sync service quietly farming your da
  
 There's no install step.
  
-1. Download `shiori-v4.html` (the current version)
+1. Download `shiori-v2.4.html` (the current version)
 2. Double-click it (or open it in any modern browser)
 3. Start adding tasks
 Your data stays entirely in that browser's local storage. If you switch browsers or devices, use **Settings → Export** to move your data over via the JSON file, then **Import** it on the other side.
@@ -80,16 +92,29 @@ Your data stays entirely in that browser's local storage. If you switch browsers
  
 ## Versions
  
+Shiori has grown along two tracks: an early **visual/UX line** (v1–v4) that shaped the design language, and a **Smart Flow line** (v2.1–v2.4) that picked up from v4 and taught the app to understand a task's lifecycle — without ever redesigning it.
+ 
+**Visual / UX line**
+ 
 | Version | What changed |
 |---|---|
 | v1 | Original build — warm neutral palette (soft paper / charcoal), full feature set |
 | v2 | Palette pass — pastel periwinkle, dusty pink, and muted gold instead of the original neutrals |
-| v3 | Polish pass on v2 — refined type scale, a breathing progress ring, softer motion throughout. No new features |
-| **v4** | **Current.** Usability pass — undo extended to column moves and clearing completed, a first-run nudge on an empty board, an Overdue count on the dashboard, clearer "no matches" states when searching or filtering, and optional note-to-task linking |
+| v3 | Polish pass on v2 — refined type scale, a breathing progress ring, softer motion throughout |
+| v4 | Usability pass — undo extended to column moves and clearing completed, a first-run nudge on an empty board, an Overdue count, clearer "no matches" states, optional note-to-task linking |
  
-Earlier versions (`shiori.html`, `shiori-v2.html`, `shiori-v3.html`) are kept in the repo for reference — each is a complete, working snapshot of that stage. `shiori-v4.html` is the one to actually use.
+**Smart Flow line** — functionality only, built on v4, same visual language throughout
  
-Shiori has stayed feature-frozen in spirit across versions — most changes have been about making the same small tool feel calmer, clearer, and easier to trust, not about doing more.
+| Version | What changed |
+|---|---|
+| v2.1 | Task state engine — reliable status lifecycle, `completedAt`/`previousStatus` tracking, subtle date labels, a lightweight history log, a gentle Next Action prompt, and safe migration for old saved data |
+| v2.2 | Checklist auto-completion — checking a task's last checklist item automatically completes it, reusing the same completion path as a manual complete or a drag into Completed |
+| v2.3 | Simplification pass — merged Waiting + On Hold into one Paused column, dropped the unused `favorite` field, collapsed the emoji picker behind a small toggle, and condensed the dashboard from six cards to four |
+| **v2.4** | **Current.** Checking a task's *first* checklist item now moves it to In Progress automatically; tags gained autocomplete with case-insensitive matching so near-duplicate tags don't quietly pile up |
+ 
+Earlier versions are kept in the repo as complete, working snapshots of each stage. `shiori-v2.4.html` is the one to actually use.
+ 
+Across every version, the throughline has stayed the same: make the same small tool feel calmer, clearer, and a little smarter under the hood — never louder, never more complicated on the surface.
  
 ---
  
