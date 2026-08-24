@@ -335,7 +335,7 @@ input[type=text].panel-input:focus,input[type=date].panel-input:focus{outline:no
 .add-ci-row{display:flex;gap:6px;margin-top:6px;}
 .add-ci-row input{flex:1;}
 
-.tag-input-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.tag-input-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;position:relative;}
 .tag-editable{
   font-size:11px;padding:3px 10px;border-radius:20px;background:var(--sage-soft);color:var(--ink-soft);
   display:flex;align-items:center;gap:5px;
@@ -343,6 +343,14 @@ input[type=text].panel-input:focus,input[type=date].panel-input:focus{outline:no
 .tag-editable button{background:none;border:none;cursor:pointer;color:var(--ink-faint);font-size:11px;}
 .tag-input-row input{border:1px dashed var(--line);background:none;font-size:11.5px;padding:4px 9px;border-radius:20px;color:var(--ink);width:110px;}
 .tag-input-row input:focus{outline:none;border-color:var(--sage);}
+.tag-suggest{
+  position:absolute; top:calc(100% + 4px); left:0; min-width:150px; max-height:170px; overflow-y:auto;
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow);
+  z-index:6; display:none;
+}
+.tag-suggest.show{ display:block; }
+.tag-suggest-item{ padding:7px 12px; font-size:12px; color:var(--ink-soft); cursor:pointer; }
+.tag-suggest-item:hover{ background:var(--sage-soft); color:var(--ink); }
 
 .links-list{display:flex;flex-direction:column;gap:6px;}
 .link-row{display:flex;gap:6px;align-items:center;}
@@ -502,6 +510,20 @@ input[type=text].panel-input:focus,input[type=date].panel-input:focus{outline:no
 .quick-add-box input:focus{outline:none;}
 .quick-add-hint{padding:8px 16px 12px 16px;font-size:11px;color:var(--ink-faint);border-top:1px solid var(--line-soft);}
 
+/* Next Action prompt (v2.1) — reuses the quick-add overlay pattern,
+   kept small and calm, never blocks the move that triggered it. */
+.na-prompt-box{
+  width:420px;max-width:90vw;background:var(--paper-raised);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);padding:20px 20px 16px 20px;
+}
+.na-prompt-label{font-size:13px;color:var(--ink-soft);margin-bottom:10px;}
+.na-prompt-box input{
+  width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  border-radius:10px;padding:10px 12px;font-size:13.5px;margin-bottom:12px;
+}
+.na-prompt-box input:focus{outline:none;border-color:var(--sage);}
+.na-prompt-actions{display:flex;gap:8px;justify-content:flex-end;}
+
 .hidden{display:none !important;}
 
 @media (max-width:820px){
@@ -585,11 +607,9 @@ input[type=text].panel-input:focus,input[type=date].panel-input:focus{outline:no
           </div>
         </div>
         <div class="dash-grid">
-          <div class="dash-card"><h3>Today's Focus</h3><div id="dash-focus"></div></div>
-          <div class="dash-card"><h3>Due Today</h3><div id="dash-due"></div></div>
-          <div class="dash-card"><h3>Overdue</h3><div id="dash-overdue"></div></div>
-          <div class="dash-card"><h3>Waiting</h3><div id="dash-waiting"></div></div>
+          <div class="dash-card" style="grid-column:1 / -1;"><h3>Today</h3><div id="dash-today"></div></div>
           <div class="dash-card"><h3>In Progress</h3><div id="dash-progress"></div></div>
+          <div class="dash-card"><h3>Paused</h3><div id="dash-paused"></div></div>
           <div class="dash-card"><h3>Completed Today</h3><div id="dash-completed"></div></div>
         </div>
       </div>
@@ -671,13 +691,15 @@ input[type=text].panel-input:focus,input[type=date].panel-input:focus{outline:no
 <div id="overlay"></div>
 <aside id="panel" aria-label="Task details">
   <div class="panel-head">
-    <select id="panel-emoji-select" title="Icon" style="width:52px;">
+    <button class="btn-icon" id="panel-emoji-toggle" title="Add an icon (optional)">＋</button>
+    <select id="panel-emoji-select" title="Icon" style="width:52px;" class="hidden">
       <option value="">—</option>
       <option value="🌱">🌱</option><option value="🔥">🔥</option><option value="💡">💡</option>
       <option value="📌">📌</option><option value="🎯">🎯</option><option value="🧘">🧘</option>
       <option value="✨">✨</option><option value="📚">📚</option><option value="🛠️">🛠️</option>
     </select>
     <select id="panel-status-select" aria-label="Status"></select>
+    <button class="btn hidden" id="panel-reopen-btn" style="padding:6px 12px;font-size:11.5px;">↺ Reopen</button>
     <button class="btn-icon" id="panel-pin-btn" title="Pin task">📌</button>
     <button class="btn-icon panel-close" id="panel-close-btn" aria-label="Close panel">✕</button>
   </div>
@@ -705,6 +727,7 @@ input[type=text].panel-input:focus,input[type=date].panel-input:focus{outline:no
     <div class="field-label">Tags</div>
     <div class="tag-input-row" id="panel-tags">
       <input type="text" id="panel-tag-input" placeholder="+ tag">
+      <div class="tag-suggest" id="tag-suggest"></div>
     </div>
 
     <div class="field-label">Next Action</div>
@@ -745,6 +768,18 @@ input[type=text].panel-input:focus,input[type=date].panel-input:focus{outline:no
   </div>
 </div>
 
+<!-- NEXT ACTION PROMPT (v2.1) — gentle, skippable, never blocks the move -->
+<div class="quick-add-overlay" id="na-prompt-overlay">
+  <div class="na-prompt-box">
+    <div class="na-prompt-label">What's the next action?</div>
+    <input type="text" id="na-prompt-input" placeholder="e.g. Draft the first paragraph" aria-label="Next action">
+    <div class="na-prompt-actions">
+      <button class="btn" id="na-prompt-skip">Skip</button>
+      <button class="btn btn-primary" id="na-prompt-save">Add Next Action</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-wrap"></div>
 
 <div class="kbd-hint">
@@ -766,8 +801,7 @@ const COLUMNS = [
   {id:"backlog",   emoji:"📋", title:"Backlog"},
   {id:"ready",     emoji:"🚀", title:"Ready Next"},
   {id:"progress",  emoji:"🏃", title:"In Progress"},
-  {id:"waiting",   emoji:"⏳", title:"Waiting"},
-  {id:"hold",      emoji:"❄️", title:"On Hold"},
+  {id:"paused",    emoji:"⏸️", title:"Paused"},
   {id:"completed", emoji:"✅", title:"Completed"}
 ];
 
@@ -776,8 +810,7 @@ const EMPTY_MESSAGES = {
   backlog:"🌾 A quiet field, ready for seeds.",
   ready:"🚀 Nothing queued up.",
   progress:"🍃 Nothing moving right now.",
-  waiting:"🍃 You're not waiting on anyone.",
-  hold:"❄️ Nothing on ice.",
+  paused:"🍃 Nothing paused right now.",
   completed:"🌸 Finish something today."
 };
 
@@ -815,11 +848,34 @@ function loadData(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return defaultData();
     const parsed = JSON.parse(raw);
-    return Object.assign(defaultData(), parsed);
+    const merged = Object.assign(defaultData(), parsed);
+    migrateTasks(merged);
+    return merged;
   }catch(e){
     console.error("Shiori: failed to load data", e);
     return defaultData();
   }
+}
+
+/* Data safety: old saved tasks may not have the v2.1 lifecycle fields.
+   Add safe defaults without touching anything the user already has. */
+function migrateTasks(d){
+  (d.tasks||[]).forEach(t=>{
+    // v2.3: Waiting + On Hold merged into a single Paused column
+    if(t.status==="waiting" || t.status==="hold"){
+      t.status = "paused";
+    }
+    if(t.previousStatus==="waiting" || t.previousStatus==="hold"){
+      t.previousStatus = "paused";
+    }
+    if(t.createdAt===undefined) t.createdAt = t.created || nowISO();
+    if(t.updatedAt===undefined) t.updatedAt = t.edited || t.createdAt;
+    if(t.completedAt===undefined) t.completedAt = (t.status==="completed") ? (t.updatedAt||nowISO()) : null;
+    if(t.previousStatus===undefined) t.previousStatus = null;
+    if(!Array.isArray(t.history) || t.history.length===0){
+      t.history = [{ts:t.createdAt, text:"Created"}];
+    }
+  });
 }
 
 let saveTimer = null;
@@ -845,8 +901,7 @@ function seedIfEmpty(){
       {id:uid(), text:"Persist new order", done:false},
       {id:uid(), text:"Add subtle animation", done:false}
     ]},
-    {title:"Waiting on design feedback", status:"waiting", priority:"low", emoji:"🧘", tags:["design"]},
-    {title:"Plan next quarter (on hold)", status:"hold", priority:"low", emoji:"📌", tags:["planning"]},
+    {title:"Waiting on design feedback / on hold for now", status:"paused", priority:"low", emoji:"🧘", tags:["design"]},
     {title:"Set up the project repo", status:"completed", priority:"medium", emoji:"🎯", tags:["build"]}
   ];
   samples.forEach(s=>{
@@ -857,6 +912,7 @@ function seedIfEmpty(){
 }
 
 function makeTask(overrides){
+  const now = nowISO();
   const base = {
     id: uid(),
     title:"Untitled task",
@@ -871,11 +927,14 @@ function makeTask(overrides){
     links:[],
     nextAction:"",
     pinned:false,
-    favorite:false,
     order: Date.now(),
-    history:[{ts:nowISO(), text:"Created"}],
-    created: nowISO(),
-    edited: nowISO()
+    history:[{ts:now, text:"Created"}],
+    created: now,
+    edited: now,
+    createdAt: now,
+    updatedAt: now,
+    completedAt: null,
+    previousStatus: null
   };
   return Object.assign(base, overrides);
 }
@@ -1094,6 +1153,7 @@ function renderCard(t){
   const progressPct = totalCount ? Math.round(doneCount/totalCount*100) : 0;
 
   const overdue = t.dueDate && t.dueDate < todayStr() && t.status!=="completed";
+  const dateLabel = t.status!=="completed" ? getDateLabel(t.dueDate) : "";
 
   card.innerHTML = `
     <div class="card-top">
@@ -1103,7 +1163,7 @@ function renderCard(t){
     </div>
     ${t.tags && t.tags.length ? `<div class="card-tags">${t.tags.map(tag=>`<span class="tag-chip">${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
     <div class="card-meta">
-      ${t.dueDate ? `<span class="due ${overdue?'overdue':''}">📅 ${formatDate(t.dueDate)}</span>` : ""}
+      ${dateLabel ? `<span class="due ${overdue?'overdue':''}">📅 ${dateLabel}</span>` : ""}
       ${totalCount ? `<span>☑ ${doneCount}/${totalCount}</span>` : ""}
     </div>
     ${totalCount ? `<div class="card-progress"><div class="mini-bar"><div class="mini-bar-fill" style="width:${progressPct}%"></div></div></div>` : ""}
@@ -1111,33 +1171,94 @@ function renderCard(t){
   return card;
 }
 
-function moveTaskToStatus(taskId, status){
+/* ============================================================
+   DATE INTELLIGENCE (v2.1) — subtle, read-only labels.
+   Never changes a task's status based on its due date.
+   ============================================================ */
+function getDateLabel(dueDate){
+  if(!dueDate) return "";
+  const today = new Date(todayStr()+"T00:00:00");
+  const due = new Date(dueDate+"T00:00:00");
+  const diffDays = Math.round((due-today)/86400000);
+  if(diffDays < 0) return `Overdue · ${Math.abs(diffDays)}d`;
+  if(diffDays === 0) return "Due today";
+  if(diffDays === 1) return "Due tomorrow";
+  if(diffDays <= 7) return "Due this week";
+  return formatDate(dueDate);
+}
+
+/* ============================================================
+   TASK STATE ENGINE (v2.1)
+   Handles: predictable moves, automatic completion, reopening
+   back to the previous active status, and a gentle (skippable)
+   Next Action prompt on Backlog -> Ready Next. Never blocks a
+   move, never auto-completes from checklist progress.
+   ============================================================ */
+function moveTaskToStatus(taskId, status, customToastMsg){
   const t = data.tasks.find(x=>x.id===taskId);
   if(!t || t.status===status) return;
   const prevStatus = t.status;
+  const prevCompletedAt = t.completedAt;
+  const prevPreviousStatus = t.previousStatus;
+  const wasCompleted = prevStatus === "completed";
+  const nowBecomingCompleted = status === "completed";
+
   t.status = status;
   t.order = Date.now();
   t.edited = nowISO();
-  t.history.push({ts:nowISO(), text:`Moved to ${labelForStatus(status)}`});
+  t.updatedAt = t.edited;
+
+  let feedbackMsg = customToastMsg || `Moved to ${labelForStatus(status)}.`;
+
+  if(nowBecomingCompleted){
+    t.previousStatus = prevStatus;
+    t.completedAt = nowISO();
+    t.history.push({ts:nowISO(), text:"Completed"});
+    feedbackMsg = customToastMsg || "Moved to Completed";
+  } else if(wasCompleted){
+    t.completedAt = null;
+    t.history.push({ts:nowISO(), text:`Reopened → ${labelForStatus(status)}`});
+    feedbackMsg = customToastMsg || "Task reopened";
+  } else {
+    t.history.push({ts:nowISO(), text:`Moved to ${labelForStatus(status)}`});
+  }
+
   save();
   renderBoard();
   if(currentView==="dashboard") renderDashboard();
-  toastWithUndo(`Moved to ${labelForStatus(status)}.`, ()=>{
+
+  toastWithUndo(feedbackMsg, ()=>{
     const tt = data.tasks.find(x=>x.id===taskId);
     if(tt){
-      tt.status = prevStatus; tt.edited = nowISO();
+      tt.status = prevStatus; tt.edited = nowISO(); tt.updatedAt = tt.edited;
+      tt.completedAt = prevCompletedAt; tt.previousStatus = prevPreviousStatus;
       tt.history.push({ts:nowISO(), text:`Moved back to ${labelForStatus(prevStatus)}`});
       save(); renderBoard(); if(currentView==="dashboard") renderDashboard();
       toast("Move undone.");
     }
   });
+
+  // Gentle Next Action prompt: only for Backlog -> Ready Next, only if empty,
+  // and only once per real move (this code path only runs on an actual move).
+  if(prevStatus==="backlog" && status==="ready" && !t.nextAction){
+    promptNextAction(t.id);
+  }
+}
+
+/* Explicit reopen — used by the panel's "Reopen" pill.
+   Restores previousStatus, or falls back to In Progress. */
+function reopenTask(taskId){
+  const t = data.tasks.find(x=>x.id===taskId);
+  if(!t || t.status!=="completed") return;
+  moveTaskToStatus(taskId, t.previousStatus || "progress");
+  if(activeTaskId===taskId) openTaskPanel(taskId);
 }
 
 function labelForStatus(id){ const c = COLUMNS.find(c=>c.id===id); return c ? c.title : id; }
 
 function updateNavCounts(){
   document.getElementById("nav-count-kanban").textContent = data.tasks.filter(t=>t.status!=="completed").length;
-  document.getElementById("nav-count-archive").textContent = (data.archived||[]).length || archivedTasks().length;
+  document.getElementById("nav-count-archive").textContent = archivedTasks().length;
 }
 function archivedTasks(){ return data.tasks.filter(t=>t.archived); }
 
@@ -1170,11 +1291,15 @@ function openTaskPanel(id, focusTitle){
   document.getElementById("panel-title").value = t.title;
   document.getElementById("panel-desc").value = t.description||"";
   document.getElementById("panel-emoji-select").value = t.emoji||"";
+  document.getElementById("panel-emoji-select").classList.add("hidden");
+  document.getElementById("panel-emoji-toggle").textContent = t.emoji || "＋";
+  document.getElementById("panel-emoji-toggle").title = t.emoji ? "Change icon" : "Add an icon (optional)";
   statusSelect.value = t.status;
   document.getElementById("panel-due").value = t.dueDate||"";
   document.getElementById("panel-notes").value = t.notes||"";
   document.getElementById("panel-next-action").value = t.nextAction||"";
   document.getElementById("panel-pin-btn").style.color = t.pinned ? "var(--amber)" : "";
+  document.getElementById("panel-reopen-btn").classList.toggle("hidden", t.status!=="completed");
   setPriorityPills(t.priority);
   renderTags(t);
   renderChecklist(t);
@@ -1203,6 +1328,7 @@ function getActiveTask(){ return data.tasks.find(t=>t.id===activeTaskId); }
 
 function touchTask(t, note){
   t.edited = nowISO();
+  t.updatedAt = t.edited;
   if(note) t.history.push({ts:nowISO(), text:note});
   document.getElementById("panel-edited").textContent = "Edited " + timeAgo(t.edited);
   save();
@@ -1229,14 +1355,26 @@ document.getElementById("panel-next-action").addEventListener("input", (e)=>{
 document.getElementById("panel-due").addEventListener("change", (e)=>{
   const t=getActiveTask(); if(!t) return; t.dueDate = e.target.value; touchTask(t,"Due date set"); updateCardInPlace(t);
 });
+document.getElementById("panel-emoji-toggle").addEventListener("click", (e)=>{
+  const sel = document.getElementById("panel-emoji-select");
+  sel.classList.toggle("hidden");
+  if(!sel.classList.contains("hidden")) sel.focus();
+});
 document.getElementById("panel-emoji-select").addEventListener("change",(e)=>{
-  const t=getActiveTask(); if(!t) return; t.emoji = e.target.value; touchTask(t); updateCardInPlace(t);
+  const t=getActiveTask(); if(!t) return;
+  t.emoji = e.target.value; touchTask(t); updateCardInPlace(t);
+  document.getElementById("panel-emoji-toggle").textContent = t.emoji || "＋";
+  e.target.classList.add("hidden");
 });
 statusSelect.addEventListener("change",(e)=>{
   const t=getActiveTask(); if(!t) return;
-  t.status = e.target.value; t.order = Date.now();
-  touchTask(t, "Status changed to "+labelForStatus(t.status));
-  renderBoard();
+  const newStatus = e.target.value;
+  moveTaskToStatus(t.id, newStatus);
+  openTaskPanel(t.id); // refresh panel fields (completedAt, Reopen pill, history) in place
+});
+document.getElementById("panel-reopen-btn").addEventListener("click", ()=>{
+  const t = getActiveTask(); if(!t) return;
+  reopenTask(t.id);
 });
 document.getElementById("panel-pin-btn").addEventListener("click",(e)=>{
   const t=getActiveTask(); if(!t) return;
@@ -1285,18 +1423,79 @@ function renderTags(t){
     wrap.insertBefore(chip, input);
   });
 }
+
+/* ============================================================
+   TAGS — autocomplete + case-insensitive dedupe (v2.4)
+   Suggests tags already used elsewhere so "design" / "Design" /
+   "desgin" don't quietly become three separate tags over time.
+   ============================================================ */
+function getAllTags(){
+  const seen = new Map(); // lowercase -> first-seen casing
+  data.tasks.forEach(ts=>{
+    (ts.tags||[]).forEach(tag=>{
+      const key = tag.toLowerCase();
+      if(!seen.has(key)) seen.set(key, tag);
+    });
+  });
+  return Array.from(seen.values()).sort((a,b)=>a.localeCompare(b));
+}
+
+function addTagToTask(t, rawVal){
+  const val = (rawVal||"").trim();
+  if(!val) return;
+  t.tags = t.tags || [];
+  const alreadyOnTask = t.tags.some(x=>x.toLowerCase()===val.toLowerCase());
+  if(alreadyOnTask) return;
+  // Prefer the casing already established elsewhere, if this tag exists anywhere else
+  const canonical = getAllTags().find(tag=>tag.toLowerCase()===val.toLowerCase());
+  const finalTag = canonical || val;
+  t.tags.push(finalTag);
+  touchTask(t, "Tag added: "+finalTag);
+  renderTags(t);
+  updateCardInPlace(t);
+}
+
+function updateTagSuggestions(t){
+  const input = document.getElementById("panel-tag-input");
+  const listEl = document.getElementById("tag-suggest");
+  const q = input.value.trim().toLowerCase();
+  const existing = new Set((t.tags||[]).map(x=>x.toLowerCase()));
+  const matches = getAllTags().filter(tag=> !existing.has(tag.toLowerCase()) && (q==="" || tag.toLowerCase().includes(q)));
+  if(matches.length===0){ listEl.classList.remove("show"); listEl.innerHTML=""; return; }
+  listEl.innerHTML = matches.slice(0,8).map(tag=>`<div class="tag-suggest-item" data-tag="${escapeAttr(tag)}">${escapeHtml(tag)}</div>`).join("");
+  listEl.classList.add("show");
+  listEl.querySelectorAll(".tag-suggest-item").forEach(item=>{
+    // mousedown (not click) so this fires before the input's blur hides the list
+    item.addEventListener("mousedown",(e)=>{
+      e.preventDefault();
+      addTagToTask(t, item.dataset.tag);
+      input.value = "";
+      listEl.classList.remove("show");
+      listEl.innerHTML = "";
+      input.focus();
+    });
+  });
+}
+
+document.getElementById("panel-tag-input").addEventListener("focus", ()=>{
+  const t = getActiveTask(); if(t) updateTagSuggestions(t);
+});
+document.getElementById("panel-tag-input").addEventListener("input", ()=>{
+  const t = getActiveTask(); if(t) updateTagSuggestions(t);
+});
+document.getElementById("panel-tag-input").addEventListener("blur", ()=>{
+  setTimeout(()=>{
+    document.getElementById("tag-suggest").classList.remove("show");
+  }, 120); // short delay so a suggestion click (mousedown) still registers first
+});
 document.getElementById("panel-tag-input").addEventListener("keydown",(e)=>{
   if(e.key==="Enter"){
     const t = getActiveTask(); if(!t) return;
-    const val = e.target.value.trim();
-    if(val){
-      t.tags = t.tags || [];
-      if(!t.tags.includes(val)) t.tags.push(val);
-      touchTask(t,"Tag added: "+val);
-      e.target.value = "";
-      renderTags(t);
-      updateCardInPlace(t);
-    }
+    addTagToTask(t, e.target.value);
+    e.target.value = "";
+    document.getElementById("tag-suggest").classList.remove("show");
+  } else if(e.key==="Escape"){
+    document.getElementById("tag-suggest").classList.remove("show");
   }
 });
 
@@ -1322,12 +1521,11 @@ function renderChecklist(t){
       touchTask(t,"Checklist item "+(ci.done?"completed":"reopened"));
       updateChecklistProgress(t);
       updateCardInPlace(t);
+      if(ci.done) maybeAutoStartTask(t);
+      maybeAutoCompleteTask(t);
     });
     row.querySelector(".ci-text").addEventListener("input",(e)=>{
       ci.text = e.target.value; touchTask(t);
-    });
-    row.querySelector(".ci-text").addEventListener("keydown",(e)=>{
-      if(e.key===" " && e.target === document.activeElement && e.shiftKey){ /* allow spaces normally */ }
     });
     row.querySelector(".ci-del").addEventListener("click",()=>{
       t.checklist = t.checklist.filter(x=>x.id!==ci.id);
@@ -1357,6 +1555,43 @@ function updateChecklistProgress(t){
   const done = (t.checklist||[]).filter(c=>c.done).length;
   document.getElementById("checklist-count").textContent = `${done} / ${total}`;
   document.getElementById("checklist-bar").style.width = total ? (done/total*100)+"%" : "0%";
+}
+
+/* ============================================================
+   CHECKLIST AUTO-START (v2.4)
+   The first checklist item checked signals "I've started this" —
+   mirrors the auto-completion pattern at the other end. Only fires
+   from the pre-active statuses (Inbox/Backlog/Ready Next); never
+   overrides Paused or Completed, and never fires on a task with
+   no checklist (this only runs from the checkbox handler).
+   ============================================================ */
+function maybeAutoStartTask(t){
+  if(!["inbox","backlog","ready"].includes(t.status)) return;
+  const items = t.checklist || [];
+  const doneCount = items.filter(c=>c.done).length;
+  if(doneCount !== 1) return; // only the transition into "first item done"
+  if(items.length === 1) return; // single-item checklist: let auto-complete handle it directly
+  moveTaskToStatus(t.id, "progress", "Moved to In Progress");
+  if(activeTaskId === t.id) openTaskPanel(t.id);
+}
+
+/* ============================================================
+   CHECKLIST AUTO-COMPLETION
+   Reuses the existing moveTaskToStatus() completion flow — the
+   same function already used by manual completion and drag-into-
+   Completed — so all three paths produce identical task state.
+   Rule 1: needs at least one checklist item.
+   Rule 5: no-op if the task is already Completed (prevents
+   duplicate completedAt / history entries on repeated toggles).
+   ============================================================ */
+function maybeAutoCompleteTask(t){
+  const items = t.checklist || [];
+  if(items.length === 0) return;
+  if(t.status === "completed") return;
+  const allDone = items.every(c=>c.done);
+  if(!allDone) return;
+  moveTaskToStatus(t.id, "completed", "✓ All steps complete · Moved to Completed");
+  if(activeTaskId === t.id) openTaskPanel(t.id);
 }
 document.getElementById("add-ci-input").addEventListener("keydown",(e)=>{
   if(e.key==="Enter"){
@@ -1475,6 +1710,47 @@ quickAddInput.addEventListener("keydown",(e)=>{
 });
 
 /* ============================================================
+   NEXT ACTION PROMPT (v2.1)
+   Gentle, skippable. Never blocks the move that triggered it —
+   by the time this shows, moveTaskToStatus has already saved
+   and rendered the move. This only ever adds context on top.
+   ============================================================ */
+const naPromptOverlay = document.getElementById("na-prompt-overlay");
+const naPromptInput = document.getElementById("na-prompt-input");
+let naPromptTaskId = null;
+
+function promptNextAction(taskId){
+  naPromptTaskId = taskId;
+  naPromptInput.value = "";
+  naPromptOverlay.classList.add("show");
+  setTimeout(()=>naPromptInput.focus(), 60);
+}
+function closeNaPrompt(){
+  naPromptOverlay.classList.remove("show");
+  naPromptTaskId = null;
+}
+naPromptOverlay.addEventListener("click",(e)=>{ if(e.target===naPromptOverlay) closeNaPrompt(); });
+naPromptInput.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter") saveNaPrompt();
+  else if(e.key==="Escape") closeNaPrompt();
+});
+document.getElementById("na-prompt-save").addEventListener("click", saveNaPrompt);
+document.getElementById("na-prompt-skip").addEventListener("click", closeNaPrompt);
+function saveNaPrompt(){
+  const val = naPromptInput.value.trim();
+  const t = data.tasks.find(x=>x.id===naPromptTaskId);
+  if(t && val){
+    t.nextAction = val;
+    t.updatedAt = nowISO();
+    t.history.push({ts:nowISO(), text:"Next action added"});
+    save();
+    if(activeTaskId===t.id) document.getElementById("panel-next-action").value = val;
+    toast("Next action saved.");
+  }
+  closeNaPrompt();
+}
+
+/* ============================================================
    DASHBOARD
    ============================================================ */
 function renderDashboard(){
@@ -1482,10 +1758,21 @@ function renderDashboard(){
   const active = data.tasks.filter(t=>!t.archived);
   const dueToday = active.filter(t=>t.dueDate===today && t.status!=="completed");
   const overdue = active.filter(t=>t.dueDate && t.dueDate < today && t.status!=="completed");
-  const waiting = active.filter(t=>t.status==="waiting");
+  const paused = active.filter(t=>t.status==="paused");
   const inProgress = active.filter(t=>t.status==="progress");
   const completedToday = active.filter(t=>t.status==="completed" && t.edited && t.edited.slice(0,10)===today);
-  const focus = active.filter(t=>t.nextAction && t.status!=="completed").slice(0,6);
+  const focus = active.filter(t=>t.nextAction && t.status!=="completed");
+
+  // "Today" merges Overdue + Due Today + Focus (next action set) into one
+  // prioritized list — overdue first, then due today, then anything with
+  // a next action queued up. Deduped so a task never appears twice.
+  const todaySeen = new Set();
+  const todayList = [];
+  [...overdue, ...dueToday, ...focus].forEach(t=>{
+    if(todaySeen.has(t.id)) return;
+    todaySeen.add(t.id);
+    todayList.push(t);
+  });
 
   const totalRelevant = active.filter(t=>t.status!=="completed").length + completedToday.length;
   const pct = totalRelevant ? Math.round(completedToday.length/Math.max(totalRelevant,1)*100) : 0;
@@ -1499,19 +1786,31 @@ function renderDashboard(){
   document.getElementById("dash-date").textContent = new Date().toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"});
   document.getElementById("dash-motto").textContent = MOTTOS[new Date().getDate() % MOTTOS.length];
 
-  fillDashList("dash-focus", focus, "🎯 Nothing to focus on — add a Next Action to a task.");
-  fillDashList("dash-due", dueToday, "🌤️ Nothing due today.");
-  fillDashList("dash-waiting", waiting, "🍃 You're not waiting on anyone.");
+  fillDashList("dash-today", todayList, "☀️ Nothing pressing today — a calm one.", {
+    tagFn: (t)=>{
+      const isOverdue = t.dueDate && t.dueDate < today && t.status!=="completed";
+      if(isOverdue) return getDateLabel(t.dueDate);
+      if(t.dueDate===today) return "Due today";
+      if(t.nextAction) return "Next: " + t.nextAction;
+      return "";
+    }
+  });
   fillDashList("dash-progress", inProgress, "🏃 Nothing in motion.");
+  fillDashList("dash-paused", paused, "🍃 Nothing paused right now.");
   fillDashList("dash-completed", completedToday, "🌸 Finish something today.");
-  fillDashList("dash-overdue", overdue, "☀️ Nothing overdue.");
 }
-function fillDashList(elId, list, emptyMsg){
+function fillDashList(elId, list, emptyMsg, opts){
+  opts = opts || {};
   const el = document.getElementById(elId);
   if(!list.length){ el.innerHTML = `<div class="dash-empty">${emptyMsg}</div>`; return; }
   el.innerHTML = list.map(t=>{
     const color = t.priority==="high" ? "var(--danger)" : t.priority==="medium" ? "var(--amber)" : "var(--sage)";
-    return `<div class="dash-task-row" data-id="${t.id}"><span class="dot" style="background:${color}"></span>${escapeHtml(t.title)}</div>`;
+    const tag = opts.tagFn ? opts.tagFn(t) : "";
+    return `<div class="dash-task-row" data-id="${t.id}">
+      <span class="dot" style="background:${color}"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(t.title)}</span>
+      ${tag ? `<span style="font-size:10.5px;color:var(--ink-faint);flex-shrink:0;margin-left:8px;">${escapeHtml(tag)}</span>` : ""}
+    </div>`;
   }).join("");
   el.querySelectorAll(".dash-task-row").forEach(row=>{
     row.addEventListener("click", ()=>{ setView("kanban"); setTimeout(()=>openTaskPanel(row.dataset.id),50); });
@@ -1713,7 +2012,8 @@ document.addEventListener("keydown", (e)=>{
   const typing = tag==="input" || tag==="textarea" || tag==="select";
 
   if(e.key==="Escape"){
-    if(quickAddOverlay.classList.contains("show")) closeQuickAdd();
+    if(naPromptOverlay.classList.contains("show")) closeNaPrompt();
+    else if(quickAddOverlay.classList.contains("show")) closeQuickAdd();
     else if(panel.classList.contains("show")) closeTaskPanel();
     return;
   }
