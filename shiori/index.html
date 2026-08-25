@@ -1200,6 +1200,7 @@ function moveTaskToStatus(taskId, status, customToastMsg){
   const prevStatus = t.status;
   const prevCompletedAt = t.completedAt;
   const prevPreviousStatus = t.previousStatus;
+  const prevDueDate = t.dueDate;
   const wasCompleted = prevStatus === "completed";
   const nowBecomingCompleted = status === "completed";
 
@@ -1209,6 +1210,7 @@ function moveTaskToStatus(taskId, status, customToastMsg){
   t.updatedAt = t.edited;
 
   let feedbackMsg = customToastMsg || `Moved to ${labelForStatus(status)}.`;
+  let dueDateCleared = false;
 
   if(nowBecomingCompleted){
     t.previousStatus = prevStatus;
@@ -1219,6 +1221,15 @@ function moveTaskToStatus(taskId, status, customToastMsg){
     t.completedAt = null;
     t.history.push({ts:nowISO(), text:`Reopened → ${labelForStatus(status)}`});
     feedbackMsg = customToastMsg || "Task reopened";
+
+    // A due date that had already passed while the task sat Completed is
+    // stale, not useful — clear it (never touch a blank/today/future date,
+    // and never auto-assign a new date; that's the user's call to make).
+    if(t.dueDate && t.dueDate < todayStr()){
+      t.dueDate = "";
+      t.history.push({ts:nowISO(), text:"Due date cleared (was overdue)"});
+      dueDateCleared = true;
+    }
   } else {
     t.history.push({ts:nowISO(), text:`Moved to ${labelForStatus(status)}`});
   }
@@ -1227,11 +1238,14 @@ function moveTaskToStatus(taskId, status, customToastMsg){
   renderBoard();
   if(currentView==="dashboard") renderDashboard();
 
+  if(dueDateCleared) feedbackMsg += " · overdue date cleared";
+
   toastWithUndo(feedbackMsg, ()=>{
     const tt = data.tasks.find(x=>x.id===taskId);
     if(tt){
       tt.status = prevStatus; tt.edited = nowISO(); tt.updatedAt = tt.edited;
       tt.completedAt = prevCompletedAt; tt.previousStatus = prevPreviousStatus;
+      tt.dueDate = prevDueDate;
       tt.history.push({ts:nowISO(), text:`Moved back to ${labelForStatus(prevStatus)}`});
       save(); renderBoard(); if(currentView==="dashboard") renderDashboard();
       toast("Move undone.");
