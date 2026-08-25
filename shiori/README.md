@@ -33,7 +33,7 @@ There's no login, no server, no account, no sync service quietly farming your da
 **Smart lifecycle** — Shiori quietly handles task housekeeping so you don't have to
 - Checking a task's first checklist item moves it to In Progress automatically
 - Checking the last checklist item moves it to Completed automatically, with a `completedAt` timestamp
-- Reopening a Completed task restores it to wherever it actually was before — never dumped back to Inbox
+- Reopening a Completed task restores it to wherever it actually was before — never dumped back to Inbox — and clears its due date only if that date had genuinely lapsed while it sat Completed; a blank, today, or future date is left untouched
 - A lightweight history log on every task records what changed and when (created, moved, completed, reopened, checklist/priority/due date changes)
 - All of this is undo-able and never blocks a manual move — automation only ever saves clicks, it doesn't take away control
 **Task panel**
@@ -92,7 +92,7 @@ Your data stays entirely in that browser's local storage. If you switch browsers
  
 ## Versions
  
-Shiori has grown along two tracks: an early **visual/UX line** (v1–v4) that shaped the design language, and a **Smart Flow line** (v2.1–v2.4) that picked up from v4 and taught the app to understand a task's lifecycle — without ever redesigning it.
+Shiori has grown along two tracks: an early **visual/UX line** (v1–v4) that shaped the design language, and a **Smart Flow line** (v2.1–v2.5) that picked up from v4 and taught the app to understand a task's lifecycle — without ever redesigning it.
  
 **Visual / UX line**
  
@@ -110,9 +110,10 @@ Shiori has grown along two tracks: an early **visual/UX line** (v1–v4) that sh
 | v2.1 | Task state engine — reliable status lifecycle, `completedAt`/`previousStatus` tracking, subtle date labels, a lightweight history log, a gentle Next Action prompt, and safe migration for old saved data |
 | v2.2 | Checklist auto-completion — checking a task's last checklist item automatically completes it, reusing the same completion path as a manual complete or a drag into Completed |
 | v2.3 | Simplification pass — merged Waiting + On Hold into one Paused column, dropped the unused `favorite` field, collapsed the emoji picker behind a small toggle, and condensed the dashboard from six cards to four |
-| **v2.4** | **Current.** Checking a task's *first* checklist item now moves it to In Progress automatically; tags gained autocomplete with case-insensitive matching so near-duplicate tags don't quietly pile up |
+| v2.4 | Checking a task's *first* checklist item now moves it to In Progress automatically; tags gained autocomplete with case-insensitive matching so near-duplicate tags don't quietly pile up |
+| **v2.5** | **Current.** Reopening a Completed task now clears its due date, but only if that date had genuinely passed while it sat Completed — a blank, today, or future due date is never touched. The stale "Overdue" label no longer reappears the instant you reopen something |
  
-Earlier versions are kept in the repo as complete, working snapshots of each stage. `index.html` is the one to actually use.
+Earlier versions are kept in the repo as complete, working snapshots of each stage. `shiori-v2.5.html` is the one to actually use.
  
 Across every version, the throughline has stayed the same: make the same small tool feel calmer, clearer, and a little smarter under the hood — never louder, never more complicated on the surface.
  
