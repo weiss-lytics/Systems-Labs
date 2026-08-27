@@ -18,15 +18,17 @@ But faster generation doesn't automatically mean better software.
 
 Without clear requirements and an iterative process, AI can easily:
 
-* misunderstand the intended user experience
-* introduce unnecessary complexity
-* overwrite working functionality
-* add dependencies that aren't needed
-* make too many changes at once
-* solve the wrong problem
-* produce code that looks correct but doesn't behave correctly
+- misunderstand the intended user experience
+- introduce unnecessary complexity
+- overwrite working functionality
+- add dependencies that aren't needed
+- make too many changes at once
+- solve the wrong problem
+- produce code that looks correct but doesn't behave correctly
 
-This playbook is my attempt to document the practices that have worked well through hands-on experimentation and building small applications with AI.
+This playbook documents practices that have worked well through hands-on experimentation and building small applications with AI.
+
+> **Note:** This methodology is optimized for small applications, prototypes, experiments, and personal tools. It is not intended to replace the engineering practices required for large-scale production systems.
 
 ---
 
@@ -36,17 +38,19 @@ My general process is:
 
 **Idea → Refine → Design → Build → Validate → Iterate**
 
+---
+
 ### 01 · Brain-dump the idea
 
 Start with the problem rather than the technology.
 
 Write down:
 
-* What problem are you solving?
-* Who is the user?
-* What should the tool accomplish?
-* What does the ideal workflow look like?
-* What constraints matter?
+- What problem are you solving?
+- Who is the user?
+- What should the tool accomplish?
+- What does the ideal workflow look like?
+- What constraints matter?
 
 Don't worry about writing a perfect prompt yet.
 
@@ -60,13 +64,13 @@ Use an AI assistant to turn rough notes into structured requirements.
 
 Ask it to help clarify:
 
-* the goal
-* target users
-* core features
-* user flow
-* edge cases
-* technical constraints
-* possible implementation approaches
+- the goal
+- target users
+- core features
+- user flow
+- edge cases
+- technical constraints
+- possible implementation approaches
 
 The AI can help organize the thinking before it starts generating code.
 
@@ -89,9 +93,46 @@ Project
 ├── Technical Constraints
 ├── Functionality Rules
 └── Output Requirements
-```
+````
 
 For more complex applications, ask the AI to briefly explain the proposed architecture before implementation.
+
+---
+
+## 🎯 Control Feature Scope
+
+Before building, separate features into:
+
+| Priority         | Purpose                                     |
+| ---------------- | ------------------------------------------- |
+| **Must Have**    | Required for the core workflow              |
+| **Nice to Have** | Improves the experience but isn't essential |
+| **Future**       | Interesting ideas for later iterations      |
+
+This prevents AI-assisted projects from expanding beyond their original purpose.
+
+A prototype should solve **one main problem well** before additional features are introduced.
+
+For example:
+
+```text
+Must Have
+- Timezone conversion
+- Multiple participants
+- Meeting overlap detection
+
+Nice to Have
+- Theme toggle
+- Animations
+- Additional visualizations
+
+Future
+- Calendar export
+- Meeting link generation
+- Calendar integrations
+```
+
+Keeping a clear boundary around the first version makes both development and troubleshooting easier.
 
 ---
 
@@ -153,6 +194,13 @@ Ask:
 * What feels confusing?
 * What should be simplified?
 
+Check for:
+
+* console errors
+* broken layouts
+* incorrect logic
+* unexpected behavior
+
 For small prototypes, a quick hands-on review can reveal more than another long prompt.
 
 ---
@@ -186,6 +234,12 @@ Test
    ↓
 Repeat
 ```
+
+A practical rule:
+
+> **Make one or a few related changes, then test.**
+
+This makes it easier to identify what caused a regression.
 
 ---
 
@@ -357,11 +411,16 @@ V1 → Core functionality
 V2 → UI improvements
 V3 → UX improvements
 V4 → Additional features
+V5 → Optimization
 ```
 
 Get the core workflow working first.
 
 Then improve it.
+
+Feature scope and layered development work together:
+
+> **Scope determines what belongs in the current version. Layers determine how you improve it.**
 
 ---
 
@@ -369,11 +428,15 @@ Then improve it.
 
 When troubleshooting an existing application, avoid changing everything at once.
 
-A practical rule:
+Instead:
 
-> **Make one or a few related changes, then test.**
+1. Identify the issue.
+2. Define the desired change.
+3. Make a small change.
+4. Test it.
+5. Continue only after the result is understood.
 
-This makes it easier to identify what caused a regression.
+This makes debugging easier and reduces regressions.
 
 ---
 
@@ -472,9 +535,19 @@ This can help reduce unnecessary regressions.
 
 ---
 
-# 🏗️ AI + Technical Judgment
+## Know When AI Is Wrong
 
 AI-generated code should be treated as a **proposed implementation**, not automatically correct.
+
+If the output behaves unexpectedly, don't continue prompting blindly.
+
+Stop and inspect:
+
+* What was requested?
+* What did the AI actually implement?
+* What changed?
+* What evidence do you have?
+* Is the proposed solution actually appropriate?
 
 A useful mindset is:
 
@@ -490,13 +563,19 @@ I question
 I decide
 ```
 
+---
+
+# 🏗️ AI + Technical Judgment
+
 AI can help with:
 
 * exploration
+* requirements refinement
 * implementation
 * debugging
 * refactoring
 * UX ideas
+* architecture exploration
 * documentation
 * code review
 
@@ -508,6 +587,7 @@ But the person building the system still needs to decide:
 * Does the behavior match the requirements?
 * Are there privacy or security concerns?
 * Should this feature exist at all?
+* Is the AI's proposed solution actually the right one?
 
 > **AI accelerates development. It doesn't replace technical judgment.**
 
@@ -628,7 +708,7 @@ The specific tool matters less than the workflow.
 
 # 📚 Recommended Workflow
 
-For a new project:
+## For a new project
 
 ```text
 Idea
@@ -636,6 +716,8 @@ Idea
 Brain Dump
  ↓
 Requirements
+ ↓
+Feature Scope
  ↓
 User Flow
  ↓
@@ -656,7 +738,7 @@ Validate
 Share
 ```
 
-For an existing project:
+## For an existing project
 
 ```text
 Analyze Current State
