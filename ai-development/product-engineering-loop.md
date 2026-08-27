@@ -1,8 +1,8 @@
-# 🌸 Weiss Product Engineering Loop
+# 🌸 Product Engineering Loop
 
 > **From idea → system → prototype → product.**
 
-The **Weiss Product Engineering Loop** is my personal framework for turning ideas, problems, and observations into usable digital products.
+The **Product Engineering Loop** is my personal framework for turning ideas, problems, and observations into usable digital products.
 
 It evolved from a traditional **design → development → deployment** workflow into a more iterative process that combines:
 
@@ -632,7 +632,7 @@ That is the loop.
 
 # 📚 Related Documentation
 
-* **[AI-Assisted Development Playbook](https://github.com/weiss-lytics/Systems-Labs/blob/main/ai-development/README.md)**
+* **[AI-Assisted Development Playbook](https://github.com/weiss-lytics/Systems-Labs/blob/main/ai-development/ai-assisted-development-playbook.md)**
   Practical guidance for prompting, AI-assisted prototyping, iterative development, troubleshooting, and AI code review.
 
 * **[Systems Lab](https://github.com/weiss-lytics/Systems-Labs)**
