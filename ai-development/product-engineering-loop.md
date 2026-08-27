@@ -632,7 +632,7 @@ That is the loop.
 
 # 📚 Related Documentation
 
-* **[AI-Assisted Development Playbook](../ai-assisted-development-playbook/)**
+* **[AI-Assisted Development Playbook](https://github.com/weiss-lytics/Systems-Labs/blob/main/ai-development/README.md)**
   Practical guidance for prompting, AI-assisted prototyping, iterative development, troubleshooting, and AI code review.
 
 * **[Systems Lab](https://github.com/weiss-lytics/Systems-Labs)**
