@@ -40,17 +40,18 @@ Twine helps you quickly find the best overlapping meeting time across multiple t
 - 📋 One-click copy of the agreed time across everyone's local timezone
 - ♿ Accessible by default — semantic HTML, ARIA roles, visible focus states
 
-## Tech Stack
+### Tech Stack
 
-Built with:
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
+![Dependencies](https://img.shields.io/badge/Dependencies-0-success)
+![Offline](https://img.shields.io/badge/Offline-100%25-blue)
+![API](https://img.shields.io/badge/API-Native_Intl-purple)
 
-- HTML
-- CSS
-- Vanilla JavaScript
-- Browser `Intl` API
-- IANA Timezone Database (via the browser, not a bundled library)
+* **Frontend:** HTML5, CSS3 (Custom Properties, Flexbox, Grid)
+* **Logic & Data:** Vanilla JavaScript (ES6+), Native Browser `Intl` API
+* **Architecture:** Zero-dependency, single-file HTML, 100% offline-first
 
-No frameworks. No build tools. No external dependencies. No APIs. No CDNs. Just the browser — open the HTML file and it works completely offline.
+> **Zero Overhead:** No frameworks. No build tools. No external dependencies. No CDNs. Open the `index.html` file in any browser and it works immediately.
 
 ## Technical Challenges
 
