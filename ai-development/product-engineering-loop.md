@@ -230,7 +230,7 @@ The important distinction is that AI generates suggestions and implementations.
 
 For more detail, see:
 
-**[AI-Assisted Development Playbook](../ai-assisted-development-playbook/)**
+**[AI-Assisted Development Playbook](https://github.com/weiss-lytics/Systems-Labs/blob/main/ai-development/ai-assisted-development-playbook.md)**
 
 ---
 
