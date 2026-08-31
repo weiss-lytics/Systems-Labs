@@ -25,8 +25,8 @@ This project is documented across three connected pieces — read in this order 
 
 | | File | What it shows |
 |---|---|---|
-| **1** | [`kiri-wireframes.html`](./kiri-wireframes.html) | Low-fidelity wireframes with embedded design rationale — the *why* behind every screen, before any real UI existed |
-| **2** | [`kiri-prototype.html`](./kiri-prototype.html) | A clickable, stateful prototype — the *how it actually works*, built to test the flow on real devices |
+| **1** | [`wireframes.html`](./wireframes.html) | Low-fidelity wireframes with embedded design rationale — the *why* behind every screen, before any real UI existed |
+| **2** | [`prototype.html`](./prototype.html) | A clickable, stateful prototype — the *how it actually works*, built to test the flow on real devices |
 | **3** | This README | The *what and why* — problem, process, and roadmap, tying the other two together |
 
 Each file is fully self-contained (open it directly in a browser, no install needed) — so a recruiter or hiring manager can click through the actual thinking and the actual product in under five minutes.
