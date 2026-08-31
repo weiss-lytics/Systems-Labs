@@ -6,8 +6,8 @@ Kiri is a personal ideation tool that turns messy, stream-of-consciousness notes
 
 > *"A beautiful place where ideas go to grow up."*
 
-📱 **[Try the interactive prototype →](./kiri-prototype.html)**
-📐 **[View the wireframes & design rationale →](./kiri-wireframes.html)**
+📱 **[Try the interactive prototype →](https://github.com/weiss-lytics/Systems-Labs/blob/main/kiri/prototype.html)**
+📐 **[View the wireframes & design rationale →](https://github.com/weiss-lytics/Systems-Labs/blob/main/kiri/wireframes.html)**
 
 <!--
   📸 ADD HERO SCREENSHOT OR GIF HERE
