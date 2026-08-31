@@ -2,6 +2,11 @@
 
 **A calm kanban workspace for busy minds.**
 
+<p align="center">
+  <img src="assets/haru-banner.svg" alt="Haru Banner" width="100%">
+</p>
+
+
 Haru is a soft, minimal productivity app built for people who need structure without overwhelm. Five workflow columns, a built-in Pomodoro timer, a Today's Focus panel, and smart nudges — all in a single HTML file that works entirely offline.
 
 No accounts. No backend. No dependencies. Just open it and work.
