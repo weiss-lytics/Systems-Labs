@@ -388,15 +388,15 @@ If you're new to this folder, start here:
 
 ### 🧭 Want to understand my overall approach?
 
-→ [`product-engineering-loop.md`](./ai-development/product-engineering-loop.md)
+→ [product-engineering-loop.md](./product-engineering-loop.md)
 
 ### 🤖 Want to understand how I use AI while building?
 
-→ [`ai-assisted-development-playbook.md`](./ai-development/ai-assisted-development-playbook.md)
+→ [ai-assisted-development-playbook.md](./ai-assisted-development-playbook.md)
 
 ### 🧩 Want practical prompts and templates?
 
-→ [`ai-prompt-patterns.md`](./ai-development/ai-prompt-patterns.md)
+→ [ai-prompt-patterns.md](./ai-prompt-patterns.md)
 
 ---
 
