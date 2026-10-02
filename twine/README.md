@@ -9,7 +9,7 @@ A lightweight timezone meeting planner built with HTML, CSS, and Vanilla JavaScr
 ---
 
 <p align="center">
-  <img src="assets/twine_github_hero_banner.svg" alt="Twine Banner" width="100%">
+  <img src="assets/twine_banner.svg" alt="Twine Banner" width="100%">
 </p>
 
 ## The Problem
