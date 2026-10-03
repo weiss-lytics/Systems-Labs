@@ -1,217 +1,197 @@
-# Testing & Verification
+# Testing & Verification 
 
-This is a record of what was actually checked in Twine's timezone and scoring logic, not a claim of full automated test coverage. There's no CI pipeline here — this is a single-file offline app — so verification was done by extracting the live `<script>` block and running it directly in Node against known-correct real-world timezone facts.
+This is a record of what was actually checked in Twine V4's timezone and scoring logic, not a claim of full automated test coverage. There's no CI pipeline here — this is a single-file offline app — so verification was done by extracting the live code from `index.html` and running it directly in Node against known-correct real-world timezone facts.
 
-The goal of this doc is to make the verification reproducible: every result below can be re-run by pulling the script out of `twine.html` and executing the snippets shown.
+Every result below was **re-run against the V4 file** (Node 22). Results from earlier versions were not carried over on trust.
+
+## How to reproduce
+
+The timezone, city and scoring logic sits between two comment markers in `twine-v4.html`:
+
+```
+/* ==== LOGIC:START ... */
+/* ==== LOGIC:END ==== */
+```
+
+Pull that block out, wrap it in `new Function(...)`, return the functions you want (`plan`, `zoned`, `mins`, `offMs`, `offLabel`, `grade`, `ALL`, `extra`, `norm`), and call them. To make results repeatable, stub `Date.now` to a fixed date (the planner never suggests the past). Page behavior was driven in `jsdom` with `matchMedia` and `scrollIntoView` stubbed.
 
 ---
 
 ## 1. DST offset correctness
 
-**Method:** `getTzOffsetMinutes(tz, date)` computes the live UTC offset for a given IANA timezone on a given date by diffing `date.toLocaleString` rendered in UTC vs. the target timezone. This was tested directly against dates that straddle known DST boundaries.
+Offsets come from `offMs()`, which asks the browser for the target zone's wall-clock at the real instant. Sampled at 12:00 UTC on each date.
 
-| Case | Timezone | Date | Expected offset (minutes) | Result |
+| Case | Timezone | Date | Expected (min) | Result |
 |---|---|---|---|---|
 | Winter (EST) | `America/New_York` | Jan 15, 2026 | −300 | ✅ −300 |
 | Summer (EDT) | `America/New_York` | Jul 15, 2026 | −240 | ✅ −240 |
 | Winter (GMT) | `Europe/London` | Jan 15, 2026 | 0 | ✅ 0 |
 | Summer (BST) | `Europe/London` | Jul 15, 2026 | +60 | ✅ +60 |
-| Pre-fallback (EDT) | `America/New_York` | Nov 1, 2026 | −240 | ✅ −240 |
 | Post-fallback (EST) | `America/New_York` | Nov 8, 2026 | −300 | ✅ −300 |
+| Fall-back day | `America/New_York` | Nov 1, 2026 | −240 before 2 AM, −300 after | ✅ see note |
 
+**Note on Nov 1:** the first pass expected −240 for the whole day and got −300 at 12:00 UTC. The test was wrong, not the app. Clocks fall back at 2:00 AM local (06:00 UTC), so the offset is correct only for the moment you ask about. Re-checked by time of day: −240 at 00:00 and 05:00 UTC, −300 at 06:00, 07:00 and 12:00 UTC. ✅
 
+## 2. The DST "gap window"
 
-## 2. The DST "gap window" (the case that breaks naive implementations)
-
-The US and most of Europe both observe DST, but they don't switch on the same date — the US springs forward roughly 2–3 weeks before Europe does. During that window, the usual 5-hour New York ↔ London gap temporarily becomes 4 hours. A naive implementation that hardcodes "NY is always 5 hours behind London" gets this wrong for those weeks every single year.
-
-**Test:** scheduled a 9:00 AM meeting in New York on March 15, 2026 (after the US switch, before the EU switch) and checked the resulting London time.
-
-```
-NY offset on Mar 15:        -240  (EDT, correctly already in DST)
-Meeting slot in UTC:        2026-03-15T13:00:00.000Z
-London local time:           780 minutes  →  13:00 (1:00 PM)
-
-Expected: 9am EDT = 1pm GMT = 13:00. Got: 13:00. ✅
-```
-
-This works because the app never special-cases "US" or "Europe" — it asks each city's specific IANA identifier for its live offset on that exact date, every time.
-
-
-
-## 3. Southern Hemisphere reversed-season DST
-
-Sydney's DST runs opposite the Northern Hemisphere — summer (DST on) is December–March, not June–September.
+The US and most of Europe both observe DST but switch on different dates, so for a few weeks the usual 5-hour New York ↔ London gap becomes 4 hours.
 
 ```
-Sydney, January 15, 2026 (DST on):   +660 min  (UTC+11)  ✅
-Sydney, July 15, 2026 (DST off):     +600 min  (UTC+10)  ✅
+9:00 AM New York, Mar 15, 2026
+Slot in UTC:           2026-03-15T13:00:00.000Z
+NY offset:             -240  (EDT, already in DST)
+London local minutes:  780  →  1:00 PM        ✅ (expected 13:00)
+
+Same 9:00 AM New York on Apr 15 (both in DST):  London 2:00 PM  ✅ (5-hour gap restored)
 ```
 
+The app never special-cases "US" or "Europe". It asks each city's own IANA identifier for its live offset on that exact date.
 
-
-## 4. Mexico's 2022 DST abolition + the Tijuana exception
-
-Mexico abolished nationwide DST in October 2022. Most Mexican cities now sit on a fixed offset year-round. The one exception is Baja California (Tijuana), which still follows DST in sync with US Pacific Time, specifically to stay aligned with cross-border business in California.
+## 3. Southern Hemisphere DST
 
 ```
-America/Mexico_City  | winter: -360 | summer: -360 | changes? false   ✅ (no DST, as expected)
+Sydney, Jan 15, 2026 (DST on):   +660 min (UTC+11)  ✅
+Sydney, Jul 15, 2026 (DST off):  +600 min (UTC+10)  ✅
+```
+
+Sydney's DST runs October to April.
+
+## 4. 23-hour and 25-hour days (new in V4 checks)
+
+The planner finds the owner's real local midnight-to-midnight window, then steps in 30-minute slots.
+
+| Zone | Date | Real day length | Slots offered |
+|---|---|---|---|
+| New York | Mar 8, 2026 (spring forward) | 23 h | 46 ✅ |
+| New York | Nov 1, 2026 (fall back) | 25 h | 50 ✅ |
+| New York | Jun 10, 2026 (normal) | 24 h | 48 ✅ |
+| London | Mar 29 / Oct 25, 2026 | 23 h / 25 h | ✅ |
+| Sydney | Oct 4, 2026 (DST starts) | 23 h | 46 ✅ |
+| Sydney | Apr 5, 2026 (DST ends) | 25 h | 50 ✅ |
+| Kathmandu | Jun 1, 2026 | 24 h | ✅ |
+
+Wall-clock → instant → wall-clock round trips were also checked for 10 zones × 8 dates (including DST days, Lord Howe's 30-minute shift, and Tehran). No mismatches outside the skipped hour itself.
+
+## 5. Mexico's 2022 DST abolition + the Tijuana exception
+
+```
+America/Mexico_City  | winter: -360 | summer: -360 | changes? false   ✅
 America/Monterrey    | winter: -360 | summer: -360 | changes? false   ✅
 America/Cancun       | winter: -300 | summer: -300 | changes? false   ✅
-America/Tijuana      | winter: -480 | summer: -420 | changes? true    ✅ (correctly the one exception)
+America/Tijuana      | winter: -480 | summer: -420 | changes? true    ✅ (the exception)
 ```
 
-This was cross-checked against current sourcing on Mexico's DST law and the Baja California carve-out before being accepted as correct (see conversation log; Wikipedia and multiple current news sources agree on both points).
+In V4, Mexico City is in the curated list. Tijuana, Monterrey and Cancún are reachable through **Search all time zones** (searching "tijuana" finds it ✅).
 
+## 6. Search correctness
 
+Search normalizes both the query and the data (Unicode NFD, diacritics stripped) before matching.
 
-## 5. Search correctness with accented city names
+| Search | Result |
+|---|---|
+| `sao paulo` | ✅ Brazil — São Paulo |
+| `bogota` | ✅ Colombia — Bogotá |
+| `Zürich` | ✅ Switzerland — Zurich |
+| `delhi` | ✅ India — Mumbai (keyword alias) |
+| `rangoon` | ✅ Myanmar — Yangon |
+| `saigon` | ✅ Vietnam — Ho Chi Minh City |
+| `kathmandu` | ✅ Nepal — Kathmandu |
+| `cordoba`, `asuncion`, `cancun`, `tijuana` | ✅ found under *Search all time zones* (named after their IANA identifier) |
+| `male`, `hagatna` | ❌ no results. These cities aren't in V4's lists. Their zones are named `Indian/Maldives` and `Pacific/Guam`, and `maldives` and `guam` both work ✅ |
 
-**Bug found and fixed during verification:** 13 cities in the database have accented characters in their names (São Paulo, Bogotá, Córdoba, Malé, Asunción, Hagåtña, and others). The original search implementation did a plain `.toLowerCase().includes()` comparison, which meant typing the most natural, plain-ASCII version of these names — e.g. "sao paulo" — returned **zero results**, because the stored data has the accented form.
-
-**Fix:** added `normalizeForSearch()`, which strips diacritics via Unicode NFD normalization before comparing, applied to both the search query and the city/country/label fields at match time.
-
-**Before fix:**
-```
-search('sao paulo')  →  []        ❌ no match
-```
-
-**After fix:**
-```
-search('sao paulo')  →  ['Brazil — São Paulo']      ✅
-search('bogota')     →  ['Colombia — Bogotá']        ✅
-search('cordoba')    →  ['Argentina — Córdoba']      ✅
-search('hagatna')    →  ['Guam — Hagåtña']            ✅
-search('asuncion')   →  ['Paraguay — Asunción']       ✅
-search('male')       →  ['Maldives — Malé']           ✅
-search('cancun')     →  ['Mexico — Cancún']           ✅
-```
-
-
-
-## 6. Data integrity checks on the city database
-
-Run once after expanding the database from 83 to 344 cities, to catch transcription errors before they ship.
+## 7. Data integrity
 
 | Check | Result |
 |---|---|
-| Every IANA timezone string resolves via `Intl.DateTimeFormat` | ✅ 344/344 valid, 0 invalid |
-| Duplicate `(city, timezone)` pairs | ✅ 0 found |
-| Region/city counts match expected structure | ✅ Asia 96, Europe 82, Americas 80, Africa 61, Oceania 25 |
+| Every curated IANA zone resolves via `Intl.DateTimeFormat` | ✅ 93/93 valid, 0 invalid |
+| Duplicate `(city, timezone)` pairs | ✅ 0 |
+| Additional zones from `Intl.supportedValuesOf` (all-zones search) | ✅ 326 in the test engine, all valid |
+| Curated region counts | Asia 27, Europe 24, Americas 26, Africa & Middle East 10, Pacific 6 (= 93) |
 
+If your own timezone isn't in the curated list, the picker adds a "Your city" entry for it.
 
+## 8. Multi-participant scheduling
 
-## 7. Functional regression checks
+Method: take the exact instant the scoring engine picks, then recompute each participant's local time with a **second, independent converter** (`toLocaleString`, sharing no code with the app) and compare. Every participant-time below matched.
 
-Run after each visual/branding revision (v2 → v4) to confirm UI polish passes didn't silently break the underlying logic. Executed by extracting the `<script>` block and running it in Node with a minimal stubbed DOM.
+| Scenario | Picks | Participant-times compared | Match |
+|---|---|---|---|
+| Manila + New York, London, Sydney (Jul 15, 2026) | 3 | 12 | ✅ |
+| Manila + New York, London, Sydney, São Paulo (Jul 15, 2026) | 3 | 15 | ✅ |
+| UTC + Tokyo, LA, Cairo, Mumbai-zone, Buenos Aires, Auckland, Dubai (Dec 15, 2026) | 3 | 24 | ✅ |
+| New York + London on US spring-forward day (Mar 8, 2026) | 3 | 6 | ✅ |
+| New York + London on fall-back day (Nov 1, 2026) | 3 | 6 | ✅ |
+| Sydney + Kathmandu + New York on Sydney DST start (Oct 4, 2026) | 3 | 9 | ✅ |
+| Yangon + Kathmandu + Kolkata (Jun 10, 2026) | 3 | 9 | ✅ |
 
-| Check | Result |
-|---|---|
-| `init()` populates greeting, time, date, and city on load | ✅ |
-| Adding participants increases the participant list correctly | ✅ |
-| Removing a participant by id removes exactly that one | ✅ |
-| `findMeetings()` produces a non-empty results render | ✅ |
-| Results include the hero recommendation card | ✅ |
-| Results include the outcome banner (perfect / good options) | ✅ |
-| Theme toggle flips `data-theme` and syncs `aria-checked` | ✅ |
-| City database remains at 344 entries after each revision | ✅ |
+What the ratings did:
 
-**Note on methodology:** the first pass at the "remove participant" test appeared to fail (count stayed at 3 instead of dropping to 2). Investigation showed this was a flaw in the test harness, not the app — `removeParticipant()` reassigns the module-level `participants` array rather than mutating it in place, and the test had destructured a stale reference to the array *before* calling the function. Re-tested with a live getter (`() => participants.length`) instead of a destructured snapshot, and the function behaved correctly (3 → 2). Recorded here because "the first test result was wrong" is a more honest account than only showing the passing version.
+- **Sydney + New York + London + Manila:** no time is ideal for all four. The best pick was labeled "Works for most" and the other two "Someone's compromising", with Sydney landing at 11 PM. Twine did not claim a perfect match.
+- **Kathmandu and Yangon:** picks land on :15 and :45 local times (for example 7:15 AM and 10:45 AM in Kathmandu), as expected for non-hour offsets. Yangon, Kathmandu and Kolkata line up as +6:30, +5:45 and +5:30.
+- **New York + London on both US transition days:** every pick was rated "Ideal for everyone", with the correct 4-hour (Mar 8) and 5-hour (Nov 1) gap.
+- Picks are always at least 90 minutes apart and ordered by score. A date in the past returns no picks, and a same-day search never returns times earlier than "now".
 
+## 9. Broader DST sweep (18 zones)
 
+| Timezone | Winter (Jan) | Summer (Jul) |
+|---|---|---|
+| `America/New_York` | −300 | −240 |
+| `America/Los_Angeles` | −480 | −420 |
+| `Europe/London` | 0 | +60 |
+| `Europe/Berlin` | +60 | +120 |
+| `Australia/Sydney` (reversed) | +660 | +600 |
+| `Pacific/Auckland` (reversed) | +780 | +720 |
+| `America/Mexico_City` | −360 | −360 |
+| `America/Tijuana` | −480 | −420 |
+| `Asia/Tokyo` | +540 | +540 |
+| `Asia/Kolkata` | +330 | +330 |
+| `Asia/Kathmandu` | +345 | +345 |
+| `Asia/Yangon` | +390 | +390 |
+| `Asia/Dubai` | +240 | +240 |
+| `Africa/Cairo` (DST reinstated 2023) | +120 | +180 |
+| `Africa/Johannesburg` | +120 | +120 |
+| `America/Sao_Paulo` | −180 | −180 |
+| `America/Argentina/Buenos_Aires` | −180 | −180 |
+| `America/Santiago` (reversed) | −180 | −240 |
 
-## 8. Clipboard copy fix
+All 18 ✅. Values come straight from the browser's timezone database, so rule changes (like Egypt's 2023 reinstatement) need no code changes.
 
-**Bug found via user report (screenshot evidence):** the "Copy times for everyone" button returned "Copy failed" consistently. Root cause: `navigator.clipboard.writeText()` — the modern Clipboard API — only works in a secure context (HTTPS, or non-sandboxed pages). Sandboxed iframes and `file://` pages can both block it, and the original code had no fallback.
+## 10. Page behavior (49 checks, in a simulated browser)
 
-**Fix:** `doCopy()` now tries the modern API first, and falls back to the legacy `document.execCommand('copy')` approach (via a temporary off-screen textarea) if the modern API is missing or rejects.
+City picker open, search, arrow-key navigation, Escape, focus return, and "search all zones"; add and remove participants; presets and custom hours switching to "Custom"; validation errors; calculating; choosing an alternative (focus stays on it); copy summary; light/dark theme; the "no time left" message for a past date; a result staying stable if you change your own location afterward; inputs labelled; buttons named; one `<h1>`; no network or storage APIs in the file.
+
+### Clipboard (copy summary)
 
 | Scenario | Result |
 |---|---|
-| No Clipboard API at all (matches the reported bug exactly) | ✅ Falls back, copies successfully |
-| Clipboard API present, works normally | ✅ Uses it directly |
-| Clipboard API present but denies permission | ✅ Falls back, copies successfully |
+| No Clipboard API at all | ✅ falls back to `execCommand('copy')`, shows "Copied!" |
+| Clipboard API works | ✅ uses it directly |
+| Clipboard API denies permission | ✅ falls back, shows "Copied!" |
 
-Verified in Node by overriding `navigator` via `Object.defineProperty` (a plain `global.navigator = {...}` doesn't work for this on modern Node, since Node 21+ ships its own non-configurable built-in `navigator` — a good reminder that the test environment can have its own quirks worth checking before trusting a result).
+The fallback is the safety net for `file://` and sandboxed pages.
 
+## 11. Accessibility measurements
 
+Contrast ratios computed from the actual colors:
 
-## 9. Broader DST sweep across 17 countries
+| Pair | Light | Dark |
+|---|---|---|
+| Muted text on card | 5.76:1 | 6.18:1 |
+| Muted text on soft panel | 4.71:1 | 4.90:1 |
+| White text on accent button | 5.86:1 | 5.22:1 |
+| Focus ring on card | 5.82:1 | 6.67:1 |
 
-Extended the original DST checks (US, UK, Mexico, Australia) to a wider, more representative spread before shipping: DST-observing, reversed-season DST, no-DST, recently-changed rules, and half/quarter-hour offsets.
+Two contrast gaps relative to V3 were found and fixed: light-mode muted text (4.27:1 → 5.76:1) and dark-mode accent text (3.0:1, now uses the lighter lilac).
 
-| Timezone | Country/region | Winter (Jan) | Summer (Jul) |
-|---|---|---|---|
-| `America/New_York` | USA (East) | −300 | −240 |
-| `America/Los_Angeles` | USA (West) | −480 | −420 |
-| `Europe/London` | UK | 0 | +60 |
-| `Europe/Berlin` | Germany | +60 | +120 |
-| `Australia/Sydney` | Australia (reversed DST) | +660 | +600 |
-| `Pacific/Auckland` | New Zealand (reversed DST) | +780 | +720 |
-| `America/Mexico_City` | Mexico (no DST since 2022) | −360 | −360 |
-| `America/Tijuana` | Mexico border zone (DST exception) | −480 | −420 |
-| `Asia/Tokyo` | Japan (no DST) | +540 | +540 |
-| `Asia/Kolkata` | India (no DST, UTC+5:30) | +330 | +330 |
-| `Asia/Kathmandu` | Nepal (UTC+5:45, no DST) | +345 | +345 |
-| `Asia/Dubai` | UAE (no DST) | +240 | +240 |
-| `Africa/Cairo` | Egypt | +120 | +180 |
-| `Africa/Johannesburg` | South Africa (no DST) | +120 | +120 |
-| `America/Sao_Paulo` | Brazil (abolished DST 2019) | −180 | −180 |
-| `America/Argentina/Buenos_Aires` | Argentina (no DST) | −180 | −180 |
-| `America/Santiago` | Chile (still observes DST, reversed) | −180 | −240 |
+## Known issues
 
-All 17 ✅.
-
-**Worth recording honestly:** my first pass at this table had Egypt marked as a failure, because I assumed Egypt had no DST and expected +120 year-round. The app returned +180 in July. Rather than "fixing" the app to match my assumption, I searched for current information first — Egypt reinstated DST in 2023 (last Friday of April through last Thursday of October) after a seven-year hiatus, confirmed via Wikipedia and multiple 2024–2025 news sources. The app's output was correct; my hardcoded expectation was stale. This is precisely the scenario the whole architecture is built to handle without code changes — the browser's IANA timezone database already knew about Egypt's 2023 law change, Twine didn't need to.
-
-
-
-## 10. Multi-participant scheduling (3, 5, and 8 people across 5 continents)
-
-This checks the question that actually matters for real use: when you add several participants at once, is the recommended time — and every individual local time shown alongside it — still correct?
-
-**Method:** rather than scraping rendered HTML text (fragile and easy to misread), the test hooks directly into `findMeetings()`'s internal `picks` array to capture the exact `slotUtc` instant the scoring engine selected, then independently recomputes each participant's local time from that instant using a **second, completely independent time converter** (built from `Intl.DateTimeFormat` with no shared code with the app), and compares the two.
-
-**3-person check** (Manila owner + New York, London, Sydney, July 2026):
-
-| City | App's stored time | Independent calc | Match |
-|---|---|---|---|
-| Manila (owner) | 7:00 PM | 7:00 PM | ✅ |
-| New York | 7:00 AM | 7:00 AM | ✅ |
-| London | 12:00 PM | 12:00 PM | ✅ |
-| Sydney | 9:00 PM | 9:00 PM | ✅ |
-
-**5-person check** (Manila owner + New York, London, Sydney, São Paulo — deliberately includes Sydney, which is on the opposite side of the clock from the other four):
-
-| City | App's stored time | Independent calc | Match |
-|---|---|---|---|
-| Manila (owner) | 1:00 PM | 1:00 PM | ✅ |
-| New York | 9:00 AM | 9:00 AM | ✅ |
-| London | 2:00 PM | 2:00 PM | ✅ |
-| Sydney | 11:00 PM | 11:00 PM | ✅ |
-| São Paulo | 10:00 AM | 10:00 AM | ✅ |
-
-With 5 people spanning 5 continents and no slot where everyone is in their preferred hours, the scoring engine correctly identified the best achievable compromise (3 "great," 1 "ok," 1 "bad" — Sydney unavoidably lands at 11pm given the other four all want daytime hours roughly 12+ hours away) and the UI correctly labeled it "Twine found a few good options" rather than falsely claiming a perfect match.
-
-**8-person check** (UTC owner + Tokyo, Los Angeles, Cairo, Mumbai, Buenos Aires, Auckland, Dubai, December 2026 — chosen specifically because December puts Northern Hemisphere DST-observers in winter and Southern Hemisphere DST-observers in summer simultaneously):
-
-All 8 participants (owner + 7) matched exactly between the app's internal scoring data and the independent converter. ✅
-
-**Worth recording honestly — this took several attempts to verify properly, and the mistakes were instructive:**
-
-1. My first attempt manually set `ownerTz` to a city without the simulated system clock actually matching it. In a real browser this combination is impossible — `ownerTz` is always auto-detected *from* the system clock — so the test was checking a state the app can never actually be in. Result: a false mismatch.
-2. After fixing that, I still got mismatches on 3 of 7 cities. Tracing it down: `new Date(year, month, day)` builds a timestamp at midnight in whatever timezone the *test process* considers local, and I'd set that process timezone independently of how I was computing offsets elsewhere in my own verification snippet — accidentally applying the same timezone shift twice in my hand-written check, not in the app.
-3. Separately, my test was setting the meeting date *before* calling the app's `init()` — but `init()` calls `setToday()`, which unconditionally resets the date field to today's date. My chosen test date was being silently overwritten. (This loudly revealed itself once I logged the actual `slotUtc` the app picked and saw it was the wrong month entirely.)
-
-None of these three were bugs in `twine.html` — they were all artifacts of test setup order and environment state. I'm recording the debugging path rather than just the final green checkmarks because "I tested it and it passed" is a much weaker claim than "I tested it, found three ways my test itself could lie to me, fixed each one, and it still passed."
+- **Zones that switch DST at local midnight (e.g. Havana, Santiago):** if your own location is one of these and you plan on exactly the spring-forward day (Mar 8, 2026 for Havana; Sep 6, 2026 for Santiago), the "day" is computed starting at 11:00 PM the previous evening, because local midnight doesn't exist that day. It shifts the timeline's starting edge by an hour on those two days only. Found during V4 verification; this logic is inherited unchanged from V3, so it has not been fixed.
+- **A nonexistent clock time** (for example 2:30 AM New York on Mar 8) resolves to an hour earlier (1:30 AM) rather than an hour later. This doesn't affect recommendations, because slots are stepped in real elapsed time, not typed in as wall-clock times.
 
 ## What's *not* covered
 
-Being direct about the gap, since a verification doc that only lists passes isn't very useful:
-
-- No visual regression testing (screenshots were spot-checked manually during development, not diffed automatically)
-- No cross-browser testing beyond the dev environment's rendering engine
-- No automated test suite lives in the repo — everything above was run ad hoc in Node against the extracted script and is documented here for reproducibility, not wired into CI
-- Comfort scoring thresholds (7am–10pm "workable" window) are a reasonable default, not user-validated against real scheduling preferences
-- Tested up to 8 simultaneous participants; not tested at larger scale (20+), though nothing in the algorithm's design suggests it would behave differently — it's an O(n) scan per 30-minute slot regardless of participant count
-- Did not test mid-DST-transition dates themselves (the exact day clocks change) — only dates clearly before/after a transition
+- No visual regression testing and no real-device or real-browser testing. The page was tested in a simulated browser (jsdom), not in Safari, Chrome or Firefox. Open it in each before relying on it.
+- No automated test suite lives in the repo. Everything above was run ad hoc against the extracted code and is documented for reproducibility, not wired into CI.
+- Comfort scoring thresholds (7 AM–10 PM "workable" window) are a reasonable default, not user-validated.
+- Tested up to 8 simultaneous participants; not tested at 20+.
+- The original `meet-v2.html` was not available during the V4 conversion, so V4's logic was verified on its own terms and was not diffed against that file.
