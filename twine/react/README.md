@@ -7,7 +7,7 @@ Twine is a little timezone planner that answers one question:
 > **When can we comfortably meet?**
 
 <p align="center">
-  <img src="assets/twine_banner.svg" alt="Twine Banner" width="100%">
+  <img src="../assets/twine_banner.svg" alt="Twine Banner" width="100%">
 </p>
 
 Add where everyone is, tell Twine when you work best, and it finds the moment that feels good for the most people. No spreadsheets, no UTC maths, no daylight-saving worries.
@@ -71,7 +71,7 @@ Twine runs entirely in your browser.
 
 ## Run it
 
-Twine is a single React component: [`src/Twine.jsx`](https://www.google.com/search?q=src/Twine.jsx). Its only dependency is React itself.
+Twine is a single React component: [`Twine.jsx`](https://github.com/weiss-lytics/Systems-Labs/blob/main/twine/react/twine.jsx). Its only dependency is React itself.
 
 ```bash
 npm install
